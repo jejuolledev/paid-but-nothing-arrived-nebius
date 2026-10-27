@@ -32,7 +32,8 @@ class _Completions:
     @staticmethod
     def _intake(text: str) -> dict:
         phs = re.findall(r"EMAIL_\d+", text)
-        sender = phs[0] if phs else None
+        m = re.search(r"(?:paid (?:[^.]{0,30} )?with|I am|I'm|this is|my email is|account is)\s+(EMAIL_\d+)", text, re.I)
+        sender = m.group(1) if m else (phs[0] if phs else None)
         orders = re.findall(r"ord_\d{4}", text)
         plan = []
         if sender:
@@ -40,8 +41,8 @@ class _Completions:
                      {"tool": "find_payments", "args": {"email": sender}, "why": "who paid at the payment provider"},
                      {"tool": "order_for_payment", "args": {"payment_id": "FROM_PAYMENTS"}, "why": "the order behind that payment"}]
         plan.append({"tool": "order_journey", "args": {"order_id": orders[0] if orders else "BEST_ORDER"}, "why": "full history"})
-        return {"sender": sender, "other_people": phs[1:], "order_ids": orders, "foreign_order_ids": [],
-                "amount": None, "paid_when": None, "pack": None, "complaint": "not_received", "wants": [],
+        return {"sender": sender, "other_people": [p for p in dict.fromkeys(phs) if p != sender], "order_ids": orders, "foreign_order_ids": [],
+                "amount": ({"value": int(re.sub(r"[, ]", "", a.group(1))), "currency": "KRW"} if (a := re.search(r"(\d{1,3}(?:,\d{3})+) ?won", text)) else None), "paid_when": None, "pack": None, "complaint": "not_received", "wants": [],
                 "language": "ko" if re.search(r"[가-힣]", text) else "en", "plan": plan}
 
 

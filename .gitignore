@@ -17,3 +17,7 @@ docs/demo_duckdb_draft/*.webm
 docs/comic/raw/
 docs/comic/comic*.html
 docs/measurements/*fake*
+docs/video/take*/
+docs/video/parts/
+docs/video/final_nebius.mp4
+docs/video/timeline.json

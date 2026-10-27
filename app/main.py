@@ -159,7 +159,7 @@ def _backend(sid: str):
 
 def _recorded(case: int | None, sid: str):
     """The recorded Token Factory run for an example case — only while this visitor has not changed their data."""
-    if case is None or SANDBOXES.get(sid) is not None:
+    if case is None or not PUBLIC or SANDBOXES.get(sid) is not None:
         return None
     p = PRECOMPUTED / f"case{int(case)}.json"
     if not p.exists():
