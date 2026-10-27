@@ -16,3 +16,4 @@ docs/demo/walkthrough*.webm
 docs/demo_duckdb_draft/*.webm
 docs/comic/raw/
 docs/comic/comic*.html
+docs/measurements/*fake*

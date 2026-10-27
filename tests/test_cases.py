@@ -194,7 +194,7 @@ def test_reply_language_follows_the_page_and_reset_restores_the_bug(monkeypatch)
     from app.main import api_reset  # importing the app loads .env.local; keep this test on the CSVs
     for k in ("ZETARIS_JDBC_URL", "ZETARIS_JDBC_JAR", "ZETARIS_SQL_URL", "ZETARIS_API_KEY"):
         monkeypatch.delenv(k, raising=False)
-    assert api_reset().status_code == 200 and sql_backend._CACHE["backend"] is not old  # fresh data, bugs back
+    assert api_reset(None).status_code == 200 and sql_backend._CACHE["backend"] is not old  # fresh data, bugs back
 
 
 def test_reply_with_masked_placeholders_is_replaced():

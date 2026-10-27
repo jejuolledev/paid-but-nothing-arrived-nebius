@@ -64,6 +64,61 @@ class Aliaser:
         return self.customer if v == "CUSTOMER" else v
 
 
+
+class Scope:
+    """The sender's own trail: their address, payments made by it, and orders that belong to it (by order address
+    or by payer). Lookups outside it are refused, so a crafted message cannot steer a model (loop or plan) into
+    another customer's records. Tool args use "CUSTOMER" for the sender's address."""
+    TOOLS = ("find_orders", "find_payments", "order_for_payment", "order_journey", "related_orders")
+
+    def __init__(self, customer_email: str, tools, seed_order: str = ""):
+        self.cust = (customer_email or "").lower()
+        self.tools = tools
+        self.mine_pay: set[str] = set()
+        self.mine_ord: set[str] = {seed_order} if seed_order else set()  # the seller pasted this order id
+
+    def _addr(self, a):
+        if a.get("email", "CUSTOMER") != "CUSTOMER":
+            raise PermissionError("only CUSTOMER may be looked up")
+        return self.cust
+
+    def _owned_order(self, oid):
+        if oid not in self.mine_ord:
+            raise PermissionError("that order is not on this customer's trail")
+        return oid
+
+    def _pay(self, a):
+        pid = a.get("payment_id", "")
+        if pid not in self.mine_pay:
+            raise PermissionError("that payment was not made by this customer")
+        return pid
+
+    def _note(self, rows):
+        for r in rows:
+            if r.get("ref", "").startswith("payments:") and (r.get("customer_email") or "").lower() == self.cust:
+                self.mine_pay.add(r["payment_id"])
+            if r.get("ref", "").startswith("orders:") and ((r.get("email") or "").lower() == self.cust or r.get("payment_id") in self.mine_pay):
+                self.mine_ord.add(r["order_id"])
+        return rows
+
+    def call(self, name: str, a: dict):
+        t = self.tools
+        if name == "find_orders":
+            if a.get("order_id") and "email" not in a:
+                rows = t.find_orders(order_id=a["order_id"])
+                # an order number only joins the trail if it belongs to the sender (order address or payer)
+                return self._note([r for r in rows if (r.get("email") or "").lower() == self.cust or r.get("payment_id") in self.mine_pay or r["order_id"] in self.mine_ord])
+            return self._note(t.find_orders(email=self._addr(a)))
+        if name == "find_payments":
+            return self._note(t.find_payments(self._addr(a)))
+        if name == "order_for_payment":
+            return self._note(t.order_for_payment(self._pay(a)))
+        if name == "order_journey":
+            return t.order_journey(self._owned_order(a.get("order_id", "")))
+        if name == "related_orders":
+            return self._note(t.related_orders(self._addr(a)))
+        raise KeyError(name)
+
 def meterless_receipt(resp) -> dict | None:
     """Meterless Nightshift attaches a compute receipt to every answer (which model actually ran,
     under which mode). Keep it so the screen can show what ran — None when not routed through Nightshift."""
@@ -87,44 +142,8 @@ def _parse(text: str) -> dict | None:
 def investigate_loop(client, model: str, message: str, customer_email: str, tools, seed_order: str = "") -> dict:
     """Returns {order_id, finding, steps, seen_refs, ok}. `steps` is what the screen and the video show."""
     al = Aliaser(customer_email)
-    cust = (customer_email or "").lower()
-    # The model may only follow the sender's own trail: their address, payments made by it, and
-    # orders that belong to it (by order address or by payer). Anything else is refused, so a
-    # crafted message cannot steer the agent into another customer's records.
-    mine_pay: set[str] = set()
-    mine_ord: set[str] = {seed_order} if seed_order else set()  # the seller pasted this order id
-
-    def _addr(a):
-        if a.get("email", "CUSTOMER") != "CUSTOMER":
-            raise PermissionError("only CUSTOMER may be looked up")
-        return cust
-
-    def _owned_order(oid):
-        if oid not in mine_ord:
-            raise PermissionError("that order is not on this customer's trail")
-        return oid
-
-    def _note(rows):
-        for r in rows:
-            if r.get("ref", "").startswith("payments:") and (r.get("customer_email") or "").lower() == cust:
-                mine_pay.add(r["payment_id"])
-            if r.get("ref", "").startswith("orders:") and ((r.get("email") or "").lower() == cust or r.get("payment_id") in mine_pay):
-                mine_ord.add(r["order_id"])
-        return rows
-
-    def _pay(a):
-        pid = a.get("payment_id", "")
-        if pid not in mine_pay:
-            raise PermissionError("that payment was not made by this customer")
-        return pid
-
-    calls = {
-        "find_orders": lambda a: _note(tools.find_orders(email=_addr(a))),
-        "find_payments": lambda a: _note(tools.find_payments(_addr(a))),
-        "order_for_payment": lambda a: _note(tools.order_for_payment(_pay(a))),
-        "order_journey": lambda a: tools.order_journey(_owned_order(a.get("order_id", ""))),
-        "related_orders": lambda a: _note(tools.related_orders(_addr(a))),
-    }
+    scope = Scope(customer_email, tools, seed_order)
+    calls = {name: (lambda a, n=name: scope.call(n, a)) for name in Scope.TOOLS}
     from .investigator import mask_card_digits
     safe_msg = mask_card_digits(EMAIL_RE.sub(lambda m: al.email(m.group(0)), message[:2000]))
     msgs = [{"role": "system", "content": SYSTEM},
@@ -132,7 +151,7 @@ def investigate_loop(client, model: str, message: str, customer_email: str, tool
     steps, seen, seen_orders = [], set(), set()
     for _ in range(MAX_STEPS):
         t0 = time.time()
-        resp = client.chat.completions.create(model=model, temperature=0.1, messages=msgs, max_tokens=3000, reasoning_effort=os.getenv("LLM_REASONING", "none"))
+        resp = client.chat.completions.create(**({"_role": "loop"} if hasattr(client, "log") else {}), model=model, temperature=0.1, messages=msgs, max_tokens=3000, reasoning_effort=os.getenv("LLM_REASONING", "none"))
         text = resp.choices[0].message.content or ""
         receipt = meterless_receipt(resp)
         act = _parse(text)
@@ -142,7 +161,7 @@ def investigate_loop(client, model: str, message: str, customer_email: str, tool
             continue
         if act.get("done"):
             oid = act.get("order_id", "")
-            ok = oid in mine_ord
+            ok = oid in scope.mine_ord
             steps.append({"thought": act.get("thought", ""), "done": True, "order_id": oid, "ms": int((time.time() - t0) * 1000), "receipt": receipt})
             return {"ok": ok, "order_id": oid if ok else "", "finding": act.get("finding", ""), "steps": steps, "seen_refs": sorted(seen)}
         name, args = act.get("tool", ""), act.get("args", {}) or {}

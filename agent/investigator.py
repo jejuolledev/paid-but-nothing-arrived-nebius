@@ -1,8 +1,9 @@
-"""Investigation loop: locate -> journey -> verify chain -> explain (LLM) -> citation check.
+"""Investigation: read the message (Nemotron) -> run its lookup plan (scoped, read-only) -> journey -> verify chain
+-> explain (Nemotron) -> citation and claim check.
 
-LLM: any OpenAI-compatible endpoint on this machine, normally Meterless Nightshift; Nightshift routes the
-call (in the demo: to NVIDIA Nemotron 3.5 Lightning on NVIDIA's hosted endpoint; local-only is a Nightshift
-setting). Records are masked before they leave the app. If no endpoint is configured the agent still works: the
+LLM: NVIDIA Nemotron on Nebius Token Factory (agent/llm.py; OpenAI-compatible, key in NEBIUS_API_KEY). The older
+local path (Meterless Nightshift on the seller's Mac) still works via NIGHTSHIFT_BASE_URL. Records and addresses
+are masked before they leave the app. If no endpoint is configured the agent still works: the
 deterministic verifier produces the verdict and a template writes the texts, and the
 result is marked `llm: none` so nobody mistakes a template for a model.
 """
@@ -42,6 +43,19 @@ def _nightshift_key() -> str:
 
 
 def _client():
+    """(client, model) — Token Factory when NEBIUS_API_KEY is set (or the labelled fake with LLM_FAKE=1); else the
+    older local path. Every client returned is a TracedClient, so each call is logged with model, time and tokens."""
+    from .llm import token_factory_client, model_for, TracedClient, CallLog, provider_name
+    if os.getenv("NEBIUS_API_KEY") or os.getenv("LLM_FAKE") == "1":
+        c, _ = token_factory_client()
+        return (c, model_for("explain")) if c else (None, None)
+    c, m = _local_client()
+    if c is None:
+        return c, m
+    return TracedClient(c, CallLog(), provider_name(os.getenv("NIGHTSHIFT_BASE_URL") or os.getenv("LLM_BASE_URL"))), m
+
+
+def _local_client():
     base = os.getenv("NIGHTSHIFT_BASE_URL") or os.getenv("LLM_BASE_URL")
     key = os.getenv("NIGHTSHIFT_API_KEY") or (os.getenv("NIGHTSHIFT_BASE_URL") and _nightshift_key()) or os.getenv("LLM_API_KEY") or os.getenv("OPENROUTER_API_KEY")
     if not base and os.getenv("OPENROUTER_API_KEY"):
@@ -422,28 +436,65 @@ def investigate(message: str, email: str = "", order_id: str = "", backend=None,
         trace.append(Trace(step, detail, int((time.time() - t0) * 1000)))
 
     # 1. locate the order (email or order id; fall back to an id mentioned in the message)
+    email_given, order_given = bool(email), bool(order_id)
     if order_id and not re.fullmatch(r"ord_\d{4}", order_id): order_id = ""
     if email and not re.fullmatch(r"[\w.+-]+@[\w-]+(\.[\w-]+)+", email): email = ""
     if not order_id:
         m = re.search(r"ord_\d{4}", message or ""); order_id = m.group(0) if m else ""
     if not email:
         m = re.search(r"[\w.+-]+@[\w-]+(\.[\w-]+)+", message or ""); email = m.group(0) if m else ""
+    client, model = _client() if use_model else (None, None)
+    unreachable = client is None and model == "unreachable"
+    calls = getattr(client, "log", None)
+    if calls is not None:
+        del calls[:]  # this investigation's calls only
+    # 0. with a model: Nemotron reads the message (sender among several addresses, claims, foreign order numbers)
+    #    and plans the lookups. Everything it returns is grounded against the message by code (agent/intake.py).
+    intake, foreign = None, []
+    if client and os.getenv("INTAKE", "1") != "0":
+        from .intake import read_message
+        intake = read_message(client, message or "")
+        mark("intake", "read the message" if intake.get("ok") else f"failed: {intake.get('error', '')}"[:120])
+        g = intake.get("grounded") if intake.get("ok") else None
+        if g:
+            if g.get("sender_email") and not email_given:
+                email = g["sender_email"]
+            foreign = g.get("foreign_order_ids") or []
+            own = [o for o in g.get("order_ids", []) if o not in foreign]
+            if not order_given:
+                order_id = own[0] if own else (order_id if order_id not in foreign else "")
     if not order_id and not email:
-        return {"ok": False, "headline": "Add the order number (ord_0000) or the customer's email to the message.", "trace": [], "backend": db.name}
+        return {"ok": False, "headline": "Add the order number (ord_0000) or the customer's email to the message.", "trace": [asdict(t) for t in trace],
+                "backend": db.name, "intake": _public_intake(intake), "model_calls": list(calls or []), "llm": "none"}
     # The sender's address decides whose records may be read. An order number written in the message is only
     # used if it belongs to that sender (order address or payer address); otherwise it is ignored and said so.
     ignored_order = ""
     if email and order_id and not _order_belongs(tools, order_id, email):
         ignored_order, order_id = order_id, ""
         mark("sender_scope", f"{ignored_order} is not this sender's order — ignored")
+    if not ignored_order and foreign:
+        ignored_order = foreign[0]
+        mark("sender_scope", f"{ignored_order} was asked for on someone else's behalf — not read")
     sender_unverified = bool(order_id and not email)
-    client, model = _client() if use_model else (None, None)
-    unreachable = client is None and model == "unreachable"
     steps, loop_finding = [], ""
     target = None
-    # 1a. with a model: the model decides which records to pull (tools are read-only and scoped to the
+    # 1. the model's plan, run through the sender-scoped read-only tools
+    if intake and intake.get("ok") and email and intake["grounded"].get("plan"):
+        from .agent_loop import Scope
+        from .intake import execute_plan
+        scope = Scope(email, tools, seed_order=order_id or "")
+        ex = execute_plan(intake["grounded"]["plan"], scope, tools, intake.get("mapping", {}))
+        steps = ex["steps"]
+        mark("plan", f"{len(steps)} planned lookup(s), reached {ex['journey_order'] or 'no order'}")
+        if ex["journey_order"]:
+            target = tools.find_orders(order_id=ex["journey_order"])[0]
+        elif ex["orders"]:  # the plan found the sender's orders but its last step was refused or missing: code picks
+            from .intake import best_order
+            target = tools.find_orders(order_id=best_order(ex["orders"]))[0]
+            mark("plan", f"plan stopped early; picked {target['order_id']} from the orders it found")
+    # 1a. no plan result: the model decides lookups turn by turn (tools are read-only and scoped to the
     #     sender's own trail; ids are validated). If the seller pasted an order id, the sender is that order's address.
-    if client and (email or order_id):
+    if target is None and client and (email or order_id) and os.getenv("AGENT_LOOP", "1") != "0":
         try:
             from .agent_loop import investigate_loop
             seed = ""
@@ -453,9 +504,9 @@ def investigate(message: str, email: str = "", order_id: str = "", backend=None,
             elif order_id:
                 seed = order_id
             if email:
-                res = investigate_loop(client, model, message, email, tools, seed_order=seed)
-                steps, loop_finding = res["steps"], res["finding"]
-                mark("agent_loop", f"{len(steps)} step(s), named {res['order_id'] or 'nothing'}")
+                res = investigate_loop(client, model_loop(model), message, email, tools, seed_order=seed)
+                steps, loop_finding = steps + res["steps"], res["finding"]
+                mark("agent_loop", f"{len(res['steps'])} step(s), named {res['order_id'] or 'nothing'}")
                 if res["ok"]:
                     target = tools.find_orders(order_id=res["order_id"])[0]
         except Exception as e:
@@ -472,7 +523,8 @@ def investigate(message: str, email: str = "", order_id: str = "", backend=None,
             mark("order_for_payment", f"{len(orders)} order(s) behind those payments")
         if not orders:
             return {"ok": False, "headline": f"No order or payment found for {order_id or email}. Check the address the customer paid with, or ask for the order number.",
-                    "trace": [asdict(t) for t in trace], "steps": steps, "backend": db.name}
+                    "trace": [asdict(t) for t in trace], "steps": steps, "backend": db.name,
+                    "intake": _public_intake(intake), "model_calls": list(calls or []), "llm": model or "none"}
         # if several orders, investigate the most recent one that is not plainly healthy first
         target = next((o for o in orders if not (o["status"] == "paid" and o["credited"] == "1")), orders[0])
 
@@ -492,7 +544,7 @@ def investigate(message: str, email: str = "", order_id: str = "", backend=None,
             from .agent_loop import _parse
             for attempt in (1, 2):  # the hosted endpoint sometimes times out or returns no JSON; one retry
                 try:
-                    resp = client.chat.completions.create(model=model, temperature=0.2, max_tokens=int(os.getenv("LLM_MAX_TOKENS", "4000")), reasoning_effort=os.getenv("LLM_REASONING", "none"),
+                    resp = client.chat.completions.create(**({"_role": "explain"} if hasattr(client, "log") else {}), model=model, temperature=0.2, max_tokens=int(os.getenv("LLM_MAX_TOKENS", "4000")), reasoning_effort=os.getenv("LLM_REASONING", "none"),
                         messages=[{"role": "system", "content": SYSTEM + lang_note},
                                   {"role": "user", "content": user_payload}])
                     texts = _parse(resp.choices[0].message.content or "")
@@ -536,13 +588,39 @@ def investigate(message: str, email: str = "", order_id: str = "", backend=None,
                  "customer_reply": _template_reply(verdict, lang), "fix_action": verdict.suggested_fix}
         mark("template_texts", {"failed": "model call failed — verifier text used", "unreachable": "no model reachable — verifier text used", "verifier-only": "re-check after a fix — verifier only"}.get(llm_used, "no LLM endpoint configured — verifier text used"))
 
+    rules_only = None
+    if intake and intake.get("ok"):
+        # what the agent would have found without the model reading the message (no model call; same data)
+        ro = investigate(message, email if email_given else "", order_id if order_given else "", backend=db, use_model=False)
+        rules_only = {"ok": ro.get("ok"), "order_id": ro.get("order_id"), "broken": ro.get("broken"), "headline": ro.get("headline"),
+                      "same": ro.get("order_id") == target["order_id"] and ro.get("broken") == verdict.broken}
+    from .compare import compare_claims
+    claims_vs = compare_claims(intake["grounded"] if intake and intake.get("ok") else None, journey, verdict)
     return {"ok": True, "order_id": target["order_id"], "email": target["email"], "headline": verdict.headline,
+            "intake": _public_intake(intake), "claims_vs_records": claims_vs, "rules_only": rules_only,
+            "model_calls": list(calls or []), "provider": getattr(client, "provider", None),
             "ignored_order": ignored_order, "sender_unverified": sender_unverified,
             "chain": [{"name": l.name, "label": LABELS[l.name], "state": l.state, "note": l.note, "refs": l.refs} for l in verdict.links],
             "broken": verdict.broken, "verified": verdict.verified, "unverified": verdict.unverified,
             "explanation": texts["explanation"], "customer_reply": texts["customer_reply"], "fix_action": texts["fix_action"],
             "rows": journey, "trace": [asdict(t) for t in trace], "steps": steps, "queries": tools.sql_log, "receipts": [r for r in receipts if r], "llm": llm_used, "citation_check": citation, "backend": db.name,
             "lang": lang, "elapsed_ms": int((time.time() - t0) * 1000)}
+
+
+def model_loop(default: str) -> str:
+    from .llm import model_for
+    return os.getenv("LLM_MODEL_LOOP") or (model_for("loop") if os.getenv("NEBIUS_API_KEY") else default)
+
+
+def _public_intake(intake: dict | None) -> dict | None:
+    """What the page shows about the intake step. Real addresses are never included: placeholders and masked forms only."""
+    if not intake:
+        return None
+    out = {k: intake.get(k) for k in ("ok", "masked", "placeholders", "model", "error")}
+    g = intake.get("grounded")
+    if g:
+        out["grounded"] = {k: v for k, v in g.items() if k != "sender_email"}
+    return out
 
 
 REPLY_MUST = {None: r"never charged|not charged|no charge|wasn't charged|was not charged|not been charged|in your account|went through|청구되지|이용권",

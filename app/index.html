@@ -51,6 +51,7 @@ details{margin-top:14px}details>summary{cursor:pointer;font-size:18px;font-weigh
 .fix-card{border-color:var(--ok)}.fix-meta{font-size:13px;color:var(--mut);margin:4px 0}.fix-chains{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}@media(max-width:720px){.fix-chains{grid-template-columns:1fr}}
 .fix-chains .panel{border-radius:10px;padding:10px;border:2px solid var(--line)}.fix-chains .panel.before{border-color:var(--bad);background:rgba(255,77,79,.08)}.fix-chains .panel.after{border-color:var(--ok);background:rgba(46,204,113,.08)}
 .fix-chains .panel h3{font-size:13px;margin:0 0 8px;color:var(--mut)}.fix-chains .mini{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}@media(max-width:640px){.fix-chains .mini{grid-template-columns:repeat(2,1fr)}}
+.calls td,.calls th{font-size:12.5px;padding:3px 8px 3px 0;text-align:left;vertical-align:top}.calls{border-collapse:collapse}.banner{border-color:var(--acc);background:rgba(91,141,239,.08)}.res-match{color:var(--ok);font-weight:600}.res-differs{color:var(--bad);font-weight:600}.res-unchecked{color:var(--mut)}.masked{font:12.5px/1.5 ui-monospace,Menlo,monospace;white-space:pre-wrap;background:#0c0e12;border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:6px 0}.drop{color:#f3c969;font-size:12.5px}.fake{color:#f3c969;font-weight:700}
 .fix-chains .mini .link{min-height:64px;padding:6px;font-size:12px;cursor:default}.reply-note{font-size:12px;color:var(--mut);margin:0 0 6px}
 </style></head><body>
 <header>
@@ -104,7 +105,7 @@ const I18N={
   en:{
     title:'Paid, but nothing arrived.',
     subtitle:"When a customer says 'I paid but nothing arrived', this agent checks the payment provider, orders, credits and mail in one pass, shows where the chain broke, and drafts your reply.",
-    sponsors:'Zetaris · Meterless Nightshift · NVIDIA Nemotron',
+    sponsors:'Runs on NVIDIA Nemotron via Nebius Token Factory · the verdict always comes from a rule-based verifier',
     placeholder:'Paste the customer\'s message, e.g. “Hi, I paid for the Standard pack but nothing showed up. Order ord_0901.”',
     go:'Investigate',
     examples:'Try an example message',
@@ -144,7 +145,27 @@ const I18N={
     answeredBy:m=>'Answered by: '+m,
     templateExplain:'Explanation: template (no model connected)',
     failedExplain:'Explanation: verifier text (model call failed twice)',
-    unreachableExplain:'Explanation: verifier text (no model reachable. Start Nightshift, or unset NIGHTSHIFT_BASE_URL to use the templates on purpose)',
+    unreachableExplain:'Explanation: verifier text (no model reachable)',
+    limitedExplain:w=>'No live model run ('+w+'); the verifier answered on its own',
+    intakeTitle:'What Nemotron read in the message',
+    intakeSaw:'What the model was sent (addresses replaced, card digits removed):',
+    sender:'Sender',otherPeople:'Other people in the message',orderNos:'Order numbers',foreignNos:'Asked for on someone else\'s behalf (not read)',amountSaid:'Amount they say they paid',paidWhen:'When',pack:'Pack',complaint:'What went wrong (their words)',wants:'What they want',
+    dropped:'Removed because the message does not say it:',
+    planTitle:'Lookup plan (run read-only, scoped to the sender)',
+    intakeFailed:e=>'The model could not read the message ('+e+'); the rules-only lookup was used.',
+    claimsTitle:'What the customer says vs your records',
+    claimH:['Claim','They say','Your records','Result'],
+    res:{match:'matches',differs:'differs',unchecked:'not checkable'},
+    callsTitle:'Model calls',
+    callsH:['Step','Model','Provider','Time','Tokens in / out'],
+    roles:{intake:'read message + plan',explain:'explain + reply draft',loop:'pick next lookup'},
+    recorded:(when,prov)=>`Recorded live run on ${prov}, ${when}. Same code; shown instantly so you don\'t wait.`,
+    runLive:'Run it live now',
+    sandbox:m=>`Your changes (Approve, Reset) affect only your own copy of the synthetic data and are cleared after ${m} minutes idle.`,
+    fakeNote:'DRY RUN: a scripted stand-in, not a model. Nothing here was written by Nemotron.',
+    planned:'planned by the model',
+    rulesDiff:(h)=>`Without the model reading the message, the rules-only lookup would have answered: “${h}”`,
+    rulesSame:'The rules-only lookup reaches the same order here; the model adds the claims and the plan.',
     recheckExplain:'Re-checked by the verifier after your fix',
     dataZetaris:'Data: Zetaris',
     dataLocal:'Data: local files',
@@ -155,10 +176,10 @@ const I18N={
     howTitle:'How it works',
     how1:'Paste the customer message',
     how1d:'their email is enough',
-    how2:'One SQL door (Zetaris) reads your records',
-    how2d:'payments, orders, credits, logs, mail — read-only, via Zetaris',
-    how3:'The agent investigates',
-    how3d:'Nemotron via Meterless Nightshift picks what to check; emails masked',
+    how2:'Nemotron reads it',
+    how2d:'who is writing, what they claim, what to look up (on Nebius Token Factory; addresses masked)',
+    how3:'Code checks the records',
+    how3d:'payments, orders, credits, logs, mail — read-only; a verifier, not the model, marks the broken link',
     how4:'You approve the fix',
     how4d:'the chain turns green; every fix is logged',
     fixedByYou:'Fixed by you',
@@ -175,7 +196,7 @@ const I18N={
   ko:{
     title:'결제했는데 아무것도 안 왔어요.',
     subtitle:"고객이 '결제했는데 아무것도 안 왔어요'라고 하면, 결제·주문·크레딧·메일을 한 번에 살펴 어디에서 끊겼는지 보여 주고 답장 초안까지 만듭니다.",
-    sponsors:'Zetaris · Meterless Nightshift · NVIDIA Nemotron',
+    sponsors:'Nebius Token Factory의 NVIDIA Nemotron으로 동작 · 판정은 언제나 규칙 기반 검증기가 합니다',
     placeholder:'고객 메시지를 붙여 넣으세요. 예: “스탠다드 팩 결제했는데 아무것도 안 보여요. 주문번호 ord_0901.”',
     go:'조사하기',
     examples:'예시 메시지 써보기',
@@ -215,7 +236,27 @@ const I18N={
     answeredBy:m=>'답변: '+m,
     templateExplain:'설명: 템플릿(연결된 모델 없음)',
     failedExplain:'설명: 검증기 문장(모델 호출 두 번 실패)',
-    unreachableExplain:'설명: 검증기 문장(연결된 모델 없음 — Nightshift를 켜거나 NIGHTSHIFT_BASE_URL을 비우세요)',
+    unreachableExplain:'설명: 검증기 문장(연결된 모델 없음)',
+    limitedExplain:w=>'실시간 모델 실행 없음('+w+') — 검증기만으로 답했습니다',
+    intakeTitle:'Nemotron이 메시지에서 읽은 것',
+    intakeSaw:'모델에 보낸 글(주소는 바꾸고 카드 번호는 지움):',
+    sender:'보낸 사람',otherPeople:'메시지 속 다른 사람',orderNos:'주문번호',foreignNos:'다른 사람 것을 보여 달라고 한 번호(읽지 않음)',amountSaid:'고객이 말한 결제 금액',paidWhen:'언제',pack:'상품',complaint:'무엇이 잘못됐다고 하는지',wants:'원하는 것',
+    dropped:'메시지에 없는 내용이라 뺀 것:',
+    planTitle:'조회 계획(읽기 전용, 보낸 사람 범위 안에서 실행)',
+    intakeFailed:e=>'모델이 메시지를 읽지 못했습니다('+e+'). 규칙만으로 찾았습니다.',
+    claimsTitle:'고객이 말한 것과 기록 비교',
+    claimH:['항목','고객 말','기록','결과'],
+    res:{match:'일치',differs:'다름',unchecked:'확인 불가'},
+    callsTitle:'모델 호출',
+    callsH:['단계','모델','제공처','시간','토큰 입력 / 출력'],
+    roles:{intake:'메시지 읽기 + 계획',explain:'설명 + 답장 초안',loop:'다음 조회 고르기'},
+    recorded:(when,prov)=>`${prov}에서 실제로 돌린 결과를 녹화해 둔 것(${when}). 코드는 같고, 기다리지 않도록 바로 보여 줍니다.`,
+    runLive:'지금 실시간으로 돌리기',
+    sandbox:m=>`승인·되돌리기는 내 사본(합성 데이터)에만 적용되고, ${m}분 동안 쓰지 않으면 지워집니다.`,
+    fakeNote:'시험 실행: 대본으로 만든 가짜 응답이며 모델이 쓴 것이 아닙니다.',
+    planned:'모델이 세운 계획',
+    rulesDiff:(h)=>`모델이 메시지를 읽지 않았다면, 규칙만으로는 이렇게 답했을 것입니다: “${h}”`,
+    rulesSame:'여기서는 규칙만으로도 같은 주문에 닿습니다. 모델은 주장과 조회 계획을 더합니다.',
     recheckExplain:'수정 후 검증기가 다시 확인함',
     dataZetaris:'데이터: Zetaris',
     dataLocal:'데이터: 로컬 파일',
@@ -226,10 +267,10 @@ const I18N={
     howTitle:'작동 방식',
     how1:'고객 메시지를 붙여 넣기',
     how1d:'이메일만 있어도 됩니다',
-    how2:'SQL 창구 하나(Zetaris)로 기록을 읽습니다',
-    how2d:'결제·주문·크레딧·로그·메일 — 읽기 전용, Zetaris 경유',
-    how3:'에이전트가 조사합니다',
-    how3d:'Meterless Nightshift의 Nemotron이 확인할 항목을 고릅니다. 이메일은 가려집니다',
+    how2:'Nemotron이 읽습니다',
+    how2d:'누가 썼는지, 무엇을 주장하는지, 무엇을 조회할지 (Nebius Token Factory, 주소는 가림)',
+    how3:'코드가 기록을 확인합니다',
+    how3d:'결제·주문·크레딧·로그·메일 읽기 전용 — 끊긴 곳은 모델이 아니라 검증기가 정합니다',
     how4:'수정은 당신이 승인합니다',
     how4d:'연결고리가 초록으로 바뀌고, 모든 수정은 기록됩니다',
     fixedByYou:'직접 수정함',
@@ -251,10 +292,10 @@ const EXAMPLES={
   3:{label:'I was granted the same credits twice — ord_0903',send:'I was granted the same credits twice. Order ord_0903. sora.kim903@example.com'},
   4:{label:'Credits arrived but I never got an email — ord_0904',send:'Credits arrived but I never got an email. Order ord_0904. noah.chen904@example.com'},
   5:{label:'I thought I paid but nothing showed up — ord_0905',send:'I thought I paid but nothing showed up. Order ord_0905. emma.song905@example.com'},
-  6:{label:'I paid but nothing arrived — liam.patel906@example.com',send:'Hi, I paid 24,900 won yesterday but my credits never came. liam.patel906@example.com'},
+  6:{label:'Two addresses: “my wife\'s is k.smith@…, I paid with liam.patel906@…”',send:'Hi, my wife\'s email is k.smith@example.org and she set up the account, but I paid 24,900 won with liam.patel906@example.com yesterday and the credits never came.'},
 };
 
-let lang='en', lastResult=null, lastFix=null, casesCache=[];
+let lang='en', lastResult=null, lastFix=null, casesCache=[], cfg={}, lastCase=null;
 let howOpen=true, howSeenResult=false;
 
 function t(){return I18N[lang]||I18N.en;}
@@ -328,7 +369,8 @@ function statusLine(r){
   const data=be?( /zetaris/i.test(be)?i.dataZetaris:i.dataLocal):'';
   if(!r.ok)return data;
   const parts=[];
-  if(r.llm==='verifier-only')parts.push(i.recheckExplain);
+  if(r.limited)parts.push(i.limitedExplain(r.limited));
+  else if(r.llm==='verifier-only')parts.push(i.recheckExplain);
   else if(r.llm==='failed')parts.push(i.failedExplain);
   else if(r.llm==='unreachable')parts.push(i.unreachableExplain);
   else if(r.llm==='none'||!r.llm)parts.push(i.templateExplain);
@@ -373,10 +415,10 @@ function renderSamples(){
   if(!casesCache.length){$('#samples').innerHTML='';return;}
   $('#samples').innerHTML=`<span class="label">${esc(i.examples)}</span>`+casesCache.map(c=>{
     const ex=EXAMPLES[c.case]||{label:c.title,send:'order '+String(c.order_id||'')};
-    return `<button type="button" class="ghost" data-send="${esc(ex.send)}">${esc(ex.label)}</button>`;
+    return `<button type="button" class="ghost" data-case="${esc(c.case)}" data-send="${esc(ex.send)}">${esc(ex.label)}</button>`;
   }).join('');
   document.querySelectorAll('#samples button').forEach(b=>b.onclick=()=>{
-    $('#msg').value=b.dataset.send;$('#empty-hint').hidden=true;$('#empty-hint').dataset.show='';run();
+    $('#msg').value=b.dataset.send;lastCase=+b.dataset.case;$('#empty-hint').hidden=true;$('#empty-hint').dataset.show='';run();
   });
 }
 
@@ -389,9 +431,11 @@ async function loadCases(){
   renderSamples();
 }
 
-async function run(){
+async function run(live){
   const i=t();
   const message=$('#msg').value.trim();
+  const ex=lastCase&&EXAMPLES[lastCase];
+  const caseNo=(ex&&ex.send===message)?lastCase:null;
   const hint=$('#empty-hint');
   if(!message){
     hint.hidden=false;hint.dataset.show='1';hint.textContent=i.emptyHint;$('#status').textContent='';return;
@@ -401,7 +445,7 @@ async function run(){
   $('#go').disabled=true;
   lastFix=null;
   try{
-    const res=await fetch('/api/investigate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message,lang})});
+    const res=await fetch('/api/investigate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message,lang,case:caseNo,live:!!live})});
     if(!res.ok){
       lastResult=null;
       hideHowAfterResult();
@@ -439,7 +483,7 @@ function prettySql(q){
   let x=String(q).replace(/^SELECT\s+o\.order_id AS o__order_id.*?\s+FROM /s,'SELECT o.*, p.*, g.*, l.*, m.*  -- (aliased column list shortened)\nFROM ');
   return x.replace(/\s+(LEFT JOIN|WHERE|ORDER BY|LIMIT)\s+/g,'\n$1 ');
 }
-function sqlSource(r){return /zetaris/i.test(String(r.backend||''))?'Zetaris · lightning.metastore.demo.order_journey':'DuckDB over the synthetic CSVs (same SQL as Zetaris)';}
+function sqlSource(r){return /zetaris/i.test(String(r.backend||''))?'Zetaris · lightning.metastore.demo.order_journey':'DuckDB over the synthetic CSVs';}
 
 function renderWhy(r){
   const i=t(), c=r.citation_check||{};
@@ -463,11 +507,44 @@ function renderSteps(steps){
       const m=s.receipt.model||s.receipt.provider_model||s.receipt.requested_model||'';
       if(m)bits.push(`<div class="mut">${esc(i.modelLabel)}: ${esc(m)}</div>`);
     }
+    if(s.planned)bits.push(`<div class="mut" style="font-size:12px">${esc(i.planned)}${s.skipped?' · '+esc(s.skipped):''}</div>`);
     if(s.done||s.order_id)bits.push(`<div class="mut">${esc(i.namedOrder)}: <b>${esc(s.order_id||'—')}</b></div>`);
     if(s.ms!=null)bits.push(`<div class="mut">${esc(s.ms)} ${esc(i.ms)}</div>`);
     return `<li>${bits.join('')}</li>`;
   }).join('');
   return `<div class="card"><h2>${esc(i.investigation)}</h2><ol class="timeline">${items}</ol></div>`;
+}
+
+function renderBanner(r){
+  const i=t();let h='';
+  if(cfg.fake||String(r.llm||'').startsWith('FAKE'))h+=`<div class="card banner"><span class="fake">${esc(i.fakeNote)}</span></div>`;
+  if(r.recorded)h+=`<div class="card banner"><div>${esc(i.recorded(String(r.recorded.recorded_at||'').replace('T',' ').slice(0,16),r.recorded.provider||'Nebius Token Factory'))}</div><div style="margin-top:8px"><button type="button" id="run-live">${esc(i.runLive)}</button></div></div>`;
+  return h;
+}
+function renderIntake(r){
+  const i=t(),k=r.intake;if(!k)return'';
+  if(!k.ok)return `<div class="card"><h2>${esc(i.intakeTitle)}</h2><p class="hint">${esc(i.intakeFailed(k.error||'error'))}</p></div>`;
+  const g=k.grounded||{},ph=k.placeholders||{};
+  const who=p=>p?`${esc(p)} <span class="mut">(${esc(ph[p]||'')})</span>`:'—';
+  const row=(lab,val)=>val?`<tr><th>${esc(lab)}</th><td>${val}</td></tr>`:'';
+  const rows=[row(i.sender,who(g.sender)),row(i.otherPeople,(g.other_people||[]).map(who).join(', ')),row(i.orderNos,esc((g.order_ids||[]).join(', '))),
+    row(i.foreignNos,esc((g.foreign_order_ids||[]).join(', '))),row(i.amountSaid,g.amount?esc(Number(g.amount.value).toLocaleString()+' '+g.amount.currency):''),
+    row(i.paidWhen,esc(g.paid_when||'')),row(i.pack,esc(g.pack||'')),row(i.complaint,esc(String(g.complaint||'').replace(/_/g,' '))),row(i.wants,esc((g.wants||[]).join(', ').replace(/_/g,' ')))].join('');
+  const plan=(g.plan||[]).map(s=>`<li><span class="tool">${esc(trTool(s.tool))} ${esc(JSON.stringify(s.args))}</span> — ${esc(s.why)}</li>`).join('');
+  const drop=(g.dropped||[]).length?`<p class="drop">${esc(i.dropped)} ${esc(g.dropped.map(d=>d.field+': '+(typeof d.value==='string'?d.value:JSON.stringify(d.value))+' ('+d.why+')').join('; '))}</p>`:'';
+  return `<div class="card"><h2>${esc(i.intakeTitle)} <span class="tag">${esc(k.model||'')}</span></h2>
+    <details><summary style="font-size:13px">${esc(i.intakeSaw)}</summary><div class="masked">${esc(k.masked||'')}</div></details>
+    <table class="calls" style="margin-top:8px">${rows}</table>${drop}
+    ${r.rules_only?(r.rules_only.same?`<p class="mut" style="font-size:12.5px">${esc(i.rulesSame)}</p>`:`<div class="warnline">${esc(i.rulesDiff(trHeadline(r.rules_only.headline||'')))}</div>`):''}
+    ${plan?`<p class="mut" style="margin:10px 0 2px;font-size:13px">${esc(i.planTitle)}</p><ol class="timeline" style="margin-top:4px">${plan}</ol>`:''}</div>`;
+}
+function renderClaims(r){
+  const i=t(),c=r.claims_vs_records||[];if(!c.length)return'';
+  return `<div class="card"><h2>${esc(i.claimsTitle)}</h2><div class="rows"><table class="calls"><tr>${i.claimH.map(h=>`<th>${esc(h)}</th>`).join('')}</tr>${c.map(x=>`<tr><td>${esc(x.claim)}</td><td>${esc(x.says)}</td><td>${esc(x.records)}${x.refs&&x.refs.length?' '+x.refs.map(ref=>`<a class="cite" href="#row-${esc(slug(ref))}" data-ref="${esc(ref)}">[${esc(ref)}]</a>`).join(' '):''}</td><td class="res-${esc(x.result)}">${esc(i.res[x.result]||x.result)}${x.note?`<div class="mut" style="font-weight:400;font-size:12px">${esc(x.note)}</div>`:''}</td></tr>`).join('')}</table></div></div>`;
+}
+function renderCalls(r){
+  const i=t(),c=r.model_calls||[];if(!c.length)return'';
+  return `<div class="card"><h2>${esc(i.callsTitle)}</h2><div class="rows"><table class="calls"><tr>${i.callsH.map(h=>`<th>${esc(h)}</th>`).join('')}</tr>${c.map(x=>`<tr><td>${esc(i.roles[x.role]||x.role)}</td><td>${esc(x.model||'')}</td><td>${esc(x.provider||'')}</td><td>${x.ok?esc(x.ms+' '+i.ms):'<span class="res-differs">failed '+esc(x.error||'')+'</span>'}</td><td>${esc((x.prompt_tokens??'—')+' / '+(x.completion_tokens??'—'))}</td></tr>`).join('')}</table></div>${cfg.limits?`<p class="hint">${esc(i.sandbox(cfg.limits.sandbox_minutes))}</p>`:''}</div>`;
 }
 
 function renderFixCard(){
@@ -508,7 +585,7 @@ function render(r, opts){
   const replyNote=tplNote+(afterFix?`<p class="reply-note">${esc(i.sendAfterFix)}</p>`:(needsFix?`<p class="reply-note">${esc(i.sendAfterApprove)}</p>`:''));
 
   $('#out').innerHTML=`
-  ${renderFixCard()}
+  ${renderBanner(r)}${renderFixCard()}
   <div class="card"><div class="headline">${esc(trHeadline(r.headline))}</div><div class="mut">order ${esc(r.order_id)} · ${esc(r.email)}</div>${r.ignored_order?`<div class="warnline">${esc(i.ignoredOrder(r.ignored_order))}</div>`:''}${r.sender_unverified?`<div class="warnline">${esc(i.senderUnverified)}</div>`:''}
     <div class="chain">${chain}</div></div>
   <div class="two">
@@ -519,7 +596,10 @@ function render(r, opts){
       ${needsFix?`<div style="margin-top:10px"><button type="button" id="approve-btn">${esc(i.approveFix)}</button></div>`:''}
       <p id="approve-msg" class="hint" style="margin:8px 0 0" hidden></p></div>
   </div>
+  ${renderClaims(r)}
+  ${renderIntake(r)}
   ${renderSteps(r.steps)}
+  ${renderCalls(r)}
   <div class="card"><h2>${esc(i.why)}</h2>${renderWhy(r)}${(!r.citation_check||!r.citation_check.checked||r.citation_check.replaced_with_verifier_text)?`<p class="hint">${esc(i.knownPattern)}</p>`:''}
     <p class="mut" style="font-size:12px">${esc(citeNote)}</p></div>
   <div class="card two"><div><h2>${esc(i.verified)}</h2><ul>${r.verified.map(v=>`<li>${esc(v)}</li>`).join('')}</ul></div>
@@ -533,6 +613,8 @@ function render(r, opts){
   };
   const evBtn=$('#evidence-btn');
   if(evBtn)evBtn.onclick=()=>evidence();
+  const lv=$('#run-live');
+  if(lv)lv.onclick=()=>run(true);
   const apBtn=$('#approve-btn');
   if(apBtn)apBtn.onclick=()=>approveFix(r.order_id);
 
@@ -620,12 +702,13 @@ async function evidence(){
   }
 }
 
-$('#go').onclick=run;
+$('#go').onclick=()=>run(false);
 $('#how-link').onclick=()=>{howOpen=!howOpen;renderHow();};
 $('#msg').addEventListener('keydown',e=>{
-  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();run();}
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();run(false);}
 });
 loadLang();
 applyChrome();
 loadCases();
+fetch('/api/config').then(r=>r.json()).then(c=>{cfg=c||{};}).catch(()=>{});
 </script></body></html>

@@ -1,0 +1,8 @@
+# What the public demo container needs (no Zetaris JDBC, no test runner)
+duckdb==2.0.0
+fastapi==0.159.1
+httpx==0.28.1
+openai==3.36.0
+pydantic==2.14.1
+python-dotenv==1.2.4
+uvicorn==0.54.0
