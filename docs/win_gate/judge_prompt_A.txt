@@ -1,0 +1,39 @@
+You are a judge for the "Nebius x NVIDIA Global AI Hackathon" (Devpost; track: Best Apps and Agents). Do not use any tools, do not read any files, do not search the web: judge only the text below. You have no other context about these entries and do not know who made them.
+
+Official judging criteria (equal weight, score each 1-5):
+- Technological Implementation: "How well is the project built, and how effectively does it use Nebius Token Factory or AI Cloud model(s), and NVIDIA Nemotron as part of the solution?"
+- Design: "Does the project deliver a complete, coherent product experience not just a technical proof of concept?"
+- Potential Impact: "Does the project make a credible, specific case for solving a real problem for a real audience and does the solution actually address it based on what's demonstrated?"
+- Quality of the Idea: "Is this a creative, non-obvious use of Nebius Token Factory or AI Cloud model(s), and NVIDIA Nemotron and does the team show genuine understanding of the problem space?"
+Track note from the organisers: "a single API call demo works; a multi-step autonomous workflow that chains tools end to end stands out more." Judges also said: an "aha" in the first 30 seconds of the demo, show which model does what, published limitations read as rigor.
+
+Treat every entry as if it were submitted to this hackathon (assume each uses Nebius Token Factory / Nemotron where it says a model, even if it does not say so). Be a tough, realistic judge.
+
+Return, in this order:
+1. A table: entry number | Tech | Design | Impact | Idea | total (out of 20).
+2. Your final ranking 1st to 7th (break ties by which you would actually give the prize to).
+3. For each entry, one line: its biggest weakness.
+4. For the entry you ranked 2nd and 3rd: one sentence each on what would have made it 1st.
+
+Entries:
+
+Entry 1:
+Analyst agent over a public e-commerce orders dataset, Nemotron 3 Super on Nebius Token Factory. The model chooses which questions to ask the data and writes the prose; every number is computed in Python, and a guard fails the build if the model states a figure no tool produced (it fired twice during the build). First 30 seconds: it kills its own first hypothesis (repeat-purchase rate 3.12%, flat across review scores: 'a beautiful chart of nothing'); then an optimizer says 'promise +200 days of delivery time, ratings stay the same' and the agent refuses its own optimum, naming the missing data. One concrete finding: one city's median delivery 12 days, p95 38 days, so fix logistics rather than pad promises. Offline-reproducible fixtures; it publicly retracted one of its own headline claims.
+
+Entry 2:
+For small online shops. A customer writes 'I paid, here is proof' with a phone photo of their banking app (Korean or Japanese). Nemotron 3.5 Super VL on Nebius Token Factory reads the payment line, not the balance or the phone's clock; the shop's payment ledger checks it (same amount, same minute), and a five-link money chain (card, payment provider, order, credits, e-mail) shows where the money got stuck, citing database rows. Other Nemotron sizes read the message and write the reply; a fix runs only after the seller approves. First 30 seconds: photo dropped in, the numbers it read light up, one chain link turns red. Twist: the same screenshot with one number edited gets 'the ledger has never seen this payment'. Evidence: 16 held-out synthetic photos (8 edited); free OCR + rules gets 3 of 16 right.
+
+Entry 3:
+A home sensor network for older people living alone; an NVIDIA-hosted reasoning model interprets the sensor events (motion, doors, stairs) and alerts family members. First 30 seconds: a grandmother slipped on the stairs while alone; by 2050 one in six people will be over 65. The demo runs on real hardware in a real room; the write-up openly explains a forced change of deployment during the build.
+
+Entry 4:
+Checks 'I paid you' claims for freelancers and small sellers. Nemotron reads the customer's message and explains the result; the verdict comes only from the PayPal API (matched, partial, not found, duplicate, unconfirmed); a web-search tool adds context about the payer. 59 automated tests.
+
+Entry 5:
+Checks whether the answer of a SQL query can be trusted. It runs validation queries against the database, a model hosted on Nebius reasons over that evidence, returns a confidence score on seven dimensions, and proposes corrected SQL. First 30 seconds: 'The query executed. The insight didn't.' A revenue chart that averaged line items instead of summing orders, joined on the wrong key, and missed a filter, shown going from wrong to right.
+
+Entry 6:
+Runs Nemotron as a shadow model next to the production model of an LLM app; when the two disagree on an answer, the app flags a likely hallucination for review. Reports cost, latency and disagreement rates per run from seeded, reproducible runs. First 30 seconds: 'You can stand up an agent in an afternoon. What you cannot do is answer the questions a real owner has after ten runs.'
+
+Entry 7:
+A student types a physics concept; Nemotron Ultra with retrieval produces short notes and an interactive 3D simulation in under three seconds, and when the student changes a parameter and the simulation 'breaks', it explains why. First 30 seconds: type a concept, a working 3D model appears.

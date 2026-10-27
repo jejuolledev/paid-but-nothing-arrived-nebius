@@ -1,0 +1,19 @@
+You are a judge for the "Nebius x NVIDIA Global AI Hackathon" (Devpost; track: Best Apps and Agents). Do not use any tools, do not read any files, do not search the web: judge only the text below. You have no other context about these entries and do not know who made them.
+
+Official judging criteria (equal weight, score each 1-5):
+- Technological Implementation: "How well is the project built, and how effectively does it use Nebius Token Factory or AI Cloud model(s), and NVIDIA Nemotron as part of the solution?"
+- Design: "Does the project deliver a complete, coherent product experience not just a technical proof of concept?"
+- Potential Impact: "Does the project make a credible, specific case for solving a real problem for a real audience and does the solution actually address it based on what's demonstrated?"
+- Quality of the Idea: "Is this a creative, non-obvious use of Nebius Token Factory or AI Cloud model(s), and NVIDIA Nemotron and does the team show genuine understanding of the problem space?"
+Track note from the organisers: "a single API call demo works; a multi-step autonomous workflow that chains tools end to end stands out more." Judges also said: an "aha" in the first 30 seconds of the demo, show which model does what, published limitations read as rigor.
+
+Treat every entry as if it were submitted to this hackathon (assume each uses Nebius Token Factory / Nemotron where it says a model, even if it does not say so). Be a tough, realistic judge.
+
+Return, in this order:
+1. A table: entry number | Tech | Design | Impact | Idea | total (out of 20).
+2. Your final ranking 1st to 7th (break ties by which you would actually give the prize to).
+3. For each entry, one line: its biggest weakness.
+4. For the entry you ranked 2nd and 3rd: one sentence each on what would have made it 1st.
+
+Entries:
+
