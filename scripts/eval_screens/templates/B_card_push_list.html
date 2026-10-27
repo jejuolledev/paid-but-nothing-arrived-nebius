@@ -1,0 +1,32 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><style>$base
+body { --bg:#eef0e8; --fg:#1d2117; --muted:#6c7360; --card:#fff; --acc:#5b6b2e; --line:#e3e6dc; }
+body.dark { --bg:#0f110c; --fg:#e6eadc; --muted:#9aa18c; --card:#1b1e17; --acc:#a9bd6c; --line:#2a2e24; }
+.top { padding:6px 20px 10px; display:flex; justify-content:space-between; align-items:flex-end; }
+.top h1 { font-size:26px; font-weight:800; }
+.top .tabs { font-size:13px; color:var(--muted); }
+.chip { display:inline-block; font-size:12px; padding:4px 10px; border-radius:12px; background:var(--card); margin-right:6px; }
+.chip.on { background:var(--acc); color:#fff; }
+.chips { padding:0 20px 8px; }
+.n { background:var(--card); margin:8px 14px; border-radius:16px; padding:12px 14px; }
+.n .h { display:flex; align-items:center; font-size:12px; color:var(--muted); margin-bottom:6px; }
+.n .ic { width:20px; height:20px; border-radius:6px; background:var(--acc); color:#fff; font-size:11px; font-weight:800; display:inline-flex; align-items:center; justify-content:center; margin-right:7px; }
+.n .h .ago { margin-left:auto; }
+.n .b { font-size:14px; line-height:1.45; white-space:pre-line; }
+.n .b b { font-weight:700; }
+.ad { background:#e9d9b2; color:#3e321a; }
+body.dark .ad { background:#3a3220; color:#efe2c2; }
+</style></head><body class="$bodyclass">
+<div class="sb"><span>$sb_time</span><span class="r"><span class="bars">▂▄▆█</span> LTE <span class="batt"><i style="width:$batt_w"></i></span></span></div>
+<div class="top"><h1>알림</h1><span class="tabs">솔카드 · 전체 읽음</span></div>
+<div class="chips"><span class="chip on">전체</span><span class="chip">결제</span><span class="chip">혜택</span><span class="chip">명세서</span></div>
+$before
+<div class="n"><div class="h"><span class="ic">솔</span>솔카드<span class="ago">$ago</span></div>
+<div class="b"><b>솔카드($last4) 승인</b>
+$masked_name님
+<span class="ef" id="t-amount">$amount_fmt원</span> 일시불
+<span class="ef" id="t-dt">$date_md $time_hm</span>
+모아허브(MOAHUB)
+누적 $cumulative원</div></div>
+$after
+<div class="home"></div>
+</body></html>

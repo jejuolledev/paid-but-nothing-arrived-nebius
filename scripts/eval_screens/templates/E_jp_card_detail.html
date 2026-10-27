@@ -1,0 +1,41 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><style>$base
+body { --bg:#f2f4f8; --fg:#1a2033; --muted:#6d7488; --card:#fff; --acc:#24345e; --gold:#b48a3c; --line:#e6e9f0; --navbg:#24345e; }
+body.dark { --bg:#0d1018; --fg:#e7eaf3; --muted:#9097ab; --card:#181c27; --acc:#9fb1e0; --gold:#d6b06a; --line:#262b38; --navbg:#1b2440; }
+.nav { height:48px; display:flex; align-items:center; padding:0 16px; font-size:16px; font-weight:700; background:var(--navbg); color:#fff; }
+
+.nav b { flex:1; text-align:center; margin-right:20px; }
+.cardmini { margin:12px 16px 0; font-size:12px; color:var(--muted); display:flex; justify-content:space-between; }
+.hero { background:var(--card); margin:10px 16px; border-radius:14px; padding:16px 18px; }
+.hero .k { font-size:12px; color:var(--muted); }
+.hero .mer { font-size:17px; font-weight:700; margin:4px 0 10px; }
+.hero .jpy { font-size:28px; font-weight:800; }
+.hero .krw { font-size:14px; margin-top:4px; }
+.tag { display:inline-block; font-size:11px; padding:2px 8px; border-radius:8px; background:#e5ecdf; color:#3e6a2c; font-weight:700; margin-left:6px; vertical-align:middle; }
+.list { background:var(--card); margin:0 16px; border-radius:14px; padding:4px 16px; }
+.r { display:flex; justify-content:space-between; padding:9px 0; font-size:13.5px; border-bottom:1px solid var(--line); }
+.r:last-child { border-bottom:none; }
+.r span:first-child { color:var(--muted); }
+.r span:last-child { font-weight:600; text-align:right; }
+.sum { margin:10px 16px; background:var(--card); border-radius:14px; padding:12px 16px; font-size:13px; display:flex; justify-content:space-between; }
+.sum b { font-size:16px; }
+.ad { margin:10px 16px; padding:11px 14px; border-radius:12px; border:1px solid var(--gold); color:var(--gold); font-size:12.5px; }
+</style></head><body class="ja $bodyclass">
+<div class="sb" style="--sbbg:var(--navbg);--sbfg:#fff"><span>$sb_time</span><span class="r"><span class="bars">▂▄▆█</span> 5G <span class="batt"><i style="width:$batt_w"></i></span></span></div>
+<div class="nav">‹ <b>ご利用明細の詳細</b></div>
+<div class="cardmini"><span>ミナトカード ゴールド　末尾$last4</span><span>$points pt</span></div>
+<div class="hero"><div class="k">ご利用先</div><div class="mer">MOAHUB（韓国）<span class="tag">$status_text</span></div>
+ <div class="k">円換算額</div><div class="jpy num">$jpy_fmt円</div>
+ <div class="krw num">現地通貨額 <span class="ef" id="t-amount">$amount_fmt KRW</span></div></div>
+<div class="list">
+ <div class="r"><span>ご利用日時</span><span class="num"><span class="ef" id="t-dt">$date_slash $time_hm</span></span></div>
+ <div class="r"><span>換算レート</span><span class="num">1 KRW = $rate 円</span></div>
+ <div class="r"><span>海外事務手数料</span><span>円換算額に含む</span></div>
+ <div class="r"><span>お支払い方法</span><span>1回払い</span></div>
+ <div class="r"><span>カード</span><span class="num">末尾$last4（本人）</span></div>
+ <div class="r"><span>お支払い予定日</span><span class="num">$pay_due</span></div>
+</div>
+<div class="sum"><span>ご利用可能額</span><b class="num">$available円</b></div>
+<div class="sum"><span>次回お支払い金額（$next_due）</span><b class="num">$next_amount円</b></div>
+<div class="ad">リボ払いへの変更で $ad_pt pt プレゼント（〜11/30）</div>
+<div class="home"></div>
+</body></html>

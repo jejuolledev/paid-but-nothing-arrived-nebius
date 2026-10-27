@@ -1,0 +1,31 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><style>$base
+body { --bg:#ffffff; --fg:#111; --muted:#8e8e93; --bub:#e9e9eb; --line:#e5e5ea; }
+body.dark { --bg:#000; --fg:#f2f2f7; --muted:#8e8e93; --bub:#26252a; --line:#2c2c2e; }
+.hd { text-align:center; padding:4px 0 10px; border-bottom:1px solid var(--line); }
+.hd .av { width:44px; height:44px; border-radius:50%; background:#9a9aa2; color:#fff; margin:0 auto 4px; display:flex; align-items:center; justify-content:center; font-weight:700; }
+.hd .nm { font-size:12px; }
+.hd .back { position:absolute; left:14px; top:58px; font-size:17px; color:#2f7cf6; }
+.msgs { padding:6px 0; }
+.day { text-align:center; font-size:11px; color:var(--muted); margin:12px 0 6px; }
+.bb { max-width:78%; background:var(--bub); border-radius:18px; padding:9px 13px; margin:3px 12px; font-size:15px; line-height:1.38; white-space:pre-line; }
+.tm { font-size:10px; color:var(--muted); margin:0 0 4px 18px; }
+.inp { position:absolute; bottom:28px; left:12px; right:12px; height:36px; border:1px solid var(--line); border-radius:18px; font-size:14px; color:var(--muted); padding:8px 14px; }
+</style></head><body class="$bodyclass">
+<div class="sb"><span>$sb_time</span><span class="r"><span class="bars">▂▄▆█</span> LTE <span class="batt"><i style="width:$batt_w"></i></span></span></div>
+<div class="hd"><span class="back">‹ $unread</span><div class="av">가</div><div class="nm">가람카드 ›</div></div>
+<div class="msgs">
+$before
+<div class="day">$day_label</div>
+<div class="bb">[Web발신]
+가람카드($last4)승인
+$masked_name님
+<span class="ef" id="t-amount">$amount_fmt원</span> 일시불
+<span class="ef" id="t-dt">$date_md $time_hm</span>
+모아허브(MOAHUB)
+누적$cumulative원</div>
+<div class="tm">$bubble_time</div>
+$after
+</div>
+<div class="inp">문자 메시지</div>
+<div class="home"></div>
+</body></html>

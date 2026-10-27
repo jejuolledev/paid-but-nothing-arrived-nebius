@@ -1,0 +1,23 @@
+/* Shared phone-screen base. All app styles are fictional. */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 390px; height: 844px; overflow: hidden; }
+body {
+  font-family: "Apple SD Gothic Neo", "Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif;
+  background: var(--bg); color: var(--fg);
+  -webkit-font-smoothing: antialiased;
+}
+body.ja { font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Apple SD Gothic Neo", sans-serif; }
+.sb { height: 44px; display: flex; justify-content: space-between; align-items: center;
+      padding: 0 26px 0 30px; font-size: 15px; font-weight: 600; color: var(--sbfg, var(--fg)); background: var(--sbbg, transparent); }
+.sb .r { display: flex; gap: 6px; align-items: center; font-size: 13px; }
+.batt { display: inline-block; width: 24px; height: 11px; border: 1.5px solid currentColor; border-radius: 3px; position: relative; }
+.batt i { position: absolute; left: 1px; top: 1px; bottom: 1px; background: currentColor; border-radius: 1px; }
+.bars { letter-spacing: -2px; }
+.home { position: absolute; bottom: 8px; left: 50%; width: 134px; height: 5px; margin-left: -67px; border-radius: 3px; background: var(--fg); opacity: .8; }
+.muted { color: var(--muted); }
+.num { font-variant-numeric: tabular-nums; }
+/* crude-edit look, applied only in the "edit" render of a doctored image */
+.edited.e1 { font-weight: 500 !important; font-size: 1.04em; letter-spacing: .2px; }
+.edited.e2 { font-family: "Helvetica Neue", Arial, sans-serif !important; letter-spacing: .4px; }
+.edited.e3 { font-size: .96em; position: relative; top: 1px; color: var(--edfg, inherit); }
+.edited.e4 { font-weight: 800 !important; letter-spacing: -.3px; }
