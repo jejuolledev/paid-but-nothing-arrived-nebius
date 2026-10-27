@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>How it works</title>
+<style>
+:root{--bg:#0e1116;--card:#171b22;--line:#2a303b;--fg:#eef1f6;--mut:#9aa3b2;--green:#3fb97d;--red:#e5534b;--grey:#6b7280;--acc:#7aa2ff;--nv:#76b900;--zt:#f2a33a}
+*{box-sizing:border-box}body{margin:0;width:1920px;height:1080px;background:var(--bg);color:var(--fg);font:22px/1.4 -apple-system,"Inter","Segoe UI",sans-serif;padding:56px 72px;display:flex;flex-direction:column;gap:26px}
+h1{font-size:54px;margin:0;line-height:1.1}h1 small{display:block;font-size:26px;color:var(--mut);font-weight:500;margin-top:10px}
+.row{display:flex;gap:22px;align-items:stretch}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px 24px}
+.k{font-size:15px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);margin-bottom:8px}
+.msg{font-size:30px;font-weight:600}
+.arrow{display:flex;align-items:center;font-size:44px;color:var(--mut)}
+.src{display:grid;grid-template-columns:1fr 1fr;gap:10px}.src div{border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:20px}
+.chain{display:flex;gap:10px;align-items:center;margin-top:6px}
+.l{flex:1;border-radius:12px;padding:12px 10px;text-align:center;font-size:19px;font-weight:600;border:2px solid}
+.g{border-color:var(--green);color:#bff0d6;background:#11261c}.r{border-color:var(--red);color:#ffd2cf;background:#2b1513}.gr{border-color:var(--grey);color:#c8ccd3;background:#1b1e24}
+.tag{display:inline-block;border-radius:999px;padding:3px 12px;font-size:16px;font-weight:600;margin-right:6px}
+.tz{background:#3a2a10;color:var(--zt)}.tn{background:#1f2e0b;color:var(--nv)}.tm{background:#1d2440;color:var(--acc)}
+.out{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.out .card{padding:18px 20px}.out b{display:block;font-size:24px;margin-bottom:6px}
+.foot{display:flex;gap:16px;font-size:19px;color:var(--mut)}.foot div{flex:1}.foot strong{color:var(--fg)}
+</style></head><body>
+<h1>Paid, but nothing arrived.<small>When a customer says it, this agent finds where the money got stuck — with proof — and drafts the fix.</small></h1>
+
+<div class="row">
+  <div class="card" style="flex:0 0 400px"><div class="k">1 · The customer writes</div><div class="msg">“I paid 24,900 won but my credits never came.”</div><div style="color:var(--mut);margin-top:10px;font-size:19px">Just the message and their email.<br>No order number needed.</div></div>
+  <div class="arrow">→</div>
+  <div class="card" style="flex:1"><div class="k">2 · One SQL door reads the seller's own records <span class="tag tz">Zetaris</span></div>
+    <div class="src"><div>💳 Payment provider ledger</div><div>🧾 Orders database</div><div>🎟 Credit grants</div><div>📜 Server logs · ✉️ Mail events</div></div>
+    <div style="color:var(--mut);margin-top:10px;font-size:19px">Three sources in Zetaris, read with one SQL query — shown on screen. Read-only; nothing is copied out.</div></div>
+  <div class="arrow">→</div>
+  <div class="card" style="flex:1"><div class="k">3 · The agent investigates <span class="tag tn">NVIDIA Nemotron</span><span class="tag tm">via Meterless Nightshift</span></div>
+    <div style="font-size:20px">The model picks what to look up next: <i>no order under this email → who paid at the provider? → which order is that payment? → full history</i>.<br>Emails and card digits are masked before the model sees any row.</div></div>
+</div>
+
+<div class="card"><div class="k">4 · A rule-based verifier checks the money chain — the model never decides</div>
+  <div class="chain"><div class="l g">Card authorized</div><div class="arrow" style="font-size:26px">›</div><div class="l g">Provider says PAID</div><div class="arrow" style="font-size:26px">›</div><div class="l g">Order confirmed</div><div class="arrow" style="font-size:26px">›</div><div class="l r">Credits granted ✕<br><span style="font-weight:500;font-size:16px">went to a typo’d address</span></div><div class="arrow" style="font-size:26px">›</div><div class="l r">Mail delivered ✕<br><span style="font-weight:500;font-size:16px">bounced</span></div></div>
+  <div style="color:var(--mut);margin-top:10px;font-size:19px">Green = proven by a row · Red = the link that broke, with the rows that prove it · Grey = never reached (e.g. “you were never charged”).</div></div>
+
+<div class="out">
+  <div class="card"><div class="k">5 · You get</div><b>Why it broke — with citations</b>The explanation must cite the real rows it used; if it cites anything else, it is replaced.</div>
+  <div class="card"><div class="k">5 · You get</div><b>A reply to send</b>In the customer’s language. It can’t promise refunds — a person decides money.</div>
+  <div class="card"><div class="k">6 · You approve</div><b>The fix runs, the chain turns green</b>Re-grant, resend, move credits — only after you click Approve. Every fix is logged.</div>
+</div>
+
+<div class="foot"><div><strong>Who it’s for:</strong> small sellers of digital goods (credits, e-books, subscriptions) with no support team.</div><div><strong>Why it matters:</strong> a slow answer becomes a card dispute. The customer already has proof they paid; this finds yours in one pass.</div><div><strong>Built from real incidents:</strong> the cases are bugs we hit in our own shop, rebuilt with synthetic data.</div></div>
+</body></html>

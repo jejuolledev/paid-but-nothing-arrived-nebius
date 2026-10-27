@@ -1,0 +1,36 @@
+slot opened 10:36:42
+server up 10:36:48
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+{"case": 1, "verdict_ok": true, "llm": "nemotron-3.5-lightning-30b-4bit", "citations": {"checked": true, "ok": false, "unknown_refs": [], "replaced_with_verifier_text": true}, "ms": 13079, "reply_len": 168}
+{"case": 2, "verdict_ok": true, "llm": "nemotron-3.5-lightning-30b-4bit", "citations": {"checked": true, "ok": true, "unknown_refs": []}, "ms": 11880, "reply_len": 190}
+{"case": 3, "verdict_ok": true, "llm": "nemotron-3.5-lightning-30b-4bit", "citations": {"checked": true, "ok": false, "unknown_refs": [], "replaced_with_verifier_text": true}, "ms": 13881, "reply_len": 197}
+{"case": 4, "verdict_ok": true, "llm": "nemotron-3.5-lightning-30b-4bit", "citations": {"checked": true, "ok": false, "unknown_refs": [], "replaced_with_verifier_text": true}, "ms": 14130, "reply_len": 189}
+{"case": 5, "verdict_ok": true, "llm": "nemotron-3.5-lightning-30b-4bit", "citations": {"checked": true, "ok": false, "unknown_refs": ["ref: orders:ord_0905", "ref: server_logs:2026-10-20T05:00:00Z@/api/checkout/start"], "replaced_with_verifier_text": true}, "ms": 11808, "reply_len": 128}
+| 2026-10-22 10:37 | nemotron-3.5-lightning-30b-4bit | verdict 5/5 | citations passed 1/5 | avg 12955 ms |
+smoke done 10:37:54
+slot released 10:37:57
+slot opened 10:46:56
+server up 10:47:02
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+   explanation: The customer paid 24900 KRW (card 4242, ref: payments:pay_0901), but the order status stayed 'failed' after a first PSP attempt failed and a second succeeded. The confirm step skipped re-checking the PSP and returned 409 (ref: server_logs:2026-10-13T12:00:44Z@/api/payments/confirm). The order row ne
+   reply: I see the payment was processed on our end, but the order didn't confirm. Let me check if you can re-check the PSP and update my order right away.
+{"case": 1, "verdict_ok": true, "llm": "nemotron-3.5-lightning-30b-4bit", "citations": {"checked": true, "ok": true, "unknown_refs": []}, "ms": 13409, "reply_len": 146}
+   explanation: The customer paid 9900 KRW via card ending 4444 (payments:pay_0902), and the PSP webhook confirmed PAID (server_logs:2026-10-15T20:00:31Z@/api/payments/webhook). However, the order ord_0902 remains 'pending' because the client-side confirm call never fired after payment, so the order was never updat
+   reply: I'm sorry for the inconvenience. I can confirm your order server-side from the PAID webhook and grant you the reward. You should see the items shortly.
+{"case": 2, "verdict_ok": true, "llm": "nemotron-3.5-lightning-30b-4bit", "citations": {"checked": true, "ok": true, "unknown_refs": []}, "ms": 13783, "reply_len": 151}
+   explanation: The customer paid 44900 KRW (payments:pay_0903) and the order (orders:ord_0903) is marked paid. However, two grants (grants:g_ord_0903, grants:g_ord_0903_retry) were issued for the same email and reward, giving 60 credits twice. The first confirm timed out, triggering a manual retry that granted aga
+   reply: I see the payment went through, but you gave me the reward twice. I'm sorry for the confusion—let me check my account, and I'll contact you once I verify what I actually received.
+{"case": 3, "verdict_ok": true, "llm": "nemotron-3.5-lightning-30b-4bit", "citations": {"checked": true, "ok": true, "unknown_refs": []}, "ms": 14446, "reply_len": 179}
+   explanation: The order ord_0904 is paid (payments:pay_0904) and 10 credits were granted (grants:g_ord_0904), but the credit mail failed to send (server_logs:2026-10-18T18:00:09Z@/api/mail/send, red state). The customer has no record of the reward.
+   reply: I'm sorry you didn't receive the credit notice. I can resend it right away once I verify your email and order status.
+{"case": 4, "verdict_ok": true, "llm": "nemotron-3.5-lightning-30b-4bit", "citations": {"checked": true, "ok": true, "unknown_refs": []}, "ms": 12543, "reply_len": 117}
+   explanation: Order ord_0905 has no payment row at the PSP and no charge was processed [orders:ord_0905]. The checkout only reached /start, so the card was never authorized. The customer's money was not captured.
+   reply: I understand you paid but didn't receive your items. Let me check this for you right away.
+{"case": 5, "verdict_ok": true, "llm": "nemotron-3.5-lightning-30b-4bit", "citations": {"checked": true, "ok": true, "unknown_refs": []}, "ms": 16046, "reply_len": 90}
+| 2026-10-22 10:48 | nemotron-3.5-lightning-30b-4bit | verdict 5/5 | citations passed 5/5 | avg 14045 ms |
+smoke done 10:48:14
+slot released 10:48:17

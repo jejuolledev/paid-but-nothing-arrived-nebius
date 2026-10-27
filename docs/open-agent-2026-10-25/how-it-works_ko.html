@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>작동 원리</title>
+<style>
+:root{--bg:#0e1116;--card:#171b22;--line:#2a303b;--fg:#eef1f6;--mut:#9aa3b2;--green:#3fb97d;--red:#e5534b;--grey:#6b7280;--acc:#7aa2ff;--nv:#76b900;--zt:#f2a33a}
+*{box-sizing:border-box;word-break:keep-all}body{margin:0;width:1920px;height:1080px;background:var(--bg);color:var(--fg);font:22px/1.45 "Pretendard","Apple SD Gothic Neo",-apple-system,sans-serif;padding:56px 72px;display:flex;flex-direction:column;gap:26px}
+h1{font-size:54px;margin:0;line-height:1.1}h1 small{display:block;font-size:26px;color:var(--mut);font-weight:500;margin-top:10px}
+.row{display:flex;gap:22px;align-items:stretch}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px 24px}
+.k{font-size:15px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);margin-bottom:8px}
+.msg{font-size:30px;font-weight:600}
+.arrow{display:flex;align-items:center;font-size:44px;color:var(--mut)}
+.src{display:grid;grid-template-columns:1fr 1fr;gap:10px}.src div{border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:20px}
+.chain{display:flex;gap:10px;align-items:center;margin-top:6px}
+.l{flex:1;border-radius:12px;padding:12px 10px;text-align:center;font-size:19px;font-weight:600;border:2px solid}
+.g{border-color:var(--green);color:#bff0d6;background:#11261c}.r{border-color:var(--red);color:#ffd2cf;background:#2b1513}.gr{border-color:var(--grey);color:#c8ccd3;background:#1b1e24}
+.tag{display:inline-block;border-radius:999px;padding:3px 12px;font-size:16px;font-weight:600;margin-right:6px}
+.tz{background:#3a2a10;color:var(--zt)}.tn{background:#1f2e0b;color:var(--nv)}.tm{background:#1d2440;color:var(--acc)}
+.out{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.out .card{padding:18px 20px}.out b{display:block;font-size:24px;margin-bottom:6px}
+.foot{display:flex;gap:16px;font-size:19px;color:var(--mut)}.foot div{flex:1}.foot strong{color:var(--fg)}
+</style></head><body>
+<h1>결제했는데 아무것도 안 왔어요.<small>고객이 이렇게 말하면, 이 에이전트가 돈이 어디서 멈췄는지 증거와 함께 찾아내고 고칠 방법까지 준비합니다.</small></h1>
+
+<div class="row">
+  <div class="card" style="flex:0 0 400px"><div class="k">1 · 고객이 문의</div><div class="msg">“24,900원 결제했는데 이용권이 안 들어왔어요.”</div><div style="color:var(--mut);margin-top:10px;font-size:19px">메시지와 고객 이메일만 있으면 됩니다.<br>주문번호는 없어도 됩니다.</div></div>
+  <div class="arrow">→</div>
+  <div class="card" style="flex:1"><div class="k">2 · 판매자 자기 기록을 한 곳에서 읽음 <span class="tag tz">Zetaris</span></div>
+    <div class="src"><div>💳 결제대행사 원장</div><div>🧾 주문 데이터베이스</div><div>🎟 이용권 지급 기록</div><div>📜 서버 기록 · ✉️ 메일 발송 기록</div></div>
+    <div style="color:var(--mut);margin-top:10px;font-size:19px">Zetaris에 등록한 원본 셋을 SQL 한 번으로 읽고, 그 SQL을 화면에 보여 줍니다. 읽기만 하고 복사해 가지 않습니다.</div></div>
+  <div class="arrow">→</div>
+  <div class="card" style="flex:1"><div class="k">3 · 에이전트가 조사 <span class="tag tn">NVIDIA Nemotron</span><span class="tag tm">Meterless Nightshift 경유</span></div>
+    <div style="font-size:20px">다음에 무엇을 찾아볼지 모델이 고릅니다: <i>이 이메일로 된 주문이 없음 → 결제대행사에서 누가 결제했나? → 그 결제는 어느 주문인가? → 전체 기록</i>.<br>모델이 기록을 보기 전에 이메일 주소와 카드 번호를 가립니다.</div></div>
+</div>
+
+<div class="card"><div class="k">4 · 규칙으로 돈의 흐름을 확인 — 판정은 모델이 하지 않음</div>
+  <div class="chain"><div class="l g">카드 승인</div><div class="arrow" style="font-size:26px">›</div><div class="l g">결제대행사 「결제 완료」</div><div class="arrow" style="font-size:26px">›</div><div class="l g">주문 확정</div><div class="arrow" style="font-size:26px">›</div><div class="l r">이용권 지급 ✕<br><span style="font-weight:500;font-size:16px">오타 난 주소로 감</span></div><div class="arrow" style="font-size:26px">›</div><div class="l r">안내 메일 ✕<br><span style="font-weight:500;font-size:16px">반송됨</span></div></div>
+  <div style="color:var(--mut);margin-top:10px;font-size:19px">초록 = 기록으로 확인됨 · 빨강 = 끊긴 곳, 그걸 증명하는 기록과 함께 · 회색 = 거기까지 가지 않음(예: 「결제된 적이 없습니다」)</div></div>
+
+<div class="out">
+  <div class="card"><div class="k">5 · 판매자가 받는 것</div><b>왜 끊겼는지 — 근거와 함께</b>설명은 실제로 읽은 기록을 근거로 달아야 하고, 없는 기록을 대면 규칙이 쓴 설명으로 바뀝니다.</div>
+  <div class="card"><div class="k">5 · 판매자가 받는 것</div><b>고객에게 보낼 답장</b>고객이 쓴 말로 씁니다. 환불은 약속하지 못합니다 — 돈은 사람이 정합니다.</div>
+  <div class="card"><div class="k">6 · 판매자가 승인</div><b>수정이 실행되고 흐름이 초록으로</b>재지급·재발송·이용권 옮기기는 승인을 눌러야만 실행되고, 모두 기록에 남습니다.</div>
+</div>
+
+<div class="foot"><div><strong>누구를 위한 것:</strong> 고객센터 없이 디지털 상품(이용권·전자책·구독)을 파는 작은 판매자</div><div><strong>왜 필요한가:</strong> 답이 늦으면 카드 분쟁이 됩니다. 고객은 이미 결제 증거가 있으니, 판매자 쪽 증거를 한 번에 찾아 줍니다.</div><div><strong>실제 사고에서 출발:</strong> 사례는 저희 가게에서 실제로 겪은 오류를 가짜 데이터로 다시 만든 것입니다.</div></div>
+</body></html>

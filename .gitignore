@@ -1,0 +1,18 @@
+.venv/
+__pycache__/
+.env.local
+*.pyc
+data/out/*.csv
+.DS_Store
+zetaris-platform/
+# recording raw takes and build intermediates (the final video is docs/demo/final_v2.mp4)
+docs/demo/take*/
+docs/demo/final_parts/_seg/
+docs/demo/zetaris_ui_*/
+docs/demo/vo/*_old.wav
+docs/demo/vo/*_zataris.wav
+docs/demo/vo/*_nemitron.wav
+docs/demo/walkthrough*.webm
+docs/demo_duckdb_draft/*.webm
+docs/comic/raw/
+docs/comic/comic*.html

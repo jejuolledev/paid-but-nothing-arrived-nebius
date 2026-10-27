@@ -1,0 +1,631 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Paid, but nothing arrived</title>
+<style>
+:root{--bg:#0f1115;--card:#171a21;--line:#2a2f3a;--txt:#e8eaf0;--mut:#9aa3b2;--ok:#2ecc71;--bad:#ff4d4f;--grey:#4b5260;--acc:#5b8def}
+*{box-sizing:border-box}html,body{margin:0;max-width:100vw;overflow-x:hidden;background:var(--bg);color:var(--txt);font:15px/1.5 -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif}
+header{padding:28px 20px 10px;max-width:980px;margin:auto}h1{font-size:26px;margin:0 0 8px}
+header .top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+header .sub{color:var(--mut);margin:0 0 6px;max-width:42em}header .sponsors{color:var(--mut);font-size:12px;margin:0;opacity:.75}
+.lang{display:flex;gap:4px;flex-shrink:0}
+.lang button{padding:4px 10px;font-size:12px;border-radius:6px}.lang button.on{background:var(--acc);border-color:var(--acc);color:#fff}
+main{max-width:980px;margin:auto;padding:10px 20px 60px;width:100%}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:14px;max-width:100%}
+textarea{width:100%;min-height:72px;background:#0c0e12;color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:10px;font:inherit;resize:vertical}
+button{background:var(--acc);color:#fff;border:0;border-radius:8px;padding:10px 14px;font:inherit;cursor:pointer}button:disabled{opacity:.55;cursor:not-allowed}
+button.ghost{background:transparent;border:1px solid var(--line);color:var(--txt)}
+.samples{margin-top:10px}.samples .label{display:block;color:var(--mut);font-size:13px;margin-bottom:4px}
+.samples button{margin:4px 6px 0 0;font-size:13px;text-align:left;max-width:100%;white-space:normal}
+.hint{color:var(--mut);font-size:13px;margin-top:8px}
+.chain{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:10px}@media(max-width:640px){.chain{grid-template-columns:repeat(2,1fr)}}
+.link{border-radius:10px;padding:10px;border:2px solid var(--grey);cursor:pointer;min-height:92px}.link:focus{outline:2px solid var(--acc);outline-offset:2px}
+.link small{display:block;color:var(--mut);font-size:12px;margin-top:4px}
+.green{border-color:var(--ok);background:rgba(46,204,113,.08)}.red{border-color:var(--bad);background:rgba(255,77,79,.12);animation:pulse 1.2s ease-in-out 3}.grey{opacity:.6}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,77,79,.5)}50%{box-shadow:0 0 0 8px rgba(255,77,79,0)}}
+@keyframes flashRow{0%,100%{background:transparent}20%,80%{background:rgba(91,141,239,.35)}}
+.flash{animation:flashRow 1.5s ease}
+h2{font-size:18px;margin:0 0 6px}.headline{font-size:22px;font-weight:600}.sql summary{cursor:pointer;color:var(--acc);font-size:12px;margin-top:4px}.sql pre,.sqlbox{white-space:pre-wrap;font:12px/1.45 ui-monospace,Menlo,monospace;background:#0b0e13;border:1px solid var(--line,#2a303b);border-radius:8px;padding:8px 10px;margin:6px 0;color:#cfd6e2}.claims{margin:0;padding-left:0;list-style:none}.claims li{margin:4px 0}.ok-mark{color:var(--green,#3fb97d);font-weight:700}.warnline{margin-top:6px;font-size:13px;color:#f3c969;background:rgba(243,201,105,.08);border:1px solid rgba(243,201,105,.35);border-radius:6px;padding:4px 8px}.mut{color:var(--mut)}
+pre{background:#0c0e12;border:1px solid var(--line);border-radius:8px;padding:10px;font-size:12.5px;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;max-width:100%;margin:0}
+.prose{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;margin:0;font:inherit;line-height:1.5}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:720px){.two{grid-template-columns:1fr}}
+ul{margin:6px 0;padding-left:18px}.tag{display:inline-block;font-size:12px;border:1px solid var(--line);border-radius:999px;padding:1px 8px;color:var(--mut);margin-left:6px;vertical-align:middle}
+.tag.ok{color:var(--ok);border-color:var(--ok)}.tag.warn{color:var(--bad);border-color:var(--bad)}
+.rows{overflow-x:auto;-webkit-overflow-scrolling:touch}.rows table{width:100%;border-collapse:collapse;font-size:12.5px;table-layout:fixed}
+.rows td,.rows th{border-bottom:1px solid var(--line);padding:4px 6px;text-align:left;vertical-align:top;overflow-wrap:anywhere;word-break:break-word}
+.cited{background:rgba(255,77,79,.12)}
+a.cite{color:var(--acc);text-decoration:underline;cursor:pointer}
+details{margin-top:14px}details>summary{cursor:pointer;font-size:18px;font-weight:600;list-style:revert}
+.timeline{list-style:none;padding:0;margin:8px 0 0}.timeline li{border-left:2px solid var(--line);padding:0 0 14px 14px;margin-left:6px;position:relative}
+.timeline li::before{content:"";position:absolute;left:-5px;top:6px;width:8px;height:8px;border-radius:50%;background:var(--acc)}
+.timeline li:last-child{padding-bottom:0}.timeline .tool{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;color:var(--mut)}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.card-head h2{margin:0}
+.how-link{display:inline-block;margin:4px 0 8px;padding:0;font-size:12px;background:none;border:0;color:var(--acc);cursor:pointer;text-decoration:underline}
+.how{margin:10px 0 8px;padding:12px 14px;background:var(--card);border:1px solid var(--line);border-radius:10px}
+.how-label{font-size:12px;color:var(--mut);margin:0 0 10px;font-weight:600}
+.how-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}@media(max-width:700px){.how-steps{grid-template-columns:repeat(2,1fr)}}
+.how-step{display:flex;gap:8px;align-items:flex-start;min-width:0}
+.how-n{flex-shrink:0;width:22px;height:22px;border-radius:50%;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--acc);background:#0c0e12;line-height:1}
+.how-step b{display:block;font-size:13px;font-weight:600;line-height:1.3}
+.how-step span{display:block;font-size:12px;color:var(--mut);margin-top:2px;line-height:1.35}
+.fix-card{border-color:var(--ok)}.fix-meta{font-size:13px;color:var(--mut);margin:4px 0}.fix-chains{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}@media(max-width:720px){.fix-chains{grid-template-columns:1fr}}
+.fix-chains .panel{border-radius:10px;padding:10px;border:2px solid var(--line)}.fix-chains .panel.before{border-color:var(--bad);background:rgba(255,77,79,.08)}.fix-chains .panel.after{border-color:var(--ok);background:rgba(46,204,113,.08)}
+.fix-chains .panel h3{font-size:13px;margin:0 0 8px;color:var(--mut)}.fix-chains .mini{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}@media(max-width:640px){.fix-chains .mini{grid-template-columns:repeat(2,1fr)}}
+.fix-chains .mini .link{min-height:64px;padding:6px;font-size:12px;cursor:default}.reply-note{font-size:12px;color:var(--mut);margin:0 0 6px}
+</style></head><body>
+<header>
+  <div class="top"><h1 id="title"></h1><div class="lang" id="lang"></div></div>
+  <p class="sub" id="subtitle"></p>
+  <button type="button" class="how-link" id="how-link" hidden></button>
+  <div class="how" id="how"></div>
+  <p class="sponsors" id="sponsors"></p>
+</header>
+<main>
+<div class="card">
+  <textarea id="msg" rows="3"></textarea>
+  <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="go"></button><span class="mut" id="status"></span></div>
+  <div id="receipt-line" class="mut" style="font-size:12px;margin-top:4px" hidden></div>
+  <div id="empty-hint" class="hint" hidden></div>
+  <div class="samples" id="samples"></div>
+</div>
+<div id="out"></div>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
+const slug=ref=>String(ref??'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+
+const CHAIN_LABEL_KO={
+  'Card authorized':'카드 승인',
+  'Payment provider: paid':'결제대행사: 결제 완료',
+  'Order confirmed':'주문 확정',
+  'Credits granted':'크레딧 지급',
+  'Mail delivered':'메일 발송',
+};
+const HEADLINE_KO={
+  'No order found for this customer.':'이 고객의 주문을 찾지 못했습니다.',
+  'Nothing is broken. You were never charged.':'끊긴 곳 없음. 결제가 되지 않았습니다.',
+  'Paid, but the order was never confirmed.':'결제는 됐지만 주문이 확정되지 않았습니다.',
+  'Paid, but the credits went to a different account.':'결제는 됐지만 크레딧이 다른 계정으로 갔습니다.',
+  'Paid and confirmed, but credits were never granted.':'결제·확정됐지만 크레딧이 지급되지 않았습니다.',
+  'The customer received the credits twice.':'고객에게 크레딧이 두 번 지급됐습니다.',
+  'Everything went through. The credits are in the account.':'모두 정상입니다. 크레딧이 계정에 있습니다.',
+  'Credits were granted, but the customer was never told.':'크레딧은 지급됐지만 고객에게 안내되지 않았습니다.',
+};
+const TOOL_KO={
+  find_orders:'주문 찾기',
+  find_payments:'결제 기록 찾기',
+  order_for_payment:'결제의 주문 찾기',
+  order_journey:'전체 기록 보기',
+  related_orders:'같은 고객 다른 주문',
+};
+
+const I18N={
+  en:{
+    title:'Paid, but nothing arrived.',
+    subtitle:"When a customer says 'I paid but nothing arrived', this agent checks the payment provider, orders, credits and mail in one pass, shows where the chain broke, and drafts your reply.",
+    sponsors:'Zetaris · Meterless Nightshift · NVIDIA Nemotron',
+    placeholder:'Paste the customer\'s message, e.g. “Hi, I paid for the Standard pack but nothing showed up. Order ord_0901.”',
+    go:'Investigate',
+    examples:'Try an example message',
+    emptyHint:'Paste a customer message (include their email or order number), or pick an example below.',
+    investigating:'Investigating…',
+    errNetwork:'Could not reach the server. Check that the app is running, then try again.',
+    errHttp:'Something went wrong talking to the server. Refresh the page and try again.',
+    noOrderHint:"Paste the customer's message including their email or order number.",
+    reply:'Reply to the customer',
+    copy:'Copy',
+    copied:'Copied',
+    fix:'What to fix',
+    needsApproval:'needs your approval',
+    noFixNeeded:'No fix needed',
+    investigation:'How the agent found it',
+    namedOrder:'Named order',
+    chain:'Money chain',
+    why:'Why',
+    verified:'Verified',
+    unverified:'Not verified',
+    evidence:'Evidence: raw rows',
+    trace:'Trace',
+    citationOk:'Citation check: passed. Every cited row came from the query, and every amount, record id, email domain and status in each sentence matches the rows it cites.',
+    checkedFacts:f=>'found in the cited rows: '+f.join(', '),
+    citationFail:'Citation check: failed → verifier text used',
+    citationSkip:'Citation check: model step skipped (no model reachable)',
+    resetDemo:'Reset the demo data (puts the bugs back so you can try again)',
+    sqlSent:'SQL sent',
+    auditLog:'Audit log ↗',
+    allSql:src=>`Every statement sent through the SQL door (${src}), in order:`,
+    refused:'refused (not this sender\'s record)',
+    oneQuery:(src,n)=>`Every row below came from this one query — ${src} — ${n} joined row(s), split back into the five tables (three datasources):`,
+    knownPattern:'The cause shown is the usual one for this kind of break (from our incident notes); the cited rows show the symptoms.',
+    resetDone:'Demo data reset. Click a case to start again.',
+    evidenceBtn:'Dispute evidence bundle',
+    ms:'ms',
+    answeredBy:m=>'Answered by: '+m,
+    templateExplain:'Explanation: template (no model connected)',
+    failedExplain:'Explanation: verifier text (model call failed twice)',
+    unreachableExplain:'Explanation: verifier text (no model reachable. Start Nightshift, or unset NIGHTSHIFT_BASE_URL to use the templates on purpose)',
+    recheckExplain:'Re-checked by the verifier after your fix',
+    dataZetaris:'Data: Zetaris',
+    dataLocal:'Data: local files',
+    approveFix:'Approve fix',
+    approving:'Applying fix…',
+    routedBy:(model,rid)=>'Routed by Meterless Nightshift → '+model+' · receipt '+rid,
+    modelLabel:'model',
+    howTitle:'How it works',
+    how1:'Paste the customer message',
+    how1d:'their email is enough',
+    how2:'One SQL door (Zetaris) reads your records',
+    how2d:'payments, orders, credits, logs, mail — read-only, via Zetaris',
+    how3:'The agent investigates',
+    how3d:'Nemotron via Meterless Nightshift picks what to check; emails masked',
+    how4:'You approve the fix',
+    how4d:'the chain turns green; every fix is logged',
+    fixedByYou:'Fixed by you',
+    sendAfterFix:'Send this after the fix:',
+    sendAfterApprove:'Send this only after you approve the fix below.',
+    replyTemplate:w=>`Standard reply: the model’s draft was not used (${w}).`,
+    before:'Before',
+    after:'After',
+    actionId:'Action',
+    confirmAddress:'The customer must confirm the address they paid with. Did they confirm?',
+    ignoredOrder:o=>`${o} in the message belongs to another customer, so it was not read.`,
+    senderUnverified:'No sender address in the message. Check that this order\'s email is the person who wrote to you before you send the reply.',
+  },
+  ko:{
+    title:'결제했는데 아무것도 안 왔어요.',
+    subtitle:"고객이 '결제했는데 아무것도 안 왔어요'라고 하면, 결제·주문·크레딧·메일을 한 번에 살펴 어디에서 끊겼는지 보여 주고 답장 초안까지 만듭니다.",
+    sponsors:'Zetaris · Meterless Nightshift · NVIDIA Nemotron',
+    placeholder:'고객 메시지를 붙여 넣으세요. 예: “스탠다드 팩 결제했는데 아무것도 안 보여요. 주문번호 ord_0901.”',
+    go:'조사하기',
+    examples:'예시 메시지 써보기',
+    emptyHint:'고객 메시지(이메일 또는 주문번호 포함)를 붙여 넣거나, 아래 예시를 고르세요.',
+    investigating:'조사 중…',
+    errNetwork:'서버에 연결하지 못했습니다. 앱이 실행 중인지 확인한 뒤 다시 시도하세요.',
+    errHttp:'서버와 통신 중 문제가 생겼습니다. 페이지를 새로고침한 뒤 다시 시도하세요.',
+    noOrderHint:'고객 메시지에 이메일이나 주문번호를 포함해 붙여 넣으세요.',
+    reply:'고객에게 보낼 답장',
+    copy:'복사',
+    copied:'복사됨',
+    fix:'고칠 것',
+    needsApproval:'승인 필요',
+    noFixNeeded:'수정 불필요',
+    investigation:'에이전트가 찾은 과정',
+    namedOrder:'지정한 주문',
+    chain:'결제 연결고리',
+    why:'이유',
+    verified:'확인됨',
+    unverified:'확인되지 않음',
+    evidence:'근거: 원본 행',
+    trace:'추적',
+    citationOk:'인용 검사: 통과 — 인용한 행은 모두 쿼리가 돌려준 행이고, 문장마다 적힌 금액·기록 번호·메일 도메인·상태가 그 문장이 인용한 행과 일치합니다.',
+    checkedFacts:f=>'인용한 행에서 확인: '+f.join(', '),
+    citationFail:'인용 검사: 실패 → 검증기 문구 사용',
+    citationSkip:'인용 검사: 모델 단계 생략(연결된 모델 없음)',
+    resetDemo:'데모 데이터 되돌리기(오류를 다시 넣어 처음부터 해 볼 수 있음)',
+    sqlSent:'보낸 SQL',
+    auditLog:'수정 기록 ↗',
+    allSql:src=>`SQL 창구로 보낸 모든 문장(${src}), 순서대로:`,
+    refused:'거부됨(이 고객의 기록이 아님)',
+    oneQuery:(src,n)=>`아래 행은 모두 이 쿼리 하나로 가져왔습니다 — ${src} — 합쳐진 ${n}행을 다섯 표(원본 셋)로 다시 나눔:`,
+    knownPattern:'이 원인 설명은 이런 끊김의 알려진 유형(저희 사고 기록)입니다. 근거 행은 그 증상을 보여 줍니다.',
+    resetDone:'데모 데이터를 되돌렸습니다. 사례를 눌러 다시 시작하세요.',
+    evidenceBtn:'분쟁용 근거 묶음',
+    ms:'ms',
+    answeredBy:m=>'답변: '+m,
+    templateExplain:'설명: 템플릿(연결된 모델 없음)',
+    failedExplain:'설명: 검증기 문장(모델 호출 두 번 실패)',
+    unreachableExplain:'설명: 검증기 문장(연결된 모델 없음 — Nightshift를 켜거나 NIGHTSHIFT_BASE_URL을 비우세요)',
+    recheckExplain:'수정 후 검증기가 다시 확인함',
+    dataZetaris:'데이터: Zetaris',
+    dataLocal:'데이터: 로컬 파일',
+    approveFix:'수정 승인',
+    approving:'수정 적용 중…',
+    routedBy:(model,rid)=>'Meterless Nightshift 경유 → '+model+' · receipt '+rid,
+    modelLabel:'모델',
+    howTitle:'작동 방식',
+    how1:'고객 메시지를 붙여 넣기',
+    how1d:'이메일만 있어도 됩니다',
+    how2:'SQL 창구 하나(Zetaris)로 기록을 읽습니다',
+    how2d:'결제·주문·크레딧·로그·메일 — 읽기 전용, Zetaris 경유',
+    how3:'에이전트가 조사합니다',
+    how3d:'Meterless Nightshift의 Nemotron이 확인할 항목을 고릅니다. 이메일은 가려집니다',
+    how4:'수정은 당신이 승인합니다',
+    how4d:'연결고리가 초록으로 바뀌고, 모든 수정은 기록됩니다',
+    fixedByYou:'직접 수정함',
+    sendAfterFix:'수정 후 보낼 답장:',
+    sendAfterApprove:'아래 수정을 승인한 뒤에만 보내세요.',
+    replyTemplate:w=>`기본 답장: 모델이 쓴 답장은 쓰지 않았습니다(${w}).`,
+    before:'이전',
+    after:'이후',
+    actionId:'액션',
+    confirmAddress:'고객이 결제한 이메일 주소가 맞다고 확인해 주셨나요?',
+    ignoredOrder:o=>`메시지의 ${o}는 다른 고객의 주문이라 읽지 않았습니다.`,
+    senderUnverified:'메시지에 보낸 사람 주소가 없습니다. 답장을 보내기 전에 이 주문의 이메일이 문의한 사람과 같은지 확인하세요.',
+  }
+};
+
+const EXAMPLES={
+  1:{label:'I paid but my credits never came — ord_0901',send:'I paid but my credits never came. Order ord_0901. hana.lee901@example.com'},
+  2:{label:'I paid but the order never confirmed — ord_0902',send:'I paid but the order never confirmed. Order ord_0902. jun.park902@example.com'},
+  3:{label:'I was granted the same credits twice — ord_0903',send:'I was granted the same credits twice. Order ord_0903. sora.kim903@example.com'},
+  4:{label:'Credits arrived but I never got an email — ord_0904',send:'Credits arrived but I never got an email. Order ord_0904. noah.chen904@example.com'},
+  5:{label:'I thought I paid but nothing showed up — ord_0905',send:'I thought I paid but nothing showed up. Order ord_0905. emma.song905@example.com'},
+  6:{label:'I paid but nothing arrived — liam.patel906@example.com',send:'Hi, I paid 24,900 won yesterday but my credits never came. liam.patel906@example.com'},
+};
+
+let lang='en', lastResult=null, lastFix=null, casesCache=[];
+let howOpen=true, howSeenResult=false;
+
+function t(){return I18N[lang]||I18N.en;}
+function loadLang(){
+  try{const s=localStorage.getItem('ui-lang');if(s==='en'||s==='ko')lang=s;}catch(_){}
+}
+function saveLang(){
+  try{localStorage.setItem('ui-lang',lang);}catch(_){}
+}
+
+function rowsLabel(n){
+  const c=Number(n);
+  if(lang==='ko')return c+'행';
+  return c===1?'1 row':c+' rows';
+}
+
+function trLabel(label){
+  if(lang!=='ko')return label;
+  return CHAIN_LABEL_KO[label]||label;
+}
+function trHeadline(h){
+  if(lang!=='ko')return h;
+  return HEADLINE_KO[h]||h;
+}
+function trTool(name){
+  if(lang!=='ko'||!name)return name;
+  return TOOL_KO[name]||name;
+}
+
+function dedupeCitations(text){
+  return String(text??'').replace(/(\[[a-z_]+:[^\]]+\])(?:\s*\1)+/gi,'$1');
+}
+
+function renderHow(){
+  const i=t();
+  const steps=[[i.how1,i.how1d],[i.how2,i.how2d],[i.how3,i.how3d],[i.how4,i.how4d]];
+  $('#how').innerHTML=`<p class="how-label">${esc(i.howTitle)}</p><div class="how-steps">${steps.map(([t,d],n)=>`<div class="how-step"><span class="how-n">${esc(n+1)}</span><div><b>${esc(t)}</b><span>${esc(d)}</span></div></div>`).join('')}</div>`;
+  const link=$('#how-link');
+  link.textContent=i.howTitle;
+  $('#how').hidden=!howOpen;
+  link.hidden=!howSeenResult;
+}
+
+function hideHowAfterResult(){
+  if(howSeenResult)return;
+  howSeenResult=true;
+  howOpen=false;
+  renderHow();
+}
+
+function applyChrome(){
+  const i=t();
+  document.documentElement.lang=lang==='ko'?'ko':'en';
+  document.title=i.title.replace(/\.$/,'');
+  $('#title').textContent=i.title;
+  $('#subtitle').textContent=i.subtitle;
+  $('#sponsors').textContent=i.sponsors;
+  $('#msg').placeholder=i.placeholder;
+  $('#go').textContent=i.go;
+  $('#lang').innerHTML=`<button type="button" class="ghost${lang==='en'?' on':''}" data-lang="en">EN</button><button type="button" class="ghost${lang==='ko'?' on':''}" data-lang="ko">한국어</button>`;
+  document.querySelectorAll('#lang button').forEach(b=>b.onclick=()=>{lang=b.dataset.lang;saveLang();applyChrome();renderSamples();if(lastResult)render(lastResult,{scroll:false});});
+  const eh=$('#empty-hint');
+  if(eh.dataset.show==='1')eh.textContent=i.emptyHint;
+  renderHow();
+  renderSamples();
+}
+
+function statusLine(r){
+  const i=t();
+  const be=String(r.backend||'');
+  const data=be?( /zetaris/i.test(be)?i.dataZetaris:i.dataLocal):'';
+  if(!r.ok)return data;
+  const parts=[];
+  if(r.llm==='verifier-only')parts.push(i.recheckExplain);
+  else if(r.llm==='failed')parts.push(i.failedExplain);
+  else if(r.llm==='unreachable')parts.push(i.unreachableExplain);
+  else if(r.llm==='none'||!r.llm)parts.push(i.templateExplain);
+  else parts.push(i.answeredBy(r.llm));
+  if(data)parts.push(data);
+  if(r.elapsed_ms!=null)parts.push(r.elapsed_ms+' '+i.ms);
+  return parts.join(' · ');
+}
+
+function showReceipt(r){
+  const el=$('#receipt-line');
+  if(!el)return;
+  const i=t();
+  if(!Array.isArray(r.receipts)||!r.receipts.length){el.hidden=true;el.textContent='';return;}
+  const last=r.receipts[r.receipts.length-1]||{};
+  const model=last.model||last.provider_model||last.requested_model||'';
+  const rid=last.receipt_id||'';
+  if(!model&&!rid){el.hidden=true;el.textContent='';return;}
+  el.hidden=false;
+  el.textContent=i.routedBy(model||'—',rid||'—');
+}
+
+function goToRef(ref){
+  if(!ref)return;
+  const details=$('#evidence');
+  if(details&&!details.open)details.open=true;
+  const el=document.getElementById('row-'+slug(ref));
+  if(!el)return;
+  el.scrollIntoView({behavior:'smooth',block:'center'});
+  el.classList.remove('flash');
+  void el.offsetWidth;
+  el.classList.add('flash');
+  setTimeout(()=>el.classList.remove('flash'),1500);
+}
+
+function linkifyExplain(text){
+  return esc(dedupeCitations(text)).replace(/\[([a-z_]+:[^\]]+)\]/gi,(_,ref)=>`<a class="cite" href="#row-${esc(slug(ref))}" data-ref="${esc(ref)}">[${esc(ref)}]</a>`);
+}
+
+function renderSamples(){
+  const i=t();
+  if(!casesCache.length){$('#samples').innerHTML='';return;}
+  $('#samples').innerHTML=`<span class="label">${esc(i.examples)}</span>`+casesCache.map(c=>{
+    const ex=EXAMPLES[c.case]||{label:c.title,send:'order '+String(c.order_id||'')};
+    return `<button type="button" class="ghost" data-send="${esc(ex.send)}">${esc(ex.label)}</button>`;
+  }).join('');
+  document.querySelectorAll('#samples button').forEach(b=>b.onclick=()=>{
+    $('#msg').value=b.dataset.send;$('#empty-hint').hidden=true;$('#empty-hint').dataset.show='';run();
+  });
+}
+
+async function loadCases(){
+  try{
+    const res=await fetch('/api/cases');
+    if(!res.ok)throw new Error('http');
+    casesCache=await res.json();
+  }catch(_){casesCache=[];}
+  renderSamples();
+}
+
+async function run(){
+  const i=t();
+  const message=$('#msg').value.trim();
+  const hint=$('#empty-hint');
+  if(!message){
+    hint.hidden=false;hint.dataset.show='1';hint.textContent=i.emptyHint;$('#status').textContent='';return;
+  }
+  hint.hidden=true;hint.dataset.show='';
+  $('#status').textContent=i.investigating;
+  $('#go').disabled=true;
+  lastFix=null;
+  try{
+    const res=await fetch('/api/investigate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message,lang})});
+    if(!res.ok){
+      lastResult=null;
+      hideHowAfterResult();
+      $('#out').innerHTML=`<div class="card"><div class="headline">${esc(i.errHttp)}</div><p class="hint">${esc(i.emptyHint)}</p></div>`;
+      $('#out').scrollIntoView({behavior:'smooth',block:'start'});
+      $('#status').textContent='';
+      return;
+    }
+    const r=await res.json();
+    lastResult=r;
+    $('#status').textContent=statusLine(r);
+    showReceipt(r);
+    render(r);
+  }catch(_){
+    lastResult=null;
+    hideHowAfterResult();
+    $('#out').innerHTML=`<div class="card"><div class="headline">${esc(i.errNetwork)}</div><p class="hint">${esc(i.emptyHint)}</p></div>`;
+    $('#out').scrollIntoView({behavior:'smooth',block:'start'});
+    $('#status').textContent='';
+  }finally{
+    $('#go').disabled=false;
+  }
+}
+
+function renderChain(chain, clickable){
+  const i=t();
+  return (chain||[]).map((l,idx)=>{
+    const attrs=clickable?` data-i="${esc(idx)}" tabindex="0" role="button"`:'';
+    return `<div class="link ${esc(l.state)}"${attrs}><b>${esc(trLabel(l.label))}</b><small>${esc(l.note)}</small>${l.refs.length?`<small class="mut">${esc(rowsLabel(l.refs.length))} ↗</small>`:''}</div>`;
+  }).join('');
+}
+
+function prettySql(q){
+  // the one journey query lists ~30 aliased columns; show the shape, keep FROM/JOIN/WHERE verbatim
+  let x=String(q).replace(/^SELECT\s+o\.order_id AS o__order_id.*?\s+FROM /s,'SELECT o.*, p.*, g.*, l.*, m.*  -- (aliased column list shortened)\nFROM ');
+  return x.replace(/\s+(LEFT JOIN|WHERE|ORDER BY|LIMIT)\s+/g,'\n$1 ');
+}
+function sqlSource(r){return /zetaris/i.test(String(r.backend||''))?'Zetaris · lightning.metastore.demo.order_journey':'DuckDB over the synthetic CSVs (same SQL as Zetaris)';}
+
+function renderWhy(r){
+  const i=t(), c=r.citation_check||{};
+  // model explanation that passed: one line per sentence with what was checked against the cited rows
+  if(c.checked&&c.ok&&Array.isArray(c.claims)&&c.claims.length)
+    return `<ul class="claims">${c.claims.map(x=>`<li><span class="ok-mark">✓</span> ${linkifyExplain(x.sentence)}${x.facts&&x.facts.length?` <span class="mut" style="font-size:12px">(${esc(i.checkedFacts(x.facts))})</span>`:''}</li>`).join('')}</ul>`;
+  return `<p>${linkifyExplain(r.explanation)}</p>`;
+}
+
+function renderSteps(steps){
+  const i=t();
+  if(!Array.isArray(steps)||!steps.length)return'';
+  const items=steps.map(s=>{
+    const bits=[`<div>${esc(s.thought||'')}</div>`];
+    if(s.tool){
+      const args=s.args!=null?(typeof s.args==='string'?s.args:JSON.stringify(s.args)):'';
+      bits.push(`<div class="tool">${esc(trTool(s.tool))}${args?` ${esc(args)}`:''}${s.rows!=null?` · ${esc(rowsLabel(s.rows))}`:''}${s.refused?` · ${esc(i.refused)}`:(s.error?' · error':'')}</div>`);
+      if(Array.isArray(s.sql)&&s.sql.length)bits.push(`<details class="sql"><summary>${esc(i.sqlSent)}</summary><pre>${esc(s.sql.map(prettySql).join('\n\n'))}</pre></details>`);
+    }
+    if(s.receipt){
+      const m=s.receipt.model||s.receipt.provider_model||s.receipt.requested_model||'';
+      if(m)bits.push(`<div class="mut">${esc(i.modelLabel)}: ${esc(m)}</div>`);
+    }
+    if(s.done||s.order_id)bits.push(`<div class="mut">${esc(i.namedOrder)}: <b>${esc(s.order_id||'—')}</b></div>`);
+    if(s.ms!=null)bits.push(`<div class="mut">${esc(s.ms)} ${esc(i.ms)}</div>`);
+    return `<li>${bits.join('')}</li>`;
+  }).join('');
+  return `<div class="card"><h2>${esc(i.investigation)}</h2><ol class="timeline">${items}</ol></div>`;
+}
+
+function renderFixCard(){
+  if(!lastFix)return'';
+  const i=t();
+  const f=lastFix;
+  return `<div class="card fix-card"><h2>${esc(i.fixedByYou)}</h2>
+    <p class="fix-meta">${esc(i.actionId)}: <b>${esc(f.action_id)}</b></p>
+    <p class="prose">${esc(f.detail)}</p>
+    <p class="fix-meta">${esc(f.ts)}</p>
+    <div class="fix-chains">
+      <div class="panel before"><h3>${esc(i.before)}</h3><div class="mini chain">${renderChain(f.before,false)}</div></div>
+      <div class="panel after"><h3>${esc(i.after)}</h3><div class="mini chain">${renderChain(f.after,false)}</div></div>
+    </div><p class="fix-meta"><a href="/api/audit" target="_blank" rel="noopener">${esc(i.auditLog)}</a> · <a href="#" id="reset-demo">${esc(i.resetDemo)}</a></p></div>`;
+}
+
+function render(r, opts){
+  const i=t();
+  const scroll=!(opts&&opts.scroll===false);
+  const afterFix=!!(opts&&opts.afterFix)||!!lastFix;
+  hideHowAfterResult();
+  if(!r.ok){
+    $('#out').innerHTML=`${renderFixCard()}<div class="card"><div class="headline">${esc(trHeadline(r.headline))}</div><p class="hint">${esc(i.noOrderHint)}</p></div>`;
+    if(scroll)$('#out').scrollIntoView({behavior:'smooth',block:'start'});
+    return;
+  }
+  const chain=renderChain(r.chain,true);
+  const cited=new Set(r.chain.flatMap(l=>l.refs));
+  const rows=Object.entries(r.rows).map(([table,rs])=>rs.length?`<h3 style="margin:10px 0 4px;font-size:14px">${esc(table)} <span class="tag">${esc(rowsLabel(rs.length))}</span></h3><table><tr>${Object.keys(rs[0]).filter(k=>k!=='ref').map(k=>`<th>${esc(k)}</th>`).join('')}</tr>${rs.map(x=>`<tr class="${cited.has(x.ref)?'cited':''}" id="row-${esc(slug(x.ref))}">${Object.entries(x).filter(([k])=>k!=='ref').map(([,v])=>`<td>${esc(v)}</td>`).join('')}</tr>`).join('')}</table>`:'').join('');
+  let citeNote=i.citationSkip;
+  if(r.citation_check&&r.citation_check.checked)citeNote=r.citation_check.ok?i.citationOk:i.citationFail;
+  const needsFix=r.broken!=null;
+  const fixTag=needsFix
+    ?`<span class="tag warn">${esc(i.needsApproval)}</span>`
+    :`<span class="tag ok">${esc(i.noFixNeeded)}</span>`;
+  const rc=r.citation_check||{};
+  const tplNote=rc.reply_replaced?`<p class="reply-note">${esc(i.replyTemplate(rc.reply_reason||'check failed'))}</p>`:'';
+  const replyNote=tplNote+(afterFix?`<p class="reply-note">${esc(i.sendAfterFix)}</p>`:(needsFix?`<p class="reply-note">${esc(i.sendAfterApprove)}</p>`:''));
+
+  $('#out').innerHTML=`
+  ${renderFixCard()}
+  <div class="card"><div class="headline">${esc(trHeadline(r.headline))}</div><div class="mut">order ${esc(r.order_id)} · ${esc(r.email)}</div>${r.ignored_order?`<div class="warnline">${esc(i.ignoredOrder(r.ignored_order))}</div>`:''}${r.sender_unverified?`<div class="warnline">${esc(i.senderUnverified)}</div>`:''}
+    <div class="chain">${chain}</div></div>
+  <div class="two">
+    <div class="card"><div class="card-head"><h2>${esc(i.reply)}</h2><button type="button" class="ghost" id="copy-reply">${esc(i.copy)}</button></div>
+      ${replyNote}<div class="prose" id="reply-text">${esc(r.customer_reply)}</div>
+      <div style="margin-top:10px"><button type="button" class="ghost" id="evidence-btn">${esc(i.evidenceBtn)}</button></div></div>
+    <div class="card"><div class="card-head"><h2>${esc(i.fix)} ${fixTag}</h2></div><div class="prose">${esc(r.fix_action)}</div>
+      ${needsFix?`<div style="margin-top:10px"><button type="button" id="approve-btn">${esc(i.approveFix)}</button></div>`:''}
+      <p id="approve-msg" class="hint" style="margin:8px 0 0" hidden></p></div>
+  </div>
+  ${renderSteps(r.steps)}
+  <div class="card"><h2>${esc(i.why)}</h2>${renderWhy(r)}${(!r.citation_check||!r.citation_check.checked||r.citation_check.replaced_with_verifier_text)?`<p class="hint">${esc(i.knownPattern)}</p>`:''}
+    <p class="mut" style="font-size:12px">${esc(citeNote)}</p></div>
+  <div class="card two"><div><h2>${esc(i.verified)}</h2><ul>${r.verified.map(v=>`<li>${esc(v)}</li>`).join('')}</ul></div>
+    <div><h2>${esc(i.unverified)}</h2><ul>${r.unverified.map(v=>`<li>${esc(v)}</li>`).join('')||`<li class="mut">—</li>`}</ul></div></div>
+  <details class="card rows" id="evidence"><summary>${esc(i.evidence)}</summary>${(()=>{const q=(r.queries||[]).filter(x=>x.tool==='order_journey').pop();return q?`<p class="hint">${esc(i.oneQuery(sqlSource(r),q.rows))}</p><pre class="sqlbox">${esc(prettySql(q.sql))}</pre>`:'';})()}${rows}</details>
+  <details class="card" id="trace"><summary>${esc(i.trace)}</summary><ul>${(r.trace||[]).map(tr=>`<li><b>${esc(tr.step)}</b> — ${esc(tr.detail)} <span class="mut">${esc(tr.ms)} ${esc(i.ms)}</span></li>`).join('')}</ul>${(r.queries||[]).length?`<p class="hint">${esc(i.allSql(sqlSource(r)))}</p><pre class="sqlbox">${esc(r.queries.map(q=>`-- ${q.tool} · ${q.rows} row(s)\n`+prettySql(q.sql)).join('\n\n'))}</pre>`:''}</details>`;
+
+  const copyBtn=$('#copy-reply');
+  if(copyBtn)copyBtn.onclick=async()=>{
+    try{await navigator.clipboard.writeText(r.customer_reply);copyBtn.textContent=t().copied;setTimeout(()=>copyBtn.textContent=t().copy,1500);}catch(_){}
+  };
+  const evBtn=$('#evidence-btn');
+  if(evBtn)evBtn.onclick=()=>evidence();
+  const apBtn=$('#approve-btn');
+  if(apBtn)apBtn.onclick=()=>approveFix(r.order_id);
+
+  document.querySelectorAll('#out .link[data-i]').forEach(el=>{
+    const activate=()=>{const l=r.chain[+el.dataset.i];if(l&&l.refs[0])goToRef(l.refs[0]);};
+    el.onclick=activate;
+    el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();activate();}};
+  });
+  document.querySelectorAll('a.cite').forEach(a=>{
+    a.onclick=e=>{e.preventDefault();goToRef(a.dataset.ref);};
+  });
+  const rl=$('#reset-demo');
+  if(rl)rl.onclick=async e=>{e.preventDefault();
+    const res=await fetch('/api/reset',{method:'POST'});
+    lastFix=null;lastResult=null;$('#out').innerHTML='';
+    $('#status').textContent=res.ok?i.resetDone:await res.text();};
+  if(scroll)$('#out').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+async function approveFix(orderId, customerConfirmed){
+  const i=t();
+  const btn=$('#approve-btn');
+  const msg=$('#approve-msg');
+  if(btn)btn.disabled=true;
+  $('#status').textContent=i.approving;
+  const beforeChain=lastResult&&lastResult.chain?lastResult.chain.slice():[];
+  // moving credits to another address needs the customer's confirmation: ask first instead of waiting for the server's 409
+  if(!customerConfirmed&&lastResult&&lastResult.broken==='account_mismatch'){
+    if(!confirm(i.confirmAddress)){if(btn)btn.disabled=false;$('#status').textContent='';return;}
+    customerConfirmed=true;
+  }
+  try{
+    const payload={order_id:orderId,approved_by:'seller'};
+    if(customerConfirmed)payload.customer_confirmed=true;
+    const res=await fetch('/api/approve',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)});
+    if(res.status===409||res.status===400){
+      const text=await res.text();
+      if(res.status===409&&text.startsWith('Ask the customer to confirm')){
+        if(confirm(i.confirmAddress)){
+          return approveFix(orderId,true);
+        }
+        if(msg){msg.hidden=false;msg.textContent=text;msg.style.color='var(--bad)';}
+        else $('#status').textContent=text;
+        return;
+      }
+      if(msg){msg.hidden=false;msg.textContent=text;msg.style.color='var(--bad)';}
+      else $('#status').textContent=text;
+      return;
+    }
+    if(!res.ok){
+      $('#status').textContent=i.errHttp;
+      return;
+    }
+    const body=await res.json();
+    const audit=body.audit||{};
+    const applied=body.applied||{};
+    lastFix={
+      action_id:audit.action_id||'—',
+      detail:applied.detail||audit.detail||'',
+      ts:audit.ts||'',
+      before:beforeChain,
+      after:(body.after&&body.after.chain)||[],
+    };
+    lastResult=body.after;
+    $('#status').textContent=statusLine(body.after);
+    showReceipt(body.after);
+    render(body.after,{afterFix:true});
+  }catch(_){
+    $('#status').textContent=i.errNetwork;
+  }finally{
+    if(btn)btn.disabled=false;
+  }
+}
+
+async function evidence(){
+  const message=$('#msg').value.trim();
+  try{
+    const res=await fetch('/api/evidence',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message})});
+    const text=await res.text();
+    const w=window.open('','_blank');
+    if(w)w.document.write('<pre style="white-space:pre-wrap;overflow-wrap:anywhere;font:13px/1.5 monospace;padding:20px">'+esc(text)+'</pre>');
+  }catch(_){
+    $('#status').textContent=t().errNetwork;
+  }
+}
+
+$('#go').onclick=run;
+$('#how-link').onclick=()=>{howOpen=!howOpen;renderHow();};
+$('#msg').addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();run();}
+});
+loadLang();
+applyChrome();
+loadCases();
+</script></body></html>

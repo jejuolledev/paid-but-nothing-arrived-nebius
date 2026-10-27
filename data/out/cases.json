@@ -1,0 +1,50 @@
+[
+  {
+    "case": 1,
+    "title": "Paid but not credited",
+    "email": "hana.lee901@example.com",
+    "order_id": "ord_0901",
+    "broken_link": "order_created",
+    "expected": "PSP ledger says PAID; our order row says failed; confirm returned 409 without re-checking the PSP; reconcile only scans pending. Credit was never granted."
+  },
+  {
+    "case": 2,
+    "title": "Paid, confirm never called",
+    "email": "jun.park902@example.com",
+    "order_id": "ord_0902",
+    "broken_link": "order_created",
+    "expected": "PSP ledger says PAID and the webhook arrived, but there is no /api/payments/confirm request at all; order stayed pending, nothing granted."
+  },
+  {
+    "case": 3,
+    "title": "Granted twice",
+    "email": "sora.kim903@example.com",
+    "order_id": "ord_0903",
+    "broken_link": "credit_granted",
+    "expected": "Two grant rows for the same email and reward; the first confirm timed out after writing, then a manual retry granted again."
+  },
+  {
+    "case": 4,
+    "title": "Granted, but no mail",
+    "email": "noah.chen904@example.com",
+    "order_id": "ord_0904",
+    "broken_link": "mail_delivered",
+    "expected": "Credits were granted, but /api/mail/send failed with a missing API key and there is no mail event for this order. The customer has the credits and does not know."
+  },
+  {
+    "case": 5,
+    "title": "Never charged",
+    "email": "emma.song905@example.com",
+    "order_id": "ord_0905",
+    "broken_link": null,
+    "expected": "No PSP payment exists for this order; the customer left before the card step. Nothing is broken and nothing was charged."
+  },
+  {
+    "case": 6,
+    "title": "Paid with one email, ordered under a typo",
+    "email": "liam.patel906@example.com",
+    "order_id": "ord_0906",
+    "broken_link": "account_mismatch",
+    "expected": "No order under the customer's address. The PSP ledger has pay_0906 PAID by liam.patel906@example.com; that payment belongs to ord_0906, placed under liam.patel906@exmaple.com (typo). Credits went to the typo account and the mail bounced. Nothing is lost: move the 30 credits to the right account."
+  }
+]
