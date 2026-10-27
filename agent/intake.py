@@ -225,7 +225,7 @@ def read_message(client, message: str) -> dict:
     masked, mapping = prepare(message)
     out = {"masked": masked, "placeholders": {k: _mask_addr(v) for k, v in mapping.items()}, "model": model_for("intake")}
     try:
-        resp = client.chat.completions.create(_role="intake", model=model_for("intake"), temperature=0,
+        resp = client.chat.completions.create(**({"_role": "intake"} if hasattr(client, "log") else {}), model=model_for("intake"), temperature=0,
                                               max_tokens=int(os.getenv("LLM_MAX_TOKENS_INTAKE", "1500")),
                                               messages=[{"role": "system", "content": SYSTEM},
                                                         {"role": "user", "content": "Customer message:\n" + masked}])
