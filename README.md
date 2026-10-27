@@ -2,7 +2,17 @@
 
 > Your customer already has proof they paid. This agent finds yours.
 
-**In ten seconds:** a small online seller gets *"I paid 24,900 won and nothing arrived."* Paste that message. **NVIDIA Nemotron, running on Nebius Token Factory,** reads it: who is writing (even when the message has two addresses), what they claim, and which records to check. The agent then reads the seller's payment, order, credit, log and mail records (read-only), marks **the one link where the money got stuck** with the rows that prove it, drafts the reply, and proposes a fix that runs only after the seller clicks Approve. The model reads and plans; a rule-based verifier decides.
+**In ten seconds:** a customer writes *"돈 냈어요, 이거 보세요"* ("I paid, here's proof") and drops a phone photo of their
+banking app. **Nemotron 3.5 Super VL on Nebius Token Factory** reads the photo — the payment line, not the balance,
+the points or the phone's clock — and the seller's own payment ledger checks it: same amount, same minute. Then the
+money chain shows the one link where the money got stuck (**card → payment provider → order → credits → mail**), with
+the rows that prove it, a reply in the customer's language (Korean, Japanese, English), and a fix that runs only
+after the seller clicks Approve. Change one number on the screenshot and the ledger has never seen that payment. And
+sometimes the honest answer is: *"Nothing is broken. You were never charged."*
+
+Models per job, all on Token Factory: **Nemotron 3.5 Super VL** reads the screenshot · **Nemotron 3.5 Lightning**
+reads the message and plans the lookups · **Nemotron 3 Ultra** re-reads only when that first reading is unsure ·
+**Nemotron 3 Super** writes the cited explanation and the reply. The page shows each call's model, time, tokens and cost.
 
 **Try it:** TRY_IT_URL — no login, no key. The six example buttons answer at once from a recorded live run; **Run it live now** calls Token Factory for real. Your Approve and Reset change only your own copy of the synthetic data.
 

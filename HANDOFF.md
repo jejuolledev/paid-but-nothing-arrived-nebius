@@ -4,7 +4,7 @@ Deadline: **Sat 2026-10-31 02:00 KST** (Fri Oct 30 10:00 PDT). Aim to press Subm
 Everything below runs in `/Users/ollekil/Desktop/Moahub-Labs/hackathons/paid-but-nothing-arrived-nebius`.
 Headless only; no paid services beyond the free Token Factory credits; nothing is published without the owner's yes.
 
-Already done (no key needed): code, 38 tests, public demo mode, rules-only baseline on the held-out set
+Already done (no key needed): code, 50 tests, public demo mode, rules-only baseline on the held-out set
 (38/40), recorder/video/TTS scripts (dry-run tested with the FAKE stand-in), Dockerfile + Cloud Run script,
 README / feedback / form drafts with FILL marks.
 
@@ -19,6 +19,62 @@ README / feedback / form drafts with FILL marks.
    ```
    cp .env.example .env.local     # then edit: NEBIUS_API_KEY=...
    ```
+
+## Direction (2026-10-27 night): screenshot proof first
+Chosen in `docs/pivot_options.md` (P1 "Show me the proof" + P2 edited-screenshot twist + P3 Korean/Japanese screens),
+sharpened by `docs/research_winners.md`. Built without a key (commit fceb04a and after):
+- `agent/proof.py` — photo → Nemotron 3.5 Super VL (strict JSON) → code checks → the **ledger decides** (same amount,
+  same minute ±10, card last-4) → the usual five-link chain for the matched order. Edited screenshot → "a payment the
+  ledger has never seen" + polite request for the statement line (never "fake"), Approve hidden.
+- Routing, all env-configurable (`agent/llm.py` ROUTES): vision `nvidia/Nemotron-3.5-Super-VL` · intake
+  `nvidia/Nemotron-3_5-Lightning` · escalate `nvidia/Nemotron-3-Ultra-550b-a55b` (only when code finds the first reading
+  unsure) · explain/reply `nvidia/nemotron-3-super-120b-a12b`. Cost per call from catalog prices; page shows model,
+  ms, tokens, USD and a total.
+- Frozen eval sets (built by a separate agent that never saw prompts or code): `docs/eval/screens/` (16 held-out +
+  6 dev phone photos, KO/JA, 6 invented app styles, 8 edited) and `docs/eval/text_fallback.jsonl` (Korean-heavy).
+- Baseline without a model: macOS Vision OCR + rules → `docs/measurements.md`.
+
+## GATE — first hour after the key (Claude, 15 min). Do this before steps 1–10.
+```bash
+.venv/bin/python scripts/tf_gate.py      # lists models, tries ONE dev screenshot on the NVIDIA vision id -> docs/gate_result.json
+```
+- **DECISION: PHOTO** → put the printed `LLM_VISION_MODEL` / `LLM_VISION_JSON` in `.env.local`, then:
+  ```bash
+  .venv/bin/python scripts/proof_eval.py --mode model --set dev                 # tune SYSTEM_VISION in agent/proof.py only from these
+  .venv/bin/python scripts/proof_eval.py --mode model --set dev --variant clean
+  .venv/bin/python -m pytest -q && git commit -am "Vision prompt from dev failures"   # commit BEFORE the held-out run
+  .venv/bin/python scripts/proof_eval.py --mode model --set heldout             # ONCE; report, never tune after
+  .venv/bin/python scripts/proof_eval.py --mode model --set heldout --variant clean
+  git add docs/measurements* && git commit -m "Held-out screenshot run: <numbers>"
+  ```
+  Compare with the OCR rows already in `docs/measurements.md`. If Nemotron does not beat "OCR + payment-word rules",
+  say so in README and keep the photo flow (the ledger still decides); do not hide it.
+- **DECISION: TEXT_ONLY** (no NVIDIA vision id listed, or every vision call failed) → switch automatically to the text
+  fallback (P3+P2): add `PROOF_VISION=0` to `.env.local` (the photo box then uses on-device OCR on the Mac and says
+  "no model"; on Cloud Run it says the photo cannot be read), and measure the Korean/Japanese/thread/attack set:
+  ```bash
+  .venv/bin/python scripts/intake_eval.py --set fallback_dev --mode regex
+  .venv/bin/python scripts/intake_eval.py --set fallback_dev --mode model        # tune agent/intake.py only here
+  .venv/bin/python scripts/intake_eval.py --set fallback_heldout --mode regex
+  .venv/bin/python scripts/intake_eval.py --set fallback_heldout --mode model    # once
+  ```
+  The video then opens on a Korean 만/천 message + a forwarded thread instead of the photo; write the vision failure
+  (model ids listed, error text) into `docs/feedback.md` as a bug report.
+- Either way, also run the routing check on text (Lightning first, Ultra only when unsure):
+  `.venv/bin/python scripts/intake_eval.py --set heldout --mode model` — the summary has `escalated` and `usd`.
+  Optional reasoning on/off comparison, only if Token Factory accepts it (try once on dev; record the error if not):
+  `LLM_EXTRA_BODY='{"chat_template_kwargs": {"enable_thinking": false}}' .venv/bin/python scripts/intake_eval.py --set dev --mode model`.
+
+## Recording the new first 30 seconds (after the gate says PHOTO)
+```bash
+.venv/bin/python scripts/precompute_proof.py                  # data/precomputed/proof_<id>.json (recorded runs for the public page)
+.venv/bin/uvicorn app.main:app --port 8765 &                  # LOCAL (macOS) so the boxes come from on-device OCR
+node scripts/record_proof_intro.mjs http://127.0.0.1:8765 docs/video/intro1
+```
+Beats in `docs/video/intro1/marks.json`: photo dropped → numbers light up on the photo → photo vs ledger table → the
+chain for that order → the edited screenshot → "a payment the ledger has never seen". Draft narration for these
+beats: `docs/video/lines_intro_proof.json` (put them before N03 in `lines.json` and cut N01–N02 to one line).
+Dry run without a key: `LLM_FAKE=1` (FAKE is printed on the page; never publish a FAKE take).
 
 ## 1. First call and model ids (Claude, 10 min)
 ```bash

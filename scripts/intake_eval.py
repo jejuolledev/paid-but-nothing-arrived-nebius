@@ -27,12 +27,15 @@ load_dotenv(ROOT / ".env.local")
 
 
 def load(name):
+    if name.startswith("fallback_"):  # docs/eval/text_fallback.jsonl: Korean/Japanese, long threads, attacks (split field)
+        rows = [json.loads(l) for l in (ROOT / "docs/eval/text_fallback.jsonl").read_text().splitlines() if l.strip()]
+        return [r for r in rows if r.get("split") == name.split("_", 1)[1]]
     return [json.loads(l) for l in (ROOT / f"docs/eval/intake_{name}.jsonl").read_text().splitlines() if l.strip()]
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--set", default="heldout", choices=["dev", "heldout"])
+    ap.add_argument("--set", default="heldout", choices=["dev", "heldout", "fallback_dev", "fallback_heldout"])
     ap.add_argument("--mode", default="regex", choices=["regex", "model"])
     ap.add_argument("--model", default="", help="override LLM_MODEL_INTAKE for this run")
     ap.add_argument("--limit", type=int, default=0)
@@ -76,14 +79,16 @@ def main():
                "end_to_end": bool(e2e), "plan_hit": plan_hit, "dropped": len(got["dropped"]),
                "got": {k: got[k] for k in ("sender_email", "order_ids", "amount", "complaint")}, "found": [r.get("order_id"), r.get("broken")],
                "calls": len(calls), "ms": sum(c.get("ms") or 0 for c in calls), "tokens": sum((c.get("prompt_tokens") or 0) + (c.get("completion_tokens") or 0) for c in calls),
-               "failed_calls": sum(1 for c in calls if not c.get("ok"))}
+               "failed_calls": sum(1 for c in calls if not c.get("ok")),
+               "escalated": any(c.get("role") == "escalate" for c in calls), "usd": sum(c.get("usd") or 0 for c in calls),
+               "models": sorted({f"{c.get('role')}={c.get('model')}" for c in calls})}
         rows.append(row)
         print(json.dumps(row, ensure_ascii=False), flush=True)
     n = len(rows)
     def pct(k):
         v = [x[k] for x in rows if x[k] is not None]
         return f"{sum(v)}/{len(v)}" if v else "—"
-    label = f"model {model_for('intake')}" if a.mode == "model" else "rules, no model"
+    label = (f"model {model_for('intake')} (Ultra re-read when unsure: {model_for('escalate')})" if os.getenv("LLM_ESCALATE", "1") != "0" else f"model {model_for('intake')}") if a.mode == "model" else "rules, no model"
     if os.getenv("LLM_FAKE") == "1":
         label = "FAKE dry run (not a model)"
     summary = {"when": time.strftime("%Y-%m-%d %H:%M"), "set": a.set, "n": n, "mode": label,
@@ -91,6 +96,7 @@ def main():
                "end_to_end": pct("end_to_end"), "plan_hit": pct("plan_hit") if a.mode == "model" else "—",
                "dropped_values": sum(x["dropped"] for x in rows), "failed_calls": sum(x["failed_calls"] for x in rows),
                "avg_model_ms": (sum(x["ms"] for x in rows) // n) if n else 0, "tokens": sum(x["tokens"] for x in rows),
+               "escalated": sum(1 for x in rows if x["escalated"]), "usd": round(sum(x["usd"] for x in rows), 5),
                "wall_s": round(time.time() - t0, 1)}
     print(json.dumps(summary, ensure_ascii=False))
     out = ROOT / "docs/measurements"

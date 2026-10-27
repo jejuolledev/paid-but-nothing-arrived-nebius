@@ -1,0 +1,38 @@
+[
+ {
+  "id": "d01",
+  "label": "Korean card SMS, 9,900 won",
+  "label_ko": "카드 승인 문자 (한국어)",
+  "lang": "ko",
+  "kind": "true",
+  "message": "결제 문자 캡처입니다. 크레딧 언제 들어와요? jun.park902@example.com",
+  "source": "docs/eval/screens dev split (never the held-out set)"
+ },
+ {
+  "id": "d05",
+  "label": "Same kind of screen, date edited",
+  "label_ko": "날짜를 고친 캡처",
+  "lang": "ko",
+  "kind": "doctored",
+  "message": "20일에 결제했어요 noah.chen904@example.com",
+  "source": "docs/eval/screens dev split (never the held-out set)"
+ },
+ {
+  "id": "d02",
+  "label": "Japanese pay app, KRW charge",
+  "label_ko": "일본어 결제앱",
+  "lang": "ja",
+  "kind": "true",
+  "message": "支払い履歴です。sora.kim903@example.com",
+  "source": "docs/eval/screens dev split (never the held-out set)"
+ },
+ {
+  "id": "d04",
+  "label": "Japanese checkout, never finished",
+  "label_ko": "결제를 끝내지 않은 화면 (일본어)",
+  "lang": "ja",
+  "kind": "unpaid",
+  "message": "払ったはずなのにクレジットがありません。emma.song905@example.com",
+  "source": "docs/eval/screens dev split (never the held-out set)"
+ }
+]

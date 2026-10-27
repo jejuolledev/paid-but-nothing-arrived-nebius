@@ -124,7 +124,8 @@ def rules_keyword(ocr: dict) -> dict:
     if not cands:
         return f
     s, _, _, amount, ai = max(cands)
-    f.update(payment_found=True, amount=amount, currency="KRW", amount_text=lines[ai]["text"])
+    # amount_text is the number itself (check_fields compares its digits with the amount); the line is kept apart
+    f.update(payment_found=True, amount=amount, currency="KRW", amount_text=f"{amount:,}", amount_line=lines[ai]["text"])
     anchor = cy[ai]
     tcands, dcands = [], []
     for i, l in enumerate(lines):
