@@ -42,7 +42,8 @@ Return ONE JSON object and nothing else:
  "pack": "<exact words naming the pack or credits, e.g. 'Standard 30'>" or null,
  "complaint": one of "not_received" | "charged_twice" | "credited_twice" | "no_email" | "not_sure_paid" | "other",
  "wants": subset of ["refund","chargeback_threat","credits","explanation","resend_email","cancel"],
- "language": "en" | "ko" | "other",
+ "language": "en" | "ko" | "ja" | "other",
+ "unsure": true | false,               // true if you could not tell who the sender is, which order, or the amount
  "plan": [ {"tool": "...", "args": {...}, "why": "<short reason>"} ]   // at most 5 steps, in order
 }
 Tools for the plan (read-only):
@@ -189,7 +190,8 @@ def ground(raw: dict, message: str, mapping: dict[str, str]) -> dict:
             "other_people": others, "order_ids": orders, "foreign_order_ids": foreign,
             "amount": amount, "paid_when": quote("paid_when"), "pack": quote("pack"),
             "complaint": complaint, "wants": wants,
-            "language": raw.get("language") if raw.get("language") in ("en", "ko", "other") else "other",
+            "language": raw.get("language") if raw.get("language") in ("en", "ko", "ja", "other") else "other",
+            "unsure": bool(raw.get("unsure")),
             "plan": plan, "dropped": dropped}
 
 
@@ -218,14 +220,46 @@ def check_plan(plan, mapping, orders, sender):
 
 # ---------- running it ----------
 
-def read_message(client, message: str) -> dict:
+def unsure_reason(result: dict) -> str | None:
+    """Why the first (fast) reader's answer should be re-read by the bigger model, decided by code. None = keep it."""
+    if not result.get("ok"):
+        return "the reader returned no usable JSON"
+    g = result.get("grounded") or {}
+    if g.get("sender") is None and result.get("mapping"):
+        return "no sender chosen although the message has addresses"
+    bad = [d["field"] for d in g.get("dropped", []) if d.get("field") in ("sender", "amount", "order_ids", "other_people")]
+    if bad:
+        return "returned values the message does not support: " + ", ".join(dict.fromkeys(bad))
+    if g.get("unsure"):
+        return "the reader said it was unsure"
+    return None
+
+
+def read_with_routing(client, message: str) -> dict:
+    """Fast reader first (role intake); the big model (role escalate) only when code finds the first answer unsure.
+    The escalated answer is used only if it is itself usable; both are kept for the page."""
+    from .llm import model_for
+    first = read_message(client, message, role="intake")
+    why = unsure_reason(first)
+    if os.getenv("LLM_ESCALATE", "1") == "0" or not why or model_for("escalate") == model_for("intake"):
+        first["routing"] = {"escalated": False, "reason": why}
+        return first
+    second = read_message(client, message, role="escalate")
+    take_second = bool(second.get("ok")) and (unsure_reason(second) is None or not first.get("ok"))
+    use = dict(second if take_second else first)
+    use["routing"] = {"escalated": True, "reason": why, "first_model": first.get("model"), "second_model": second.get("model"),
+                      "used": "escalate" if take_second else "intake", "second_unsure": unsure_reason(second)}
+    return use
+
+
+def read_message(client, message: str, role: str = "intake") -> dict:
     """One Token Factory call. Returns {"masked": ..., "raw": ..., "grounded": ..., "ok": bool, "error": ...}."""
     from .agent_loop import _parse
     from .llm import model_for
     masked, mapping = prepare(message)
-    out = {"masked": masked, "placeholders": {k: _mask_addr(v) for k, v in mapping.items()}, "model": model_for("intake")}
+    out = {"masked": masked, "placeholders": {k: _mask_addr(v) for k, v in mapping.items()}, "model": model_for(role), "role": role}
     try:
-        resp = client.chat.completions.create(**({"_role": "intake"} if hasattr(client, "log") else {}), model=model_for("intake"), temperature=0,
+        resp = client.chat.completions.create(**({"_role": role} if hasattr(client, "log") else {}), model=model_for(role), temperature=0,
                                               max_tokens=int(os.getenv("LLM_MAX_TOKENS_INTAKE", "1500")),
                                               messages=[{"role": "system", "content": SYSTEM},
                                                         {"role": "user", "content": "Customer message:\n" + masked}])
@@ -234,7 +268,7 @@ def read_message(client, message: str) -> dict:
         if not isinstance(raw, dict):
             raise ValueError("no JSON object in the reply")
     except Exception as e:
-        out.update(ok=False, error=f"{type(e).__name__}: {str(e)[:160]}")
+        out.update(ok=False, error=f"{type(e).__name__}: {str(e)[:160]}", mapping=mapping)
         return out
     out.update(ok=True, raw=raw, grounded=ground(raw, message, mapping), mapping=mapping)
     return out

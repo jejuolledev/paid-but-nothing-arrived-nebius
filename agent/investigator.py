@@ -430,7 +430,7 @@ def investigate(message: str, email: str = "", order_id: str = "", backend=None,
     tools, trace, t0 = Tools(db), [], time.time()
     # reply language: what the page asks for (the seller's language toggle), else the language of the message
     # reply language: a Korean message gets a Korean reply; otherwise the page's language toggle decides
-    lang = "ko" if re.search(r"[가-힣]", message or "") else (lang if lang in ("en", "ko") else "en")
+    lang = "ja" if re.search(r"[\u3040-\u30ff]", message or "") else "ko" if re.search(r"[가-힣]", message or "") else (lang if lang in ("en", "ko") else "en")
 
     def mark(step, detail):
         trace.append(Trace(step, detail, int((time.time() - t0) * 1000)))
@@ -452,8 +452,8 @@ def investigate(message: str, email: str = "", order_id: str = "", backend=None,
     #    and plans the lookups. Everything it returns is grounded against the message by code (agent/intake.py).
     intake, foreign = None, []
     if client and os.getenv("INTAKE", "1") != "0":
-        from .intake import read_message
-        intake = read_message(client, message or "")
+        from .intake import read_with_routing
+        intake = read_with_routing(client, message or "")
         mark("intake", "read the message" if intake.get("ok") else f"failed: {intake.get('error', '')}"[:120])
         g = intake.get("grounded") if intake.get("ok") else None
         if g:
@@ -538,7 +538,7 @@ def investigate(message: str, email: str = "", order_id: str = "", backend=None,
     receipts = [st.get("receipt") for st in steps]
     if client:
         try:
-            lang_note = " Reply language: Korean (polite 존댓말)." if lang == "ko" else ""
+            lang_note = {"ko": " Reply language: Korean (polite 존댓말).", "ja": " Reply language: Japanese (polite です/ます)."}.get(lang, "")
             user_payload = _mask(json.dumps(ensure_ascii=False, obj={"customer_message": message[:2000], "chain": verdict.to_dict(),
                                              "rows": _redact(journey, email), "investigation": loop_finding}, default=str), email)
             from .agent_loop import _parse
@@ -616,17 +616,17 @@ def _public_intake(intake: dict | None) -> dict | None:
     """What the page shows about the intake step. Real addresses are never included: placeholders and masked forms only."""
     if not intake:
         return None
-    out = {k: intake.get(k) for k in ("ok", "masked", "placeholders", "model", "error")}
+    out = {k: intake.get(k) for k in ("ok", "masked", "placeholders", "model", "error", "routing")}
     g = intake.get("grounded")
     if g:
         out["grounded"] = {k: v for k, v in g.items() if k != "sender_email"}
     return out
 
 
-REPLY_MUST = {None: r"never charged|not charged|no charge|wasn't charged|was not charged|not been charged|in your account|went through|청구되지|이용권",
-              "order_created": r"payment (went|came) through|was processed|confirm|releas|grant|결제|확인|이용권",
-              "credit_granted": r"twice|duplicate|double|two|두 번|중복", "mail_delivered": r"mail|notice|notif|메일|안내",
-              "account_mismatch": r"address|account|email|typo|주소"}
+REPLY_MUST = {None: r"never charged|not charged|no charge|wasn't charged|was not charged|not been charged|in your account|went through|청구되지|이용권|請求|クレジット",
+              "order_created": r"payment (went|came) through|was processed|confirm|releas|grant|결제|확인|이용권|決済|お支払い|確認|クレジット",
+              "credit_granted": r"twice|duplicate|double|two|두 번|중복|二重|重複", "mail_delivered": r"mail|notice|notif|메일|안내|メール",
+              "account_mismatch": r"address|account|email|typo|주소|アドレス|アカウント"}
 
 
 def _reply_ok(reply: str, v) -> bool:
@@ -641,9 +641,9 @@ def _reply_problem(reply: str, v) -> str | None:
     if re.search(r"\b(let me check my account|you gave me|my order|my credits)\b", reply, re.I):
         return "written as the customer"
     # "feel free to reply" is fine; "for free" / "a free month" is a promise of money
-    if re.search(r"refund|compensat|discount|voucher|\bfor free\b|free of charge|\bfree (?:credits?|month|pack|plan|book)|환불|보상|할인|무료", reply, re.I):
+    if re.search(r"refund|compensat|discount|voucher|\bfor free\b|free of charge|\bfree (?:credits?|month|pack|plan|book)|환불|보상|할인|무료|返金|補償|割引|無料", reply, re.I):
         return "promises money"
-    if v.broken == "account_mismatch" and (not re.search(r"confirm|확인해", reply, re.I)
+    if v.broken == "account_mismatch" and (not re.search(r"confirm|확인해|ご確認", reply, re.I)
                                            or re.search(r"(are|am|we're|i'm) (now )?moving|right away|already moved|옮기고 있|옮겼", reply, re.I)):
         return "moves credits before the customer confirms"  # credits move only after confirmation and approval
     if re.search(r"\*\*\*@|\bCUSTOMER\b", reply):
@@ -652,7 +652,7 @@ def _reply_problem(reply: str, v) -> str | None:
         return "asks for a different address"  # the fix only moves credits to the payer's own address
     key = v.broken if v.broken in REPLY_MUST else None
     if key is None and "never charged" not in v.headline.lower() and v.broken is None:
-        must = r"in your account|went through|everything|이용권|계정"
+        must = r"in your account|went through|everything|이용권|계정|クレジット|アカウント"
     else:
         must = REPLY_MUST[key]
     return None if re.search(must, reply, re.I) else "does not state the finding"
@@ -661,6 +661,8 @@ def _reply_problem(reply: str, v) -> str | None:
 def _template_reply(v, lang: str = "en") -> str:
     if lang == "ko":
         return _template_reply_ko(v)
+    if lang == "ja":
+        return _template_reply_ja(v)
     if v.broken is None and "never charged" in v.headline.lower():
         return "Thank you for writing. I checked our payment provider: no charge was made on your card for this order, so nothing is missing and nothing will be billed. I can send you a fresh checkout link whenever you are ready."
     if v.broken == "order_created":
@@ -687,3 +689,18 @@ def _template_reply_ko(v) -> str:
     if v.broken == "mail_delivered":
         return "기다려 주셔서 감사합니다. 이용권은 이미 계정에 지급되어 있습니다. 확인 메일 발송에 실패해 안내를 드리지 못했습니다. 로그인하셔서 잔액을 확인해 주세요. 확인 메일을 다시 보내 드리겠습니다."
     return "문의해 주셔서 감사합니다. 주문 전 단계를 확인했고 모두 정상입니다. 이용권은 계정에 있습니다."
+
+
+def _template_reply_ja(v) -> str:
+    """Same facts as the English templates, polite Japanese; no internal refs."""
+    if v.broken is None and "never charged" in v.headline.lower():
+        return "お問い合わせありがとうございます。決済代行会社の記録を確認しましたが、このご注文についてカードへの請求はございません。不足しているクレジットも追加の請求もございません。ご希望でしたら新しいお支払いリンクをお送りします。"
+    if v.broken == "order_created":
+        return "お待たせして申し訳ございません。決済代行会社の記録では、お支払いは正常に完了しております。その後のご注文処理が完了しなかったのは当店側の問題です。修正が済み次第、クレジットを付与し、確認メールをお送りします。"
+    if v.broken == "credit_granted":
+        return "お問い合わせありがとうございます。お支払いとご注文は正常です。クレジットが誤って二重に付与されていたことを確認しました。ご購入分はそのままにし、重複分のみ当店側で整理いたします。お客様のお手続きは不要です。"
+    if v.broken == "account_mismatch":
+        return "お問い合わせありがとうございます。ご心配をおかけして申し訳ございません。お支払いは正常に完了しています。ご注文がお支払いのメールアドレスとわずかに異なるアドレスで保存されたため、クレジットと案内メールがそちらに届いていました。お支払いに使われたアドレスがお客様のものかご確認いただければ、すぐにクレジットを移します。"
+    if v.broken == "mail_delivered":
+        return "お待たせして申し訳ございません。クレジットはすでにアカウントに付与されています。確認メールの送信に失敗したため、お知らせできておりませんでした。ログインして残高をご確認ください。確認メールも再送いたします。"
+    return "お問い合わせありがとうございます。ご注文のすべての段階を確認しましたが、すべて正常に完了しており、クレジットはアカウントにございます。"

@@ -17,7 +17,13 @@ class _Completions:
     def create(self, model=None, messages=None, **kw):
         system = messages[0]["content"]
         user = messages[-1]["content"]
-        n_in = sum(len(m["content"]) for m in messages)
+        n_in = sum(len(m["content"]) if isinstance(m["content"], str) else 1000 for m in messages)
+        if "You read ONE photo" in system:
+            return _resp(json.dumps(self._vision(user)), n_in)
+        if "You write a short reply FROM" in system:
+            p = json.loads(user)
+            a = (p.get("screenshot") or {}).get("amount")
+            return _resp(json.dumps({"customer_reply": f"FAKE dry-run text, not a model: no payment of {a} was found; please send the card statement line."}), n_in)
         if "You read one customer message" in system:
             return _resp(json.dumps(self._intake(user)), n_in)
         if "You investigate why a customer" in system:
@@ -28,6 +34,24 @@ class _Completions:
         ref = (reds or [r for l in payload.get("chain", {}).get("links", []) for r in l.get("refs", [])] or [""])[0]
         expl = f"FAKE dry-run text, not a model: the verifier marked this link [{ref}]." if ref else "FAKE dry-run text, not a model."
         return _resp(json.dumps({"explanation": expl, "customer_reply": "", "fix_action": ""}), n_in)
+
+    @staticmethod
+    def _vision(content) -> dict:
+        """Not a model: on a Mac, on-device OCR + keyword rules stand in for the vision reader; elsewhere nothing is read."""
+        import base64
+        url = next((c["image_url"]["url"] for c in content if isinstance(c, dict) and c.get("type") == "image_url"), "")
+        empty = {"payment_found": False, "merchant": None, "amount": None, "currency": None, "amount_text": None, "date": None, "time": None,
+                 "datetime_text": None, "card_last4": None, "status": "unknown", "status_text": None, "screen_language": "other",
+                 "ignored_numbers": [], "legibility": "unreadable"}
+        try:
+            from . import ocr
+            from .screen_rules import rules_keyword
+            if not ocr.available():
+                return empty
+            f = rules_keyword(ocr.ocr_bytes(base64.b64decode(url.split(",", 1)[1])))
+        except Exception:
+            return empty
+        return {**empty, **{k: f.get(k) for k in empty if k in f}, "screen_language": "other", "ignored_numbers": [], "legibility": "clear"}
 
     @staticmethod
     def _intake(text: str) -> dict:

@@ -16,7 +16,7 @@ import json, os, secrets, threading, time
 from collections import OrderedDict, deque
 from pathlib import Path
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, PlainTextResponse
 from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 
@@ -48,6 +48,15 @@ class Ask(BaseModel):
     lang: str = Field(default="", max_length=4)
     case: int | None = None          # an example button: may be answered from the recorded run
     live: bool = False                # "Run it live" on an example
+
+
+class ProofAsk(BaseModel):
+    image: str = Field(default="", max_length=12_000_000)   # data URL or bare base64 of the photo (paste or upload)
+    message: str = Field(default="", max_length=2000)
+    email: str = Field(default="", max_length=200)
+    lang: str = Field(default="", max_length=4)
+    example: str = Field(default="", max_length=40)          # one of the example photos (may be answered from a recorded run)
+    live: bool = False
 
 
 class ApproveBody(BaseModel):
@@ -174,12 +183,73 @@ def index():
     return (ROOT / "index.html").read_text()
 
 
+EXAMPLES = ROOT / "proof_examples"
+
+
+def _examples() -> list[dict]:
+    f = EXAMPLES / "examples.json"
+    return json.loads(f.read_text()) if f.exists() else []
+
+
+@app.get("/api/proof/examples")
+def proof_examples():
+    return [{k: e.get(k) for k in ("id", "label", "label_ko", "lang", "message")} for e in _examples()]
+
+
+@app.get("/proof-examples/{name}")
+def proof_example_image(name: str):
+    e = next((x for x in _examples() if f"{x['id']}.jpg" == name), None)
+    if not e:
+        return PlainTextResponse("not found", status_code=404)
+    return FileResponse(EXAMPLES / f"{e['id']}.jpg", media_type="image/jpeg")
+
+
+@app.post("/api/proof")
+def api_proof(ask: ProofAsk, request: Request):
+    """A customer's payment screenshot: the vision model reads it, the ledger decides. The photo is not stored."""
+    import base64, binascii
+    from agent.proof import investigate_proof
+    sid = _sid(request)
+    ex = next((x for x in _examples() if x["id"] == ask.example), None) if ask.example else None
+    message = ask.message or (ex or {}).get("message", "")
+    if ex and not ask.live and PUBLIC and SANDBOXES.get(sid) is None:
+        rec = PRECOMPUTED / f"proof_{ex['id']}.json"
+        if rec.exists():
+            d = json.loads(rec.read_text())
+            return _out(JSONResponse({**d["result"], "recorded": d["meta"]}), sid, request)
+    if ex:
+        data = (EXAMPLES / f"{ex['id']}.jpg").read_bytes()
+    else:
+        raw = ask.image.split(",", 1)[1] if ask.image.startswith("data:") else ask.image
+        try:
+            data = base64.b64decode(raw, validate=True)
+        except (binascii.Error, ValueError):
+            return PlainTextResponse("The image could not be decoded.", status_code=400)
+    use_model, limited = True, None
+    if PUBLIC:
+        limited = LIMITER.allow(_ip(request))
+        if limited:
+            use_model = False
+        elif not LIMITER.slots.acquire(timeout=20):
+            use_model, limited = False, "too many live runs at this moment"
+    try:
+        r = investigate_proof(data, message, ask.email, backend=_backend(sid), use_model=use_model, lang=ask.lang)
+    finally:
+        if PUBLIC and use_model:
+            LIMITER.slots.release()
+    if limited:
+        r["limited"] = limited
+        r["llm"] = "limited"
+    return _out(JSONResponse(r), sid, request)
+
+
 @app.get("/api/config")
 def config():
     has_key = bool(os.getenv("NEBIUS_API_KEY"))
     recorded = sorted(int(p.stem[4:]) for p in PRECOMPUTED.glob("case*.json")) if PRECOMPUTED.exists() else []
     return {"public": PUBLIC, "provider": provider_name(os.getenv("LLM_BASE_URL") or (TOKEN_FACTORY_URL if has_key else None)),
             "model_intake": model_for("intake"), "model_explain": model_for("explain"),
+            "models": {r: model_for(r) for r in ("vision", "intake", "escalate", "explain", "reply")},
             "live_model": has_key or os.getenv("LLM_FAKE") == "1", "fake": os.getenv("LLM_FAKE") == "1",
             "recorded_cases": recorded,
             "limits": {"per_hour": LIMITER.per_ip_hour, "sandbox_minutes": SANDBOXES.ttl // 60} if PUBLIC else None}

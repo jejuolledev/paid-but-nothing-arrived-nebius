@@ -3,9 +3,13 @@
 Configuration (all from the environment, normally `.env.local`, never committed):
   NEBIUS_API_KEY        Token Factory API key. Setting it is the operator's opt-in to send masked rows to Token Factory.
   LLM_BASE_URL          default https://api.tokenfactory.nebius.com/v1/
-  LLM_MODEL             default model for every role (default nvidia/nemotron-3-super-120b-a12b)
-  LLM_MODEL_INTAKE      model that reads the customer's message and plans the lookups (falls back to LLM_MODEL)
-  LLM_MODEL_EXPLAIN     model that writes the cited explanation and the reply draft (falls back to LLM_MODEL)
+  Different models per job (the routing table, ROUTES below). Per role: LLM_MODEL_<ROLE>, else LLM_MODEL (one text
+  model for every text role), else the role's default:
+    vision    LLM_VISION_MODEL / LLM_MODEL_VISION  reads the customer's payment screenshot  (Nemotron 3.5 Super VL)
+    intake    LLM_MODEL_INTAKE    reads the message and plans the read-only lookups    (Nemotron 3.5 Lightning)
+    escalate  LLM_MODEL_ESCALATE  re-reads the message only when the first reader is unsure (Nemotron 3 Ultra)
+    explain   LLM_MODEL_EXPLAIN   writes the cited explanation and the reply draft     (Nemotron 3 Super)
+  The vision role never falls back to LLM_MODEL (a text model cannot read a photo).
   LLM_TIMEOUT           seconds per call (default 60)
   LLM_EXTRA_BODY        optional JSON merged into each request, e.g. {"chat_template_kwargs": {"enable_thinking": false}}
   LLM_REASONING         optional reasoning_effort value; sent only when set
@@ -19,6 +23,30 @@ import json, os, re, time
 
 TOKEN_FACTORY_URL = "https://api.tokenfactory.nebius.com/v1/"
 DEFAULT_MODEL = "nvidia/nemotron-3-super-120b-a12b"   # listed on nebius.com/services/token-factory/nemotron
+# Defaults per job. Ids from the public Token Factory catalog (tokenfactory.nebius.com/api/public/models_info, 2026-10-27);
+# confirm with scripts/tf_models.py once a key exists. Fast cheap reader first, Ultra only when the reader is unsure.
+ROUTES = {
+    "vision": "nvidia/Nemotron-3.5-Super-VL",
+    "intake": "nvidia/Nemotron-3_5-Lightning",
+    "escalate": "nvidia/Nemotron-3-Ultra-550b-a55b",
+    "explain": DEFAULT_MODEL,
+    "reply": DEFAULT_MODEL,
+}
+# USD per 1M tokens (input, output), same catalog. Used only to show cost per case; the bill is Token Factory's.
+PRICES = {
+    "nvidia/nvidia-nemotron-3-nano-30b-a3b": (0.06, 0.24),
+    "nvidia/nemotron-3_5-lightning": (0.06, 0.24),
+    "nvidia/nemotron-3-super-120b-a12b": (0.30, 0.90),
+    "nvidia/nemotron-3-ultra-550b-a55b": (1.00, 3.00),
+    "nvidia/nemotron-3.5-super-vl": (0.30, 0.90),
+}
+
+
+def cost_usd(model: str | None, prompt_tokens, completion_tokens) -> float | None:
+    p = PRICES.get(str(model or "").lower())
+    if not p or prompt_tokens is None:
+        return None
+    return round(((prompt_tokens or 0) * p[0] + (completion_tokens or 0) * p[1]) / 1e6, 6)
 THINK_RE = re.compile(r"<think>.*?</think>", re.S)
 
 
@@ -33,7 +61,9 @@ def provider_name(base: str | None) -> str:
 
 
 def model_for(role: str) -> str:
-    return os.getenv(f"LLM_MODEL_{role.upper()}") or os.getenv("LLM_MODEL") or DEFAULT_MODEL
+    if role == "vision":
+        return os.getenv("LLM_VISION_MODEL") or os.getenv("LLM_MODEL_VISION") or ROUTES["vision"]
+    return os.getenv(f"LLM_MODEL_{role.upper()}") or os.getenv("LLM_MODEL") or ROUTES.get(role, DEFAULT_MODEL)
 
 
 def strip_thinking(text: str) -> str:
@@ -55,7 +85,8 @@ class CallLog(list):
         return {"calls": len(self), "ok": len(ok),
                 "prompt_tokens": sum(c.get("prompt_tokens") or 0 for c in self),
                 "completion_tokens": sum(c.get("completion_tokens") or 0 for c in self),
-                "ms": sum(c.get("ms") or 0 for c in self)}
+                "ms": sum(c.get("ms") or 0 for c in self),
+                "usd": round(sum(c.get("usd") or 0 for c in self), 6)}
 
 
 class TracedClient:
@@ -86,9 +117,10 @@ class TracedClient:
         if not raw.strip():  # some reasoning endpoints put the whole answer in reasoning_content
             raw = getattr(msg, "reasoning_content", None) or (getattr(msg, "model_extra", None) or {}).get("reasoning_content") or ""
         msg.content = strip_thinking(raw)
+        pt, ct = getattr(u, "prompt_tokens", None), getattr(u, "completion_tokens", None)
         self.log.add(role=_role, model=getattr(resp, "model", None) or kw.get("model"), requested_model=kw.get("model"),
                      provider=self.provider, ok=True, ms=int((time.time() - t0) * 1000),
-                     prompt_tokens=getattr(u, "prompt_tokens", None), completion_tokens=getattr(u, "completion_tokens", None))
+                     prompt_tokens=pt, completion_tokens=ct, usd=cost_usd(kw.get("model"), pt, ct))
         return resp
 
 

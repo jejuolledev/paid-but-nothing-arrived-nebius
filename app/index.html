@@ -52,6 +52,16 @@ details{margin-top:14px}details>summary{cursor:pointer;font-size:18px;font-weigh
 .fix-chains .panel{border-radius:10px;padding:10px;border:2px solid var(--line)}.fix-chains .panel.before{border-color:var(--bad);background:rgba(255,77,79,.08)}.fix-chains .panel.after{border-color:var(--ok);background:rgba(46,204,113,.08)}
 .fix-chains .panel h3{font-size:13px;margin:0 0 8px;color:var(--mut)}.fix-chains .mini{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}@media(max-width:640px){.fix-chains .mini{grid-template-columns:repeat(2,1fr)}}
 .calls td,.calls th{font-size:12.5px;padding:3px 8px 3px 0;text-align:left;vertical-align:top}.calls{border-collapse:collapse}.banner{border-color:var(--acc);background:rgba(91,141,239,.08)}.res-match{color:var(--ok);font-weight:600}.res-differs{color:var(--bad);font-weight:600}.res-unchecked{color:var(--mut)}.masked{font:12.5px/1.5 ui-monospace,Menlo,monospace;white-space:pre-wrap;background:#0c0e12;border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:6px 0}.drop{color:#f3c969;font-size:12.5px}.fake{color:#f3c969;font-weight:700}
+.drop-zone{margin-top:8px;border:1.5px dashed var(--line);border-radius:10px;padding:10px 12px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;color:var(--mut);font-size:13px;cursor:pointer}
+.drop-zone.over{border-color:var(--acc);background:rgba(91,141,239,.08)}.drop-zone img{max-height:84px;border-radius:6px;border:1px solid var(--line)}
+.drop-zone .x{background:transparent;border:1px solid var(--line);color:var(--txt);padding:2px 8px;font-size:12px}
+.proof{display:grid;grid-template-columns:minmax(200px,320px) 1fr;gap:16px;align-items:start}@media(max-width:720px){.proof{grid-template-columns:1fr}}
+.shot{position:relative;display:inline-block;max-width:100%}.shot img{display:block;max-width:100%;max-height:560px;border-radius:8px;border:1px solid var(--line)}
+.hl{position:absolute;border:2px solid #9aa3b2;border-radius:4px;opacity:0;animation:hlIn .5s ease forwards}.hl.amount{border-color:#f3c969;background:rgba(243,201,105,.18);border-width:3px}
+.hl.time{border-color:#5b8def;background:rgba(91,141,239,.16);border-width:3px}.hl.card_last4{border-color:#c78bff}.hl.other{border-style:dashed;opacity:.0}
+@keyframes hlIn{to{opacity:1}}.hl.other{animation:hlInDim .5s ease forwards}@keyframes hlInDim{to{opacity:.45}}
+.verdict{font-size:22px;font-weight:700;margin:0 0 6px}.verdict.bad{color:var(--bad)}.verdict.ok{color:var(--ok)}.verdict.warn{color:#f3c969}
+.legend span{display:inline-block;margin-right:10px;font-size:12px}.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:middle}
 .fix-chains .mini .link{min-height:64px;padding:6px;font-size:12px;cursor:default}.reply-note{font-size:12px;color:var(--mut);margin:0 0 6px}
 </style></head><body>
 <header>
@@ -64,10 +74,12 @@ details{margin-top:14px}details>summary{cursor:pointer;font-size:18px;font-weigh
 <main>
 <div class="card">
   <textarea id="msg" rows="3"></textarea>
+  <label class="drop-zone" id="drop"><input type="file" id="photo" accept="image/png,image/jpeg,image/webp" hidden><span id="drop-text"></span><img id="photo-prev" alt="" hidden><button type="button" class="x" id="photo-x" hidden>×</button></label>
   <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="go"></button><span class="mut" id="status"></span></div>
   <div id="receipt-line" class="mut" style="font-size:12px;margin-top:4px" hidden></div>
   <div id="empty-hint" class="hint" hidden></div>
   <div class="samples" id="samples"></div>
+  <div class="samples" id="photo-samples"></div>
 </div>
 <div id="out"></div>
 </main>
@@ -157,8 +169,22 @@ const I18N={
     claimH:['Claim','They say','Your records','Result'],
     res:{match:'matches',differs:'differs',unchecked:'not checkable'},
     callsTitle:'Model calls',
-    callsH:['Step','Model','Provider','Time','Tokens in / out'],
-    roles:{intake:'read message + plan',explain:'explain + reply draft',loop:'pick next lookup'},
+    callsH:['Step','Model','Provider','Time','Tokens in / out','Cost (USD)'],
+    roles:{vision:'read the screenshot',intake:'read message + plan',escalate:'re-read (reader unsure)',explain:'explain + reply draft',reply:'reply draft',loop:'pick next lookup'},
+    dropText:'Payment screenshot (optional): drop, paste (Ctrl/⌘+V) or click to choose',
+    photoExamples:'Or try a customer\'s screenshot',
+    proofTitle:'What the photo says vs what the ledger says',
+    proofH:['','Photo','Ledger (payment provider)',''],
+    readBy:(rd,m)=>`Read by ${rd}${m?' · '+m:''}`,
+    legend:{amount:'amount read',time:'time read',card_last4:'card',other:'other numbers (not used)'},
+    boxesFrom:s=>`Boxes: ${s}.`,
+    ignored:'Numbers the reader did not take as the payment',
+    sentNote:(r,red)=>`Sent to the model: ${r}${red&&red.length?' ('+red.length+' line(s) blurred)':''}.`,
+    recordsTitle:'This customer\'s records',
+    proofHead:{ledger_match:'The payment on the screenshot is in the ledger.',no_matching_payment:'The screenshot shows a payment the ledger has never seen.',not_paid:'The screenshot itself shows the payment was not completed.',unread:'The screenshot could not be read well enough to check.'},
+    ledgerWins:'The ledger decides, not the photo.',
+    cost:'Cost',total:'Total',escalated:(why,used)=>`Escalated to the bigger model: ${why} (answer used: ${used}).`,
+    readingPhoto:'Reading the screenshot…',
     recorded:(when,prov)=>`Recorded live run on ${prov}, ${when}. Same code; shown instantly so you don\'t wait.`,
     runLive:'Run it live now',
     sandbox:m=>`Your changes (Approve, Reset) affect only your own copy of the synthetic data and are cleared after ${m} minutes idle.`,
@@ -248,8 +274,22 @@ const I18N={
     claimH:['항목','고객 말','기록','결과'],
     res:{match:'일치',differs:'다름',unchecked:'확인 불가'},
     callsTitle:'모델 호출',
-    callsH:['단계','모델','제공처','시간','토큰 입력 / 출력'],
-    roles:{intake:'메시지 읽기 + 계획',explain:'설명 + 답장 초안',loop:'다음 조회 고르기'},
+    callsH:['단계','모델','제공처','시간','토큰 입력 / 출력','비용(USD)'],
+    roles:{vision:'캡처 읽기',intake:'메시지 읽기 + 계획',escalate:'다시 읽기(판단 불확실)',explain:'설명 + 답장 초안',reply:'답장 초안',loop:'다음 조회 고르기'},
+    dropText:'결제 캡처(선택): 끌어 놓기, 붙여넣기(Ctrl/⌘+V), 또는 눌러서 고르기',
+    photoExamples:'또는 고객이 보낸 캡처로 해 보기',
+    proofTitle:'사진이 말하는 것 vs 장부가 말하는 것',
+    proofH:['','사진','장부(결제대행사)',''],
+    readBy:(rd,m)=>`읽은 쪽: ${rd}${m?' · '+m:''}`,
+    legend:{amount:'읽은 금액',time:'읽은 시각',card_last4:'카드',other:'쓰지 않은 숫자'},
+    boxesFrom:s=>`표시 상자: ${s}.`,
+    ignored:'결제로 보지 않은 숫자',
+    sentNote:(r,red)=>`모델에 보낸 사진: ${r}${red&&red.length?' ('+red.length+'줄 흐림 처리)':''}.`,
+    recordsTitle:'이 고객의 기록',
+    proofHead:{ledger_match:'캡처의 결제가 장부에 있습니다.',no_matching_payment:'캡처에 나온 결제는 장부에 없습니다.',not_paid:'캡처 자체가 결제 미완료를 보여 줍니다.',unread:'캡처를 확인할 만큼 읽지 못했습니다.'},
+    ledgerWins:'판정은 사진이 아니라 장부가 합니다.',
+    cost:'비용',total:'합계',escalated:(why,used)=>`큰 모델로 다시 읽음: ${why} (쓴 답: ${used}).`,
+    readingPhoto:'캡처 읽는 중…',
     recorded:(when,prov)=>`${prov}에서 실제로 돌린 결과를 녹화해 둔 것(${when}). 코드는 같고, 기다리지 않도록 바로 보여 줍니다.`,
     runLive:'지금 실시간으로 돌리기',
     sandbox:m=>`승인·되돌리기는 내 사본(합성 데이터)에만 적용되고, ${m}분 동안 쓰지 않으면 지워집니다.`,
@@ -295,7 +335,7 @@ const EXAMPLES={
   6:{label:'Two addresses: “my wife\'s is k.smith@…, I paid with liam.patel906@…”',send:'Hi, my wife\'s email is k.smith@example.org and she set up the account, but I paid 24,900 won with liam.patel906@example.com yesterday and the credits never came.'},
 };
 
-let lang='en', lastResult=null, lastFix=null, casesCache=[], cfg={}, lastCase=null;
+let lang='en', lastResult=null, lastFix=null, casesCache=[], cfg={}, lastCase=null, photo=null, photoExample=null, photoExamples=[];
 let howOpen=true, howSeenResult=false;
 
 function t(){return I18N[lang]||I18N.en;}
@@ -355,13 +395,51 @@ function applyChrome(){
   $('#sponsors').textContent=i.sponsors;
   $('#msg').placeholder=i.placeholder;
   $('#go').textContent=i.go;
+  $('#drop-text').textContent=i.dropText;
   $('#lang').innerHTML=`<button type="button" class="ghost${lang==='en'?' on':''}" data-lang="en">EN</button><button type="button" class="ghost${lang==='ko'?' on':''}" data-lang="ko">한국어</button>`;
   document.querySelectorAll('#lang button').forEach(b=>b.onclick=()=>{lang=b.dataset.lang;saveLang();applyChrome();renderSamples();if(lastResult)render(lastResult,{scroll:false});});
   const eh=$('#empty-hint');
   if(eh.dataset.show==='1')eh.textContent=i.emptyHint;
   renderHow();
   renderSamples();
+  renderPhotoSamples();
 }
+
+// ---- screenshot proof: upload, drop, paste, examples ----
+function setPhoto(dataUrl, exampleId){
+  photo=dataUrl||null;photoExample=exampleId||null;
+  const img=$('#photo-prev'),x=$('#photo-x');
+  if(photo){img.src=photo;img.hidden=false;x.hidden=false;}else{img.hidden=true;img.removeAttribute('src');x.hidden=true;$('#photo').value='';}
+}
+function readFile(file){
+  if(!file||!/^image\//.test(file.type))return;
+  if(file.size>8*1024*1024){$('#status').textContent='> 8 MB';return;}
+  const fr=new FileReader();fr.onload=()=>setPhoto(fr.result,null);fr.readAsDataURL(file);
+}
+function renderPhotoSamples(){
+  const el=$('#photo-samples');if(!el)return;
+  if(!photoExamples.length){el.innerHTML='';return;}
+  const i=t();
+  el.innerHTML=`<span class="label">${esc(i.photoExamples)}</span>`+photoExamples.map(e=>`<button type="button" class="ghost" data-ex="${esc(e.id)}">${esc(lang==='ko'&&e.label_ko?e.label_ko:e.label)}</button>`).join('');
+  el.querySelectorAll('button[data-ex]').forEach(b=>b.onclick=async()=>{
+    const e=photoExamples.find(x=>x.id===b.dataset.ex);if(!e)return;
+    $('#msg').value=e.message||'';
+    try{const blob=await (await fetch('/proof-examples/'+e.id+'.jpg')).blob();const fr=new FileReader();fr.onload=()=>{setPhoto(fr.result,e.id);run(false);};fr.readAsDataURL(blob);}catch(_){}
+  });
+}
+async function loadPhotoExamples(){
+  try{const r=await fetch('/api/proof/examples');photoExamples=r.ok?await r.json():[];}catch(_){photoExamples=[];}
+  renderPhotoSamples();
+}
+(()=>{
+  const dz=$('#drop');
+  $('#photo').onchange=e=>readFile(e.target.files[0]);
+  $('#photo-x').onclick=e=>{e.preventDefault();e.stopPropagation();setPhoto(null);};
+  ['dragenter','dragover'].forEach(k=>dz.addEventListener(k,e=>{e.preventDefault();dz.classList.add('over');}));
+  ['dragleave','drop'].forEach(k=>dz.addEventListener(k,e=>{e.preventDefault();dz.classList.remove('over');}));
+  dz.addEventListener('drop',e=>readFile(e.dataTransfer.files[0]));
+  document.addEventListener('paste',e=>{const it=[...(e.clipboardData||{}).items||[]].find(x=>/^image\//.test(x.type));if(it){e.preventDefault();readFile(it.getAsFile());}});
+})();
 
 function statusLine(r){
   const i=t();
@@ -437,6 +515,7 @@ async function run(live){
   const ex=lastCase&&EXAMPLES[lastCase];
   const caseNo=(ex&&ex.send===message)?lastCase:null;
   const hint=$('#empty-hint');
+  if(photo){return runProof(live);}
   if(!message){
     hint.hidden=false;hint.dataset.show='1';hint.textContent=i.emptyHint;$('#status').textContent='';return;
   }
@@ -468,6 +547,26 @@ async function run(live){
   }finally{
     $('#go').disabled=false;
   }
+}
+
+async function runProof(live){
+  const i=t();
+  const message=$('#msg').value.trim();
+  $('#empty-hint').hidden=true;
+  $('#status').textContent=i.readingPhoto;$('#go').disabled=true;lastFix=null;
+  try{
+    const body=photoExample?{example:photoExample,message,lang,live:!!live}:{image:photo,message,lang};
+    const res=await fetch('/api/proof',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(!res.ok){
+      const txt=await res.text();lastResult=null;hideHowAfterResult();
+      $('#out').innerHTML=`<div class="card"><div class="headline">${esc(txt.slice(0,200)||i.errHttp)}</div></div>`;$('#status').textContent='';return;
+    }
+    const r=await res.json();lastResult=r;
+    $('#status').textContent=statusLine(r);showReceipt(r);render(r);
+  }catch(_){
+    lastResult=null;hideHowAfterResult();
+    $('#out').innerHTML=`<div class="card"><div class="headline">${esc(i.errNetwork)}</div></div>`;$('#status').textContent='';
+  }finally{$('#go').disabled=false;}
 }
 
 function renderChain(chain, clickable){
@@ -544,7 +643,32 @@ function renderClaims(r){
 }
 function renderCalls(r){
   const i=t(),c=r.model_calls||[];if(!c.length)return'';
-  return `<div class="card"><h2>${esc(i.callsTitle)}</h2><div class="rows"><table class="calls"><tr>${i.callsH.map(h=>`<th>${esc(h)}</th>`).join('')}</tr>${c.map(x=>`<tr><td>${esc(i.roles[x.role]||x.role)}</td><td>${esc(x.model||'')}</td><td>${esc(x.provider||'')}</td><td>${x.ok?esc(x.ms+' '+i.ms):'<span class="res-differs">failed '+esc(x.error||'')+'</span>'}</td><td>${esc((x.prompt_tokens??'—')+' / '+(x.completion_tokens??'—'))}</td></tr>`).join('')}</table></div>${cfg.limits?`<p class="hint">${esc(i.sandbox(cfg.limits.sandbox_minutes))}</p>`:''}</div>`;
+  const usd=v=>v==null?'—':('$'+Number(v).toFixed(5));
+  const tot=c.reduce((a,x)=>({ms:a.ms+(x.ms||0),pt:a.pt+(x.prompt_tokens||0),ct:a.ct+(x.completion_tokens||0),usd:a.usd+(x.usd||0)}),{ms:0,pt:0,ct:0,usd:0});
+  const rt=(r.intake||{}).routing;
+  const rtNote=rt&&rt.escalated?`<p class="hint">${esc(i.escalated(rt.reason,rt.used))}</p>`:'';
+  return `<div class="card"><h2>${esc(i.callsTitle)}</h2><div class="rows"><table class="calls"><tr>${i.callsH.map(h=>`<th>${esc(h)}</th>`).join('')}</tr>${c.map(x=>`<tr><td>${esc(i.roles[x.role]||x.role)}</td><td>${esc(x.model||'')}</td><td>${esc(x.provider||'')}</td><td>${x.ok?esc(x.ms+' '+i.ms):'<span class="res-differs">failed '+esc(x.error||'')+'</span>'}</td><td>${esc((x.prompt_tokens??'—')+' / '+(x.completion_tokens??'—'))}</td><td>${esc(usd(x.usd))}</td></tr>`).join('')}<tr><th>${esc(i.total)}</th><td></td><td></td><td>${esc(tot.ms+' '+i.ms)}</td><td>${esc(tot.pt+' / '+tot.ct)}</td><td>${esc(usd(tot.usd))}</td></tr></table></div>${rtNote}${cfg.limits?`<p class="hint">${esc(i.sandbox(cfg.limits.sandbox_minutes))}</p>`:''}</div>`;
+}
+
+function renderProof(r){
+  const i=t(),p=r.proof;if(!p)return'';
+  const f=p.fields||{};
+  const cls={ledger_match:'ok',no_matching_payment:'bad',not_paid:'warn',unread:'warn'}[p.verdict]||'';
+  const boxes=(p.highlights||[]).map((h,k)=>`<div class="hl ${esc(h.role)}" title="${esc(h.text)}" style="left:${h.box[0]*100}%;top:${h.box[1]*100}%;width:${(h.box[2]-h.box[0])*100}%;height:${(h.box[3]-h.box[1])*100}%;animation-delay:${(h.role==='other'?0.2:0.6+k*0.05).toFixed(2)}s"></div>`).join('');
+  const legend=(p.highlights||[]).length?`<div class="legend">${Object.entries({amount:'#f3c969',time:'#5b8def',card_last4:'#c78bff',other:'#9aa3b2'}).map(([k,c])=>`<span><i style="background:${c}"></i>${esc(i.legend[k])}</span>`).join('')}</div>`:'';
+  const rows=(p.comparison||[]).map(x=>`<tr><th>${esc(x.field)}</th><td>${esc(x.photo)}</td><td>${esc(x.ledger)}${x.ref?` <span class="mut">[${esc(x.ref)}]</span>`:''}</td><td class="res-${esc(x.result)}">${esc(i.res[x.result]||x.result)}</td></tr>`).join('');
+  const rd=p.reader||{};
+  const ign=(f.ignored_numbers||[]).length?`<p class="mut" style="font-size:12.5px;margin:8px 0 0">${esc(i.ignored)}: ${esc(f.ignored_numbers.map(n=>n.text+' ('+n.what.replace(/_/g,' ')+')').join(' · '))}</p>`:'';
+  const drop=(f.dropped||[]).length?`<p class="drop">${esc(i.dropped)} ${esc(f.dropped.map(d=>d.field+': '+d.value+' ('+d.why+')').join('; '))}</p>`:'';
+  const notes=(p.notes||[]).map(n=>`<p class="hint">${esc(n)}</p>`).join('');
+  const img=p.image||{};
+  return `<div class="card"><h2>${esc(i.proofTitle)}</h2><div class="proof">
+    <div><div class="shot"><img src="${esc(p.image_data_url||'')}" alt="screenshot">${boxes}</div>${legend}${p.highlight_source?`<p class="mut" style="font-size:12px">${esc(i.boxesFrom(p.highlight_source))}</p>`:''}</div>
+    <div><p class="verdict ${cls}">${esc((i.proofHead||{})[p.verdict]||p.headline)}</p><p class="mut" style="margin:0 0 8px">${esc(i.ledgerWins)}</p>
+      <div class="rows"><table class="calls"><tr>${i.proofH.map(h=>`<th>${esc(h)}</th>`).join('')}</tr>${rows}</table></div>
+      ${ign}${drop}${notes}
+      <p class="mut" style="font-size:12px;margin-top:8px">${esc(i.readBy(rd.reader||'—',rd.model||''))}${rd.json_mode?' · JSON: '+esc(rd.json_mode):''}${rd.ok===false&&rd.error?' · '+esc(rd.error):''}<br>${esc(i.sentNote(img.redaction||'',img.redacted))}</p></div>
+  </div></div>`;
 }
 
 function renderFixCard(){
@@ -567,7 +691,7 @@ function render(r, opts){
   const afterFix=!!(opts&&opts.afterFix)||!!lastFix;
   hideHowAfterResult();
   if(!r.ok){
-    $('#out').innerHTML=`${renderFixCard()}<div class="card"><div class="headline">${esc(trHeadline(r.headline))}</div><p class="hint">${esc(i.noOrderHint)}</p></div>`;
+    $('#out').innerHTML=`${renderBanner(r)}${renderProof(r)}${renderFixCard()}<div class="card"><div class="headline">${esc(trHeadline(r.headline))}</div><p class="hint">${esc(i.noOrderHint)}</p></div>${renderCalls(r)}`;
     if(scroll)$('#out').scrollIntoView({behavior:'smooth',block:'start'});
     return;
   }
@@ -576,7 +700,7 @@ function render(r, opts){
   const rows=Object.entries(r.rows).map(([table,rs])=>rs.length?`<h3 style="margin:10px 0 4px;font-size:14px">${esc(table)} <span class="tag">${esc(rowsLabel(rs.length))}</span></h3><table><tr>${Object.keys(rs[0]).filter(k=>k!=='ref').map(k=>`<th>${esc(k)}</th>`).join('')}</tr>${rs.map(x=>`<tr class="${cited.has(x.ref)?'cited':''}" id="row-${esc(slug(x.ref))}">${Object.entries(x).filter(([k])=>k!=='ref').map(([,v])=>`<td>${esc(v)}</td>`).join('')}</tr>`).join('')}</table>`:'').join('');
   let citeNote=i.citationSkip;
   if(r.citation_check&&r.citation_check.checked)citeNote=r.citation_check.ok?i.citationOk:i.citationFail;
-  const needsFix=r.broken!=null;
+  const needsFix=r.broken!=null&&!r.proof_blocks_fix;
   const fixTag=needsFix
     ?`<span class="tag warn">${esc(i.needsApproval)}</span>`
     :`<span class="tag ok">${esc(i.noFixNeeded)}</span>`;
@@ -585,8 +709,8 @@ function render(r, opts){
   const replyNote=tplNote+(afterFix?`<p class="reply-note">${esc(i.sendAfterFix)}</p>`:(needsFix?`<p class="reply-note">${esc(i.sendAfterApprove)}</p>`:''));
 
   $('#out').innerHTML=`
-  ${renderBanner(r)}${renderFixCard()}
-  <div class="card"><div class="headline">${esc(trHeadline(r.headline))}</div><div class="mut">order ${esc(r.order_id)} · ${esc(r.email)}</div>${r.ignored_order?`<div class="warnline">${esc(i.ignoredOrder(r.ignored_order))}</div>`:''}${r.sender_unverified?`<div class="warnline">${esc(i.senderUnverified)}</div>`:''}
+  ${renderBanner(r)}${renderProof(r)}${renderFixCard()}
+  <div class="card">${r.proof?`<h2>${esc(i.recordsTitle)}</h2>`:''}<div class="headline">${esc(trHeadline(r.headline))}</div><div class="mut">order ${esc(r.order_id)} · ${esc(r.email)}</div>${r.ignored_order?`<div class="warnline">${esc(i.ignoredOrder(r.ignored_order))}</div>`:''}${r.sender_unverified?`<div class="warnline">${esc(i.senderUnverified)}</div>`:''}
     <div class="chain">${chain}</div></div>
   <div class="two">
     <div class="card"><div class="card-head"><h2>${esc(i.reply)}</h2><button type="button" class="ghost" id="copy-reply">${esc(i.copy)}</button></div>
@@ -710,5 +834,6 @@ $('#msg').addEventListener('keydown',e=>{
 loadLang();
 applyChrome();
 loadCases();
+loadPhotoExamples();
 fetch('/api/config').then(r=>r.json()).then(c=>{cfg=c||{};}).catch(()=>{});
 </script></body></html>
