@@ -1,60 +1,89 @@
 # Feedback: Nebius Token Factory and NVIDIA Nemotron
 
-Written while building this entry. Only things we actually ran into; sections marked **FILL** are filled in on the
-day of signup and measurement (2026-10-28), from what really happens, not before.
+Written while building this entry, from what actually happened. Logs: `build/spend_ledger.jsonl`, `docs/gate_result.json`, `docs/measurements/`.
+Lines still marked **FILL** are filled after the measurement runs, once credits are on the account.
 
 ## What we used them for
-- **Nebius Token Factory** (OpenAI-compatible API) — every model call at runtime: reading the customer's message and
-  planning the lookups, then writing the cited explanation and reply. Called from a FastAPI server; the key stays
-  on the server.
-- **NVIDIA Nemotron** — FILL: exact model id(s) used per step, and why (e.g. Super for reading/planning, Nano for …).
+- **Nebius Token Factory** (OpenAI-compatible API): every model call at runtime, from a FastAPI server. The key stays on the server.
+- **NVIDIA Nemotron, a different model per job:**
+  - `nvidia/Nemotron-3.5-Super-VL` reads the customer's payment screenshot.
+  - `nvidia/Nemotron-3_5-Lightning` reads the message and plans the read-only lookups.
+  - `nvidia/Nemotron-3-Ultra-550b-a55b` re-reads only when code finds the first reading unsure.
+  - `nvidia/nemotron-3-super-120b-a12b` writes the cited explanation and the reply.
+  - FILL: final per-job choices after the dev runs.
 
-## Onboarding (zero to first call)
-- Signing up from Korea: FILL (did Korea appear in the billing / country list? any blocker?).
-- Promo credit code `NEBIUS-DEVPOST-GLOBAL26` and Builder Program credits: FILL (how long until credits showed up).
-- Time from account to first successful `chat/completions`: FILL minutes.
+## Bug reports (tool · step · what we did · what happened · expected · suggestion)
+
+### 1. Nemotron 3.5 Super VL: reasoning used the whole token budget, so the answer came back empty
+- **What we did (2026-10-28).** One `chat/completions` call to `nvidia/Nemotron-3.5-Super-VL`:
+  - one JPEG phone screenshot as an `image_url` data URL
+  - a system prompt asking for one JSON object
+  - `max_tokens=1200`, `temperature=0`
+  - three tries with `response_format` set to `json_schema` strict, then `json_object`, then none
+- **What happened.** All three tries returned the same thing:
+  - `finish_reason="length"`
+  - `usage.completion_tokens_details.reasoning_tokens=1200`, so every completion token went to reasoning
+  - `message.content` was an empty string
+  - the image counted 1,202 prompt tokens (`multimodal_tokens.image`)
+- The reasoning text in `reasoning_content` had read the screen correctly. It picked the right row (9,900 KRW,
+  10/16 05:00, merchant MOAHUB) out of a café charge and an ad, then ran out of tokens before writing the JSON.
+- **Expected.** Either reasoning does not count against `max_tokens` on a vision model, or the docs warn that it does.
+- **Suggestion.** Two things would have saved us a debugging round:
+  - On the model card and in the catalog, say that this model reasons by default and that reasoning counts against
+    `max_tokens`. Add one sentence about it to the vision quickstart.
+  - Recommend a minimum `max_tokens` for image inputs, or show how to switch reasoning off
+    (`chat_template_kwargs.enable_thinking`). FILL: whether `enable_thinking=false` is accepted on Super VL.
+
+### 2. Lightning on the intake prompt: completions stopped at the limit
+- **What we saw.** Every intake call on `nvidia/Nemotron-3_5-Lightning` with `max_tokens=1500` reported
+  `completion_tokens=1500`, exactly the limit.
+- It looks like the same pattern as item 1, but we did not log `finish_reason` on those calls, so this is not
+  confirmed. FILL after a rerun that logs `finish_reason`.
+- **Suggestion.** On each Nemotron model page, show whether reasoning is on by default and how to change it.
+
+### 3. Sign-up and credits: snags at four steps
+- **Contact step.** The e-mail verification code arrives, but the Continue button stays locked until a
+  human-verification check passes. The page gives no hint that this is what it is waiting for.
+- **Profile step.** It asks for company and "how did you hear about us". That is fine, but it is one more step
+  before the first call.
+- **Billing step (signing up from South Korea).** Choosing the country clears the address fields that were already
+  typed, so they have to be entered again.
+- **Promo credits** (`NEBIUS-DEVPOST-GLOBAL26`).
+  - The code goes through a HubSpot form and the credit is sent by e-mail later. It is not applied in the console.
+  - Until it arrives, the balance is $0 with a card on file, so early test calls go to the card.
+  - FILL: hours until the credit arrived.
+- **Suggestion.** Apply hackathon codes directly in the billing console, or show "credit pending" so builders know
+  whether a call will be charged to their card.
+
+### 4. Two base URLs in the docs, with no word on which to use
+- The API reference uses `https://api.tokenfactory.nebius.com/v1/`.
+- The code sample on the Nemotron page uses `https://api.tokenfactory.us-central1.nebius.com/v1/`.
+- A builder cannot tell whether these are two regions to choose from or the same endpoint. One line would settle
+  it: "regional endpoints: …; the default routes to …".
+
+### 5. Model ids are hard to find before signing up
+- A public catalog exists (`tokenfactory.nebius.com/api/public/models_info` and `model-catalog.md`). The
+  `/v1/models` list for our key matched it: the same five NVIDIA ids.
+- But neither the Nemotron page nor the API reference links to that catalog.
+- The ids also mix casing: `nvidia/Nemotron-3_5-Lightning`, `nvidia/nemotron-3-super-120b-a12b`,
+  `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B`.
+- **Suggestion.** Link the catalog from the quickstart and keep one id style.
+
+### 6. FILL after the runs
+- Structured output (`json_schema`, strict) with an image: honoured, ignored, or a 400?
+- p50 and worst latency per model.
+- Any 429 or 5xx errors.
 
 ## What worked well
-- OpenAI-compatible endpoint: our client code needed only a base URL, a key and a model id; the same code ran
-  against a local server and Token Factory. FILL: confirm after first run.
-- FILL: latency and token use we measured (from `docs/measurements_nebius.md`).
-
-## What needs work (specific)
-- **Two base URLs in the docs, no word on which to use.** The API reference examples use
-  `https://api.tokenfactory.nebius.com/v1/`, while the code sample on the Nemotron page
-  (nebius.com/services/token-factory/nemotron) uses `https://api.tokenfactory.us-central1.nebius.com/v1/`.
-  A builder can't tell whether these are regions to choose between, the same thing, or one being replaced.
-  A one-line note ("regional endpoints: …; the default routes to …") would settle it.
-- **Exact Nemotron model ids are hard to find before signing up.** The Nemotron page lists four models
-  (Nano 30B, Nano Omni, Super 120B, Ultra 550B) but shows an API id only for Super
-  (`nvidia/nemotron-3-super-120b-a12b`, inside a code sample). The docs overview page we fetched names no model ids.
-  `/v1/models` needs a key. Third-party catalogs list ids with mixed casing (`nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B`
-  vs `nvidia/nemotron-3-super-120b-a12b`), so we could not plan per-step model choice until after signup.
-  Update 10/27: a public machine-readable catalog does exist (`tokenfactory.nebius.com/api/public/models_info`,
-  and `model-catalog.md`) and lists five NVIDIA ids, including `nvidia/Nemotron-3.5-Super-VL`; but neither the Nemotron
-  page nor the API reference links to it, and it still mixes casing (`nvidia/Nemotron-3_5-Lightning` vs
-  `nvidia/nemotron-3-super-120b-a12b`). Suggestion: link the catalog from the Nemotron page and the quickstart.
-- **Reasoning output format.** FILL: whether Nemotron answers came wrapped in `<think>…</think>`, in
-  `reasoning_content`, or plain; whether `chat_template_kwargs` / `reasoning_effort` were accepted. (Our client
-  strips `<think>` and falls back to `reasoning_content`; tell us what you saw.)
-- FILL: JSON-only adherence for the intake prompt (how often the reply was not a single JSON object).
-- FILL: any rate limit or error we hit, with the exact message.
-
-## Bug-report items (format: tool · step · what we did · what happened · expected · suggestion)
-Fill each from the logs on 10/28 (`docs/gate_result.json`, `docs/measurements/*.json`); delete any that did not happen.
-- **Token Factory · vision · `nvidia/Nemotron-3.5-Super-VL` + image input.** Did: `chat/completions` with an
-  `image_url` data URL (JPEG, ≤1600 px, base64). Happened: FILL (accepted? max size? error text?). Expected: FILL.
-- **Token Factory · structured output with an image.** Did: `response_format: json_schema, strict: true` on the VL
-  model. Happened: FILL (honoured / ignored / 400 + message; `LLM_VISION_JSON` value that worked per gate_result.json).
-- **Token Factory · reasoning toggle.** Did: `chat_template_kwargs: {"enable_thinking": false}` on Super/Lightning.
-  Happened: FILL (accepted? where did the reasoning go: `<think>`, `reasoning_content`, nothing?).
-- **Token Factory · `/v1/models` vs the public catalog.** Did: compared the key's model list with models_info.
-  Happened: FILL (ids missing or differently cased?).
-- **Latency / errors.** FILL: p50 / worst ms per model from the run logs; any 429/5xx with the exact message.
+- The OpenAI-compatible endpoint: our client needed only a base URL, a key and a model id.
+- `/v1/models` answered at once and listed exactly the five NVIDIA ids from the public catalog.
+- The usage object breaks out reasoning tokens and image tokens separately. That is how we found bug 1 within
+  minutes.
 
 ## NVIDIA Nemotron as a model for this job
-- FILL from the held-out run: what it got right that rules miss (sender among several addresses, the shop's own
-  address in a forwarded mail, Korean amounts), and where it still failed (ids from the log).
+FILL from the held-out runs:
+- Screenshots read right, compared with free on-device OCR + rules (3 of 16).
+- Korean messages read right, compared with rules alone (17 of 22).
 
 ## Would we build with them again?
-FILL: yes / no and why, in two sentences, after the measurements.
+FILL: two sentences, after the measurements.

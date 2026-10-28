@@ -25,37 +25,49 @@ Track: **Best Apps and Agents** · Team: MoaHub (solo, Korea) · License: MIT
 ## Why this exists
 I run a small online shop. The message I dread most is "I paid but nothing arrived." Answer slowly and it becomes a card dispute. The answer is spread over four places: the payment provider, our orders database, the server logs and the mail provider. The six example cases in this demo are bugs I found in my own checkout (two happened on real payments), rebuilt with synthetic data.
 
-## What Nemotron does here (and what it does not)
-Two calls to Token Factory per message:
+## Which Nemotron does what (all on Nebius Token Factory)
 
-| Step | Model | What it does | How code checks it |
+| Job | Model (env var) | What it does | How code checks it |
 |---|---|---|---|
-| 1. Read + plan | `LLM_MODEL_INTAKE` (default `nvidia/nemotron-3-super-120b-a12b`) | Finds the sender among the addresses in the message (a spouse's address, a CC, a forwarded header and the shop's own address are not the sender); pulls out the claims (amount, when, which pack, what went wrong, what they want, someone else's order number they ask for); writes a lookup plan of up to five read-only steps. | Addresses are replaced by `EMAIL_1`, `EMAIL_2` (first letter + domain only) before the model sees the message; card digits are removed. Every value it returns must be in the message (an amount must be stated there, in digits, 만/천 units or Korean number words); anything else is **dropped and shown on the page**. The plan runs through tools scoped to the sender's own trail; a lookup of anyone else is refused. |
-| 2. Explain + reply | `LLM_MODEL_EXPLAIN` | Writes the explanation, citing rows, and the reply draft in the customer's language. | Every sentence is checked against the rows it cites (amounts, ids, domains, statuses, times, order of events). A sentence that does not match → the verifier's text is used. A reply that promises money or moves credits before the customer confirms → the standard reply is used. |
+| 0. Read the screenshot | `nvidia/Nemotron-3.5-Super-VL` (`LLM_VISION_MODEL`) | Finds the one payment to the shop on a phone photo of a banking / card / pay app (Korean, Japanese, English), not the balance, points, instalment count, the phone's clock, ads, other rows or the yen conversion. Returns amount, date, time, card last-4, status and the exact text it read, as strict JSON. | The photo's metadata is removed and it is resized; on a Mac, e-mail addresses and long account/card numbers found by on-device OCR are blurred before sending. The amount must equal its own on-screen quote; malformed values are dropped and shown. **The payment provider's ledger decides**: same amount, same minute (±10), same last-4. A photo the ledger has never seen stays "not in the ledger", whatever it shows. |
+| 1. Read + plan | `nvidia/Nemotron-3_5-Lightning` (`LLM_MODEL_INTAKE`) | Finds the sender among the addresses in the message (a spouse's address, a CC, a forwarded header and the shop's own address are not the sender); pulls out the claims (amount, when, which pack, what went wrong, someone else's order number they ask for); writes a plan of up to five read-only lookups. | Addresses become `EMAIL_1`, `EMAIL_2` (first letter + domain) and card digits are removed before the model sees the message. Every value must be stated in the message (digits, 만/천 units or Korean number words); anything else is **dropped and shown**. The plan runs only on the sender's own trail. |
+| 1b. Re-read when unsure | `nvidia/Nemotron-3-Ultra-550b-a55b` (`LLM_MODEL_ESCALATE`) | Called only when code finds the first reading unsure (no JSON, no sender although there are addresses, unsupported values, or the reader says so). | Same checks; its answer is used only if it is itself clean. The page says why it was called. |
+| 2. Explain + reply | `nvidia/nemotron-3-super-120b-a12b` (`LLM_MODEL_EXPLAIN`, `LLM_MODEL_REPLY`) | The explanation, citing rows, and the reply in the customer's language (Korean, Japanese, English). | Every sentence is checked against the rows it cites. A reply that promises money, moves credits before the customer confirms, or suggests a screenshot is fake → the standard reply is used. |
+
+Each call's model, time, tokens and estimated cost (catalog prices) are on the page, with a total per case.
 
 The **verdict and the fix never come from the model.** `agent/chain.py` walks the money chain (card authorized → payment provider paid → order confirmed → credits granted → mail delivered) and marks each link green, red or grey with the rows that decided it.
 
 The page also shows **what the customer says vs. the records** (e.g. "you say 29,900; the ledger shows 24,900 PAID") and **what the rules alone would have found** without the model reading the message.
 
 ## Measured
-All numbers come from `scripts/intake_eval.py`; every run is logged in `docs/measurements/` and summarised in `docs/measurements_nebius.md`.
+Every run is logged in `docs/measurements/` and summarised in `docs/measurements.md` (screenshots) and `docs/measurements_nebius.md` (messages). The held-out sets were built by a separate agent that never saw the prompts or the code, and committed before the first model run (git history). We tuned only on the dev sets.
 
-The held-out set (`docs/eval/intake_heldout.jsonl`, 40 messages) was written by a separate model that saw only the synthetic data, never the prompt or the code, and was committed before the first model run (see git history). We report on it; we tuned only on the 12-message dev set.
+**Screenshots** (`docs/eval/screens/`, 16 held-out synthetic phone photos in Korean and Japanese, 6 invented app styles; 7 real payments, 1 unfinished checkout, 8 with the amount, time or date edited):
 
-| Reader | Sender found | Right order + broken link | Complaint read | Values dropped (not in message) | Model time / message |
-|---|---|---|---|---|---|
-| Rules only (no model) | 38/40 | 38/40 | — | — | — |
-| Nemotron on Token Factory (`MODEL_ID`) | FILL | FILL | FILL | FILL | FILL ms |
+| Reader of the photo | Amount right | Date + time right | Verdict right **with** the fields right |
+|---|---|---|---|
+| Free on-device OCR (macOS Vision) + today's rules | 1/16 | 0/16 | 0/16 |
+| Free on-device OCR + payment-word rules | 5/16 | 8/16 | 3/16 |
+| Nemotron 3.5 Super VL on Token Factory | FILL | FILL | FILL |
+| Same Nemotron given only the OCR text (no image) | FILL | FILL | FILL |
 
-What the rules miss: a message where the first address is the spouse's (`h33`) and a forwarded mail whose first address is the shop's own (`h40`). FILL: what the model still misses (from the log).
+**Messages** (Korean-heavy held-out set `docs/eval/text_fallback.jsonl`, 22: 만/천 amounts, Korean number words, forwarded headers, a spouse writing, requests for someone else's order):
 
-Also measured (from the version this builds on, still true of the verifier): six seeded cases, right order and broken link 6/6; the sentence checker caught 32 of 40 wrong sentences written by a separate model and wrongly rejected 2 of 20 true ones (`scripts/claim_eval.py`). 38 automated tests (`pytest`).
+| Reader | Sender found | Right order + broken link |
+|---|---|---|
+| Rules only | 16/22 | 17/22 |
+| Nemotron (Lightning, Ultra when unsure) | FILL | FILL |
+
+Older English-heavy set (40): rules only 38/40, Nemotron FILL. FILL: what the model still misses (ids from the log).
+
+From the version this builds on (still true of the verifier): six seeded cases right 6/6; the sentence checker caught 32 of 40 wrong sentences written by a separate model and wrongly rejected 2 of 20 true ones (`scripts/claim_eval.py`). 51 automated tests (`pytest`, never call a paid model).
 
 ## Run it yourself
 ```bash
 git clone REPO_URL && cd paid-but-nothing-arrived-nebius
 uv venv --python 3.12 .venv && uv pip install --python .venv/bin/python -r requirements.txt
-.venv/bin/python data/gen_synthetic.py && .venv/bin/python -m pytest -q        # 38 tests, no key needed
+.venv/bin/python data/gen_synthetic.py && .venv/bin/python -m pytest -q        # 51 tests, no key needed
 cp .env.example .env.local    # put your Token Factory key in NEBIUS_API_KEY
 .venv/bin/uvicorn app.main:app --port 8765                                     # open http://127.0.0.1:8765
 ```
