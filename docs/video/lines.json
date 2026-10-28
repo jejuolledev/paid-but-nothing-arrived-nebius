@@ -1,18 +1,19 @@
 {
- "_note": "Narration, one entry per line (one wav per line: docs/video/vo/<id>.wav). Edit N12 after the measurements (HANDOFF step 4). 'shot' says what is on screen; build_nebius_video.py reads 'shot'.",
+ "_note": "Screenshot-first narration (2026-10-28). 'intro:' shots come from scripts/record_proof_intro.mjs (docs/video/intro1), 'take:' shots from scripts/record_nebius.mjs (docs/video/take1). The text-only version is in lines_v1_textonly.json. Replace FILL in N12 only after the held-out runs. Say 'Nemotron' and 'Nebius Token Factory' aloud.",
  "lines": [
-  {"id": "N01", "shot": "card:message", "text": "“I paid 24,900 won and nothing arrived.” Every small online seller gets this message. Answer slowly, and it turns into a chargeback."},
-  {"id": "N02", "shot": "comic:P2,P3", "text": "The answer is split across four places: the payment provider, the orders database, the server logs and the mail provider."},
-  {"id": "N03", "shot": "take:typed..investigate_click", "text": "Here is a messy one. Two email addresses: the account is his wife's, but he paid with his own."},
-  {"id": "N04", "shot": "take:intake", "text": "NVIDIA Nemotron, running on Nebius Token Factory, reads the message first. It works out who is writing, what they claim, and which records to look up. Addresses are hidden from the model, and anything it says that the message doesn't say is dropped."},
+  {"id": "P01", "shot": "intro:true_typed..true_click", "text": "“I paid. Here's my screenshot.” That is how customers write to a small online shop: a phone photo of their banking app, in Korean or Japanese."},
+  {"id": "P02", "shot": "intro:true_result..true_highlight", "text": "Nemotron 3.5 Super VL, on Nebius Token Factory, reads the photo. The payment, not the balance, not the points, not the phone's clock."},
+  {"id": "P03", "shot": "intro:true_table..true_chain", "text": "The payment provider's ledger checks it: same amount, same minute. Then the money chain shows the one link where the money got stuck, with the rows that prove it."},
+  {"id": "P04", "shot": "intro:doctored_typed..doctored_result", "text": "Same kind of screen. One number edited."},
+  {"id": "P05", "shot": "intro:doctored_highlight..doctored_table", "text": "The ledger has never seen that payment. The model can't spot the edit; the ledger can. The reply politely asks for the card statement, and nothing changes."},
+  {"id": "N03", "shot": "take:typed..investigate_click", "text": "Messages are messy too. Two addresses: the account is his wife's, but he paid with his own."},
+  {"id": "N04", "shot": "take:intake", "text": "Nemotron 3.5 Lightning reads the message: who is writing, what they claim, which records to look up. Addresses are hidden from the model, and anything the message doesn't say is dropped."},
   {"id": "N05", "shot": "take:rules_only", "text": "A simple rule would grab the first address and find nothing."},
-  {"id": "N06", "shot": "take:timeline", "text": "The plan runs read-only, and only on the sender's own trail. No order under his address, so: who paid at the payment provider, and which order is that payment?"},
-  {"id": "N07", "shot": "take:chain..claims", "text": "Then a rule-based verifier, not the model, walks the money chain. The order was saved under a typo, exmaple dot com, and the mail bounced. Every red link cites the rows that prove it."},
-  {"id": "N08", "shot": "take:claims", "text": "It also lines up what the customer says against the records. Here the amount matches."},
-  {"id": "N09", "shot": "take:calls", "text": "Two Nemotron calls on Token Factory: one reads the message and plans, one writes the cited explanation and the reply. Time and tokens are on screen."},
-  {"id": "N10", "shot": "take:approve..after_fix", "text": "Approve, and the fix runs. On the public demo, it only changes your own copy of the data."},
-  {"id": "N11", "shot": "take:case5_click..result5", "text": "Ask to see someone else's order, and it is not read. And when nothing was charged, it says so."},
-  {"id": "N12", "shot": "card:measured", "text": "FILL AFTER MEASURING: e.g. On forty messages written by a separate model, it found the right order and the right broken link in X; rules alone, 38."},
-  {"id": "N13", "shot": "card:title", "text": "Paid, but nothing arrived? Found in one pass."}
+  {"id": "N07", "shot": "take:chain..claims", "text": "A verifier, not the model, walks the chain. The order was saved under a typo, exmaple dot com, and the mail bounced."},
+  {"id": "N09", "shot": "take:calls", "text": "Every call is on screen: which Nemotron did which job, the time, the tokens and the cost. Ultra is called only when the first reading is unsure."},
+  {"id": "N10", "shot": "take:approve..after_fix", "text": "Approve, and the fix runs. On the public demo, only your own copy of the data changes."},
+  {"id": "N11", "shot": "take:case5_click..result5", "text": "Ask for someone else's order, and it is not read. And when nothing was charged, it says so. Nothing is broken. You were never charged."},
+  {"id": "N12", "shot": "card:measured", "text": "FILL AFTER MEASURING: e.g. On sixteen phone photos built by a separate agent, Nemotron read the payment right on X; free OCR with rules, three."},
+  {"id": "N13", "shot": "card:title", "text": "Paid, but nothing arrived? Here's the proof, found in one pass."}
  ]
 }

@@ -1,0 +1,18 @@
+{
+ "_note": "Narration, one entry per line (one wav per line: docs/video/vo/<id>.wav). Edit N12 after the measurements (HANDOFF step 4). 'shot' says what is on screen; build_nebius_video.py reads 'shot'.",
+ "lines": [
+  {"id": "N01", "shot": "card:message", "text": "“I paid 24,900 won and nothing arrived.” Every small online seller gets this message. Answer slowly, and it turns into a chargeback."},
+  {"id": "N02", "shot": "comic:P2,P3", "text": "The answer is split across four places: the payment provider, the orders database, the server logs and the mail provider."},
+  {"id": "N03", "shot": "take:typed..investigate_click", "text": "Here is a messy one. Two email addresses: the account is his wife's, but he paid with his own."},
+  {"id": "N04", "shot": "take:intake", "text": "NVIDIA Nemotron, running on Nebius Token Factory, reads the message first. It works out who is writing, what they claim, and which records to look up. Addresses are hidden from the model, and anything it says that the message doesn't say is dropped."},
+  {"id": "N05", "shot": "take:rules_only", "text": "A simple rule would grab the first address and find nothing."},
+  {"id": "N06", "shot": "take:timeline", "text": "The plan runs read-only, and only on the sender's own trail. No order under his address, so: who paid at the payment provider, and which order is that payment?"},
+  {"id": "N07", "shot": "take:chain..claims", "text": "Then a rule-based verifier, not the model, walks the money chain. The order was saved under a typo, exmaple dot com, and the mail bounced. Every red link cites the rows that prove it."},
+  {"id": "N08", "shot": "take:claims", "text": "It also lines up what the customer says against the records. Here the amount matches."},
+  {"id": "N09", "shot": "take:calls", "text": "Two Nemotron calls on Token Factory: one reads the message and plans, one writes the cited explanation and the reply. Time and tokens are on screen."},
+  {"id": "N10", "shot": "take:approve..after_fix", "text": "Approve, and the fix runs. On the public demo, it only changes your own copy of the data."},
+  {"id": "N11", "shot": "take:case5_click..result5", "text": "Ask to see someone else's order, and it is not read. And when nothing was charged, it says so."},
+  {"id": "N12", "shot": "card:measured", "text": "FILL AFTER MEASURING: e.g. On forty messages written by a separate model, it found the right order and the right broken link in X; rules alone, 38."},
+  {"id": "N13", "shot": "card:title", "text": "Paid, but nothing arrived? Found in one pass."}
+ ]
+}

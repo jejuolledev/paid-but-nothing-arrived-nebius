@@ -3,7 +3,8 @@
 Every line's picture comes from its "shot" in docs/video/lines.json and the take's marks.json, so nothing here
 is a hand-typed timestamp.
 
-  python3 scripts/build_nebius_video.py docs/video/take1      ->  docs/video/final_nebius.mp4 (1920x1080, under 3 min)
+  python3 scripts/build_nebius_video.py docs/video/take1 [docs/video/intro1]  ->  docs/video/final_nebius.mp4 (1920x1080, under 3 min)
+"intro:a..b" shots come from the screenshot take (scripts/record_proof_intro.mjs), "take:a..b" from the main take.
 """
 import json, subprocess, sys
 from pathlib import Path
@@ -15,6 +16,9 @@ TMP.mkdir(parents=True, exist_ok=True)
 TAKE = Path(sys.argv[1]) if len(sys.argv) > 1 else V / "take1"
 VIDEO = next(TAKE.glob("*.webm"))
 MARKS = json.loads((TAKE / "marks.json").read_text())
+INTRO = Path(sys.argv[2]) if len(sys.argv) > 2 else V / "intro1"
+INTRO_VIDEO = next(INTRO.glob("*.webm"), None) if INTRO.exists() else None
+INTRO_MARKS = json.loads((INTRO / "marks.json").read_text()) if INTRO_VIDEO else {}
 LINES = json.loads((V / "lines.json").read_text())["lines"]
 W, H, FPS, LEAD, GAP = 1920, 1080, 30, 0.25, 0.45
 BG = "0x0b0d12"
@@ -38,7 +42,7 @@ def still(img, secs, out, zoom=(1.0, 1.05)):
     run(["-loop", "1", "-i", str(img), "-vf", vf, "-frames:v", str(n), *ENC, str(out)])
 
 
-def clip(a, b, secs, out):
+def clip(a, b, secs, out, video=None):
     """Recorded screen from a to b, scaled to 1080p; holds the last frame if the narration is longer,
     speeds up (at most 2x) if the beat is longer than the narration."""
     span = max(0.1, b - a)
@@ -46,15 +50,16 @@ def clip(a, b, secs, out):
     hold = max(0.0, secs - span / speed)
     vf = (f"setpts=PTS/{speed:.3f},fps={FPS},scale=-2:{H}:flags=lanczos,pad={W}:{H}:(ow-iw)/2:0:color={BG},setsar=1,"
           f"tpad=stop_mode=clone:stop_duration={hold:.3f}")
-    run(["-ss", f"{a:.3f}", "-t", f"{span:.3f}", "-i", str(VIDEO), "-vf", vf, "-t", f"{secs:.3f}", *ENC, str(out)])
+    run(["-ss", f"{a:.3f}", "-t", f"{span:.3f}", "-i", str(video or VIDEO), "-vf", vf, "-t", f"{secs:.3f}", *ENC, str(out)])
 
 
-def beat(spec, secs):
+def beat(spec, secs, marks=None):
     """'a..b' = from mark a to mark b; 'a' alone = from mark a to the next mark (never into the next beat)."""
+    marks = marks or MARKS
     a, _, b = spec.partition("..")
-    ta = MARKS[a]
-    later = sorted(v for v in MARKS.values() if v > ta)
-    tb = MARKS[b] if b else (later[0] if later else ta + secs)
+    ta = marks[a]
+    later = sorted(v for v in marks.values() if v > ta)
+    tb = marks[b] if b else (later[0] if later else ta + secs)
     return ta, tb
 
 
@@ -74,6 +79,11 @@ for l in LINES:
         panels = arg.split(",")
         for j, pn in enumerate(panels):
             out = TMP / f"{k}_{j}.mp4"; still(ROOT / f"docs/comic/panel_{pn}.png", slot[k] / len(panels), out); segs.append(out)
+    elif kind == "intro":
+        if not INTRO_VIDEO:
+            sys.exit(f"{k}: needs the screenshot take (scripts/record_proof_intro.mjs) in {INTRO}")
+        a, b = beat(arg, slot[k], INTRO_MARKS)
+        out = TMP / f"{k}.mp4"; clip(a, b, slot[k], out, INTRO_VIDEO); segs.append(out); live.add(k)
     elif kind == "take":
         a, b = beat(arg, slot[k])
         out = TMP / f"{k}.mp4"; clip(a, b, slot[k], out); segs.append(out); live.add(k)
