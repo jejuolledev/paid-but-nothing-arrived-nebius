@@ -205,3 +205,20 @@ def test_proof_endpoint_public_mode_limits_and_rejects_bad_input(public_app, mon
     bad = c.post("/api/proof", json={"image": base64.b64encode(b"hello").decode(), "message": "x"}).json()
     assert bad["ok"] is False and "can't be used" in bad["headline"]
     assert c.post("/api/proof", json={"image": "A" * 12_000_001}).status_code == 422
+
+
+def test_thinking_toggle_per_job_and_length_is_reported(monkeypatch):
+    monkeypatch.setenv("LLM_THINKING_VISION", "off")
+    s = _Scripted(_screen())
+    c = TracedClient(s, CallLog(), "x")
+    from agent.proof import read_screen
+    assert read_screen(c, prepare_image(_png())[0])["ok"]
+    assert s.sent[0]["kw"]["extra_body"]["chat_template_kwargs"] == {"enable_thinking": False}
+
+    class Truncated(_Scripted):   # reasoning used every token: empty content, finish_reason=length
+        def create(self, model=None, messages=None, **kw):
+            msg = SimpleNamespace(content="", model_extra={"reasoning_content": "The user wants..."})
+            return SimpleNamespace(choices=[SimpleNamespace(message=msg, finish_reason="length")], model=model,
+                                   usage=SimpleNamespace(prompt_tokens=1652, completion_tokens=1200))
+    r = read_screen(TracedClient(Truncated(_screen()), CallLog(), "x"), prepare_image(_png())[0])
+    assert not r["ok"] and "all its tokens" in r["error"]

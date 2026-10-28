@@ -124,6 +124,13 @@ class TracedClient:
         extra = os.getenv("LLM_EXTRA_BODY")
         if extra:
             kw["extra_body"] = {**json.loads(extra), **kw.get("extra_body", {})}
+        # Nemotron reasons before answering; the reasoning counts against max_tokens. LLM_THINKING_<ROLE> / LLM_THINKING
+        # = off sends chat_template_kwargs.enable_thinking=false for that job (on = true; unset = the model's default).
+        think = os.getenv(f"LLM_THINKING_{_role.upper()}") or os.getenv("LLM_THINKING")
+        if think in ("on", "off"):
+            eb = dict(kw.get("extra_body") or {})
+            eb["chat_template_kwargs"] = {**eb.get("chat_template_kwargs", {}), "enable_thinking": think == "on"}
+            kw["extra_body"] = eb
         if "reasoning_effort" in kw and not os.getenv("LLM_REASONING"):
             kw.pop("reasoning_effort")
         real = type(self._client).__module__.startswith("openai")  # a real HTTP client, not a test stand-in or the fake
@@ -139,14 +146,16 @@ class TracedClient:
             raise
         u = getattr(resp, "usage", None)
         msg = resp.choices[0].message
+        finish = getattr(resp.choices[0], "finish_reason", None)
         raw = msg.content or ""
-        if not raw.strip():  # some reasoning endpoints put the whole answer in reasoning_content
+        if not raw.strip() and finish != "length":  # some reasoning endpoints put the whole answer in reasoning_content
             raw = getattr(msg, "reasoning_content", None) or (getattr(msg, "model_extra", None) or {}).get("reasoning_content") or ""
         msg.content = strip_thinking(raw)
         pt, ct = getattr(u, "prompt_tokens", None), getattr(u, "completion_tokens", None)
         self.log.add(role=_role, model=getattr(resp, "model", None) or kw.get("model"), requested_model=kw.get("model"),
                      provider=self.provider, ok=True, ms=int((time.time() - t0) * 1000),
-                     prompt_tokens=pt, completion_tokens=ct, usd=cost_usd(kw.get("model"), pt, ct))
+                     prompt_tokens=pt, completion_tokens=ct, usd=cost_usd(kw.get("model"), pt, ct), finish=finish,
+                     thinking=((kw.get("extra_body") or {}).get("chat_template_kwargs") or {}).get("enable_thinking"))
         if real:
             _record_spend({"ts": time.strftime("%Y-%m-%dT%H:%M:%S"), "role": _role, "model": kw.get("model"), "prompt_tokens": pt,
                            "completion_tokens": ct, "usd": cost_usd(kw.get("model"), pt, ct), "ms": self.log[-1]["ms"]})

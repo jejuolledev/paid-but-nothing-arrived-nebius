@@ -260,7 +260,7 @@ def read_message(client, message: str, role: str = "intake") -> dict:
     out = {"masked": masked, "placeholders": {k: _mask_addr(v) for k, v in mapping.items()}, "model": model_for(role), "role": role}
     try:
         resp = client.chat.completions.create(**({"_role": role} if hasattr(client, "log") else {}), model=model_for(role), temperature=0,
-                                              max_tokens=int(os.getenv("LLM_MAX_TOKENS_INTAKE", "1500")),
+                                              max_tokens=int(os.getenv("LLM_MAX_TOKENS_INTAKE", "4000")),
                                               messages=[{"role": "system", "content": SYSTEM},
                                                         {"role": "user", "content": "Customer message:\n" + masked}])
         out["model"] = getattr(resp, "model", None) or out["model"]  # what actually answered

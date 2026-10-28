@@ -34,24 +34,28 @@ man = [json.loads(l) for l in (ROOT / "docs/eval/screens/manifest.jsonl").read_t
 dev = next(m for m in man if m["split"] == "dev" and m["kind"] == "true")
 from agent.proof import prepare_image, read_screen, check_fields
 jpeg, _ = prepare_image((ROOT / "docs/eval/screens" / dev["clean_file"]).read_bytes())
+# 2026-10-28 first run: Super VL read the photo correctly but spent all 1,200 tokens reasoning (finish=length, empty
+# content). So: thinking off first, then thinking on with a 4,000-token budget.
+TRIES = [("off", "json_schema"), ("on", "json_schema"), ("off", "json_object"), ("off", "off")]
 for model in cands:
-    for mode in ("json_schema", "json_object", "off"):
-        os.environ["LLM_VISION_MODEL"], os.environ["LLM_VISION_JSON"] = model, mode
+    for think, mode in TRIES:
+        os.environ["LLM_VISION_MODEL"], os.environ["LLM_VISION_JSON"], os.environ["LLM_THINKING_VISION"] = model, mode, think
         c = TracedClient(raw, CallLog(), "Nebius Token Factory")
         r = read_screen(c, jpeg)
         f = check_fields(r["raw"]) if r.get("ok") else None
-        t = {"model": model, "json_mode": r.get("json_mode"), "ok": bool(r.get("ok")), "error": r.get("error"),
+        t = {"model": model, "thinking": think, "json_mode": r.get("json_mode"), "ok": bool(r.get("ok")), "error": r.get("error"),
+             "finish": [x.get("finish") for x in c.log], "tokens": [(x.get("prompt_tokens"), x.get("completion_tokens")) for x in c.log],
              "ms": sum(x.get("ms") or 0 for x in c.log), "fields": {k: (f or {}).get(k) for k in ("amount", "date", "time", "card_last4", "status")},
              "gold": dev["gold"]}
         res["tries"].append(t); print(json.dumps(t, ensure_ascii=False))
         if r.get("ok") and f and f.get("payment_found"):
-            res.update(decision="PHOTO", vision_model=model, json_mode=mode)
+            res.update(decision="PHOTO", vision_model=model, json_mode=mode, thinking=think)
             break
     if res["decision"] == "PHOTO":
         break
 (ROOT / "docs/gate_result.json").write_text(json.dumps(res, ensure_ascii=False, indent=1))
 print("\nDECISION:", res["decision"], res.get("vision_model", ""), res.get("json_mode", ""))
 if res["decision"] == "PHOTO":
-    print(f"Put in .env.local:  LLM_VISION_MODEL={res['vision_model']}\n                    LLM_VISION_JSON={res['json_mode']}")
+    print(f"Put in .env.local:  LLM_VISION_MODEL={res['vision_model']}\n                    LLM_VISION_JSON={res['json_mode']}\n                    LLM_THINKING_VISION={res['thinking']}")
 else:
     print("Switch to the text fallback (HANDOFF.md 'Gate'): PROOF_VISION=0 in .env.local, then the fallback_* sets.")

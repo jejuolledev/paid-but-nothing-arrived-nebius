@@ -139,7 +139,7 @@ def read_screen(client, jpeg: bytes) -> dict:
                                              {"type": "image_url", "image_url": {"url": url}}]}]
     mode = os.getenv("LLM_VISION_JSON", "json_schema")  # json_schema | json_object | off
     out = {"model": model, "json_mode": mode}
-    kw = dict(model=model, temperature=0, max_tokens=int(os.getenv("LLM_MAX_TOKENS_VISION", "1200")), messages=messages)
+    kw = dict(model=model, temperature=0, max_tokens=int(os.getenv("LLM_MAX_TOKENS_VISION", "4000")), messages=messages)
     if hasattr(client, "log"):
         kw["_role"] = "vision"
     if mode == "json_schema":
@@ -159,6 +159,8 @@ def read_screen(client, jpeg: bytes) -> dict:
         out["model"] = getattr(resp, "model", None) or model
         raw = _parse(resp.choices[0].message.content or "")
         if not isinstance(raw, dict):
+            if getattr(resp.choices[0], "finish_reason", None) == "length":
+                raise ValueError("the model used all its tokens before answering (reasoning); raise LLM_MAX_TOKENS_VISION or set LLM_THINKING_VISION=off")
             raise ValueError("no JSON object in the reply")
     except Exception as e:
         out.update(ok=False, error=f"{type(e).__name__}: {str(e)[:160]}")
