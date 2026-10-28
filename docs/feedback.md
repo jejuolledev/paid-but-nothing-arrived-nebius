@@ -1,6 +1,6 @@
 # Feedback: Nebius Token Factory and NVIDIA Nemotron
 
-Written while building this entry, from what actually happened. Logs: `build/spend_ledger.jsonl`, `docs/gate_result.json`, `docs/measurements/`.
+Written while building this entry, from what actually happened. Logs: `docs/gate_result.json`, `docs/measurements/`; the per-call spend log `build/spend_ledger.jsonl` stays local (git-ignored).
 Lines still marked **FILL** are filled after the measurement runs, once credits are on the account.
 
 ## What we used them for
@@ -20,7 +20,8 @@ Lines still marked **FILL** are filled after the measurement runs, once credits 
   - a system prompt asking for one JSON object
   - `max_tokens=1200`, `temperature=0`
   - three tries with `response_format` set to `json_schema` strict, then `json_object`, then none
-- **What happened.** All three tries returned the same thing:
+- **What happened.** All three tries used exactly 1,200 completion tokens and returned no JSON. A fourth call with the
+  same input, logging the full response, showed why:
   - `finish_reason="length"`
   - `usage.completion_tokens_details.reasoning_tokens=1200`, so every completion token went to reasoning
   - `message.content` was an empty string

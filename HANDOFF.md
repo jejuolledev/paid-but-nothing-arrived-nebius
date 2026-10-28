@@ -4,7 +4,7 @@ Deadline: **Sat 2026-10-31 02:00 KST** (Fri Oct 30 10:00 PDT). Aim to press Subm
 Everything below runs in `/Users/ollekil/Desktop/Moahub-Labs/hackathons/paid-but-nothing-arrived-nebius`.
 Headless only; no paid services beyond the free Token Factory credits; nothing is published without the owner's yes.
 
-Already done (no key needed): code, 50 tests, public demo mode, rules-only baseline on the held-out set
+Already done (no key needed): code, 52 tests, public demo mode, rules-only baseline on the held-out set
 (38/40), recorder/video/TTS scripts (dry-run tested with the FAKE stand-in), Dockerfile + Cloud Run script,
 README / feedback / form drafts with FILL marks.
 
@@ -31,7 +31,7 @@ sharpened by `docs/research_winners.md`. Built without a key (commit fceb04a and
   unsure) · explain/reply `nvidia/nemotron-3-super-120b-a12b`. Cost per call from catalog prices; page shows model,
   ms, tokens, USD and a total.
 - Frozen eval sets (built by a separate agent that never saw prompts or code): `docs/eval/screens/` (16 held-out +
-  6 dev phone photos, KO/JA, 6 invented app styles, 8 edited) and `docs/eval/text_fallback.jsonl` (Korean-heavy).
+  6 dev phone photos, KO/JA, 6 invented app styles; 8 of the held-out and 2 of the dev photos edited) and `docs/eval/text_fallback.jsonl` (Korean-heavy).
 - Baseline without a model: macOS Vision OCR + rules → `docs/measurements.md`.
 
 ## Spending rules (from 2026-10-28)

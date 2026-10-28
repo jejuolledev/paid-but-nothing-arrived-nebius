@@ -1,13 +1,13 @@
 {
  "_note": "Screenshot-first narration (2026-10-28). 'intro:' shots come from scripts/record_proof_intro.mjs (docs/video/intro1), 'take:' shots from scripts/record_nebius.mjs (docs/video/take1). The text-only version is in lines_v1_textonly.json. Replace FILL in N12 only after the held-out runs. Say 'Nemotron' and 'Nebius Token Factory' aloud.",
  "lines": [
-  {"id": "P01", "shot": "intro:true_typed..true_click", "text": "“I paid. Here's my screenshot.” That is how customers write to a small online shop: a phone photo of their banking app, in Korean or Japanese."},
+  {"id": "P01", "shot": "intro:true_typed..true_click", "text": "“I paid. Here's my screenshot.” That is how a customer can write to a small online shop: a phone photo of their banking app, in Korean or Japanese."},
   {"id": "P02", "shot": "intro:true_result..true_highlight", "text": "Nemotron 3.5 Super VL, on Nebius Token Factory, reads the photo. The payment, not the balance, not the points, not the phone's clock."},
-  {"id": "P03", "shot": "intro:true_table..true_chain", "text": "The payment provider's ledger checks it: same amount, same minute. Then the money chain shows the one link where the money got stuck, with the rows that prove it."},
-  {"id": "P04", "shot": "intro:doctored_typed..doctored_result", "text": "Same kind of screen. One number edited."},
+  {"id": "P03", "shot": "intro:true_table..true_chain", "text": "The payment provider's ledger checks it: same amount, within ten minutes. Then the money chain shows the one link where the money got stuck, with the rows that prove it."},
+  {"id": "P04", "shot": "intro:doctored_typed..doctored_result", "text": "Another card alert. Its date was edited."},
   {"id": "P05", "shot": "intro:doctored_highlight..doctored_table", "text": "The ledger has never seen that payment. The model can't spot the edit; the ledger can. The reply politely asks for the card statement, and nothing changes."},
   {"id": "N03", "shot": "take:typed..investigate_click", "text": "Messages are messy too. Two addresses: the account is his wife's, but he paid with his own."},
-  {"id": "N04", "shot": "take:intake", "text": "Nemotron 3.5 Lightning reads the message: who is writing, what they claim, which records to look up. Addresses are hidden from the model, and anything the message doesn't say is dropped."},
+  {"id": "N04", "shot": "take:intake", "text": "Nemotron 3.5 Lightning reads the message: who is writing, what they claim, which records to look up. Addresses are masked before the model sees them, and anything the message doesn't say is dropped."},
   {"id": "N05", "shot": "take:rules_only", "text": "A simple rule would grab the first address and find nothing."},
   {"id": "N07", "shot": "take:chain..claims", "text": "A verifier, not the model, walks the chain. The order was saved under a typo, exmaple dot com, and the mail bounced."},
   {"id": "N09", "shot": "take:calls", "text": "Every call is on screen: which Nemotron did which job, the time, the tokens and the cost. Ultra is called only when the first reading is unsure."},

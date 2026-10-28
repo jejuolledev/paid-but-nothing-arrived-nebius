@@ -4,17 +4,17 @@
 
 **In ten seconds:** a customer writes *"돈 냈어요, 이거 보세요"* ("I paid, here's proof") and drops a phone photo of their
 banking app. **Nemotron 3.5 Super VL on Nebius Token Factory** reads the photo — the payment line, not the balance,
-the points or the phone's clock — and the seller's own payment ledger checks it: same amount, same minute. Then the
+the points or the phone's clock — and the payment provider's ledger checks it: same amount, within ten minutes. Then the
 money chain shows the one link where the money got stuck (**card → payment provider → order → credits → mail**), with
 the rows that prove it, a reply in the customer's language (Korean, Japanese, English), and a fix that runs only
-after the seller clicks Approve. Change one number on the screenshot and the ledger has never seen that payment. And
+after the seller clicks Approve. Edit the amount, date or time on the screenshot and the ledger has never seen that payment. And
 sometimes the honest answer is: *"Nothing is broken. You were never charged."*
 
 Models per job, all on Token Factory: **Nemotron 3.5 Super VL** reads the screenshot · **Nemotron 3.5 Lightning**
 reads the message and plans the lookups · **Nemotron 3 Ultra** re-reads only when that first reading is unsure ·
 **Nemotron 3 Super** writes the cited explanation and the reply. The page shows each call's model, time, tokens and cost.
 
-**Try it:** TRY_IT_URL — no login, no key. The six example buttons answer at once from a recorded live run; **Run it live now** calls Token Factory for real. Your Approve and Reset change only your own copy of the synthetic data.
+**Try it:** TRY_IT_URL — no login, no key. The example buttons (four screenshots, six messages) answer at once from a recorded live run; **Run it live now** calls Token Factory for real. Your Approve and Reset change only your own copy of the synthetic data.
 
 **Watch (under 3 min):** VIDEO_URL
 
@@ -23,15 +23,15 @@ Track: **Best Apps and Agents** · Team: MoaHub (solo, Korea) · License: MIT
 ---
 
 ## Why this exists
-I run a small online shop. The message I dread most is "I paid but nothing arrived." Answer slowly and it becomes a card dispute. The answer is spread over four places: the payment provider, our orders database, the server logs and the mail provider. The six example cases in this demo are bugs I found in my own checkout (two happened on real payments), rebuilt with synthetic data.
+I run a small online shop. The message I dread most is "I paid but nothing arrived." Answer slowly and it becomes a card dispute. The answer is spread over four places: the payment provider, our orders database, the server logs and the mail provider. Five of the six example message cases are bugs I found in my own checkout (two happened on real payments), rebuilt with synthetic data; the sixth is a variation added to test the agent.
 
 ## Which Nemotron does what (all on Nebius Token Factory)
 
 | Job | Model (env var) | What it does | How code checks it |
 |---|---|---|---|
-| 0. Read the screenshot | `nvidia/Nemotron-3.5-Super-VL` (`LLM_VISION_MODEL`) | Finds the one payment to the shop on a phone photo of a banking / card / pay app (Korean, Japanese, English), not the balance, points, instalment count, the phone's clock, ads, other rows or the yen conversion. Returns amount, date, time, card last-4, status and the exact text it read, as strict JSON. | The photo's metadata is removed and it is resized; on a Mac, e-mail addresses and long account/card numbers found by on-device OCR are blurred before sending. The amount must equal its own on-screen quote; malformed values are dropped and shown. **The payment provider's ledger decides**: same amount, same minute (±10), same last-4. A photo the ledger has never seen stays "not in the ledger", whatever it shows. |
+| 0. Read the screenshot | `nvidia/Nemotron-3.5-Super-VL` (`LLM_VISION_MODEL`) | Finds the one payment to the shop on a phone photo of a banking / card / pay app (Korean, Japanese, English), not the balance, points, instalment count, the phone's clock, ads, other rows or the yen conversion. Returns amount, date, time, card last-4, status and the exact text it read, as strict JSON. | The photo's metadata is removed and it is resized; on a Mac, e-mail addresses and long account/card numbers found by on-device OCR are blurred before sending. The amount must equal its own on-screen quote; malformed values are dropped and shown. **The payment provider's ledger decides**: same amount, within ±10 minutes, and the same last-4 when both show one. A photo the ledger has never seen stays "not in the ledger", whatever it shows. |
 | 1. Read + plan | `nvidia/Nemotron-3_5-Lightning` (`LLM_MODEL_INTAKE`) | Finds the sender among the addresses in the message (a spouse's address, a CC, a forwarded header and the shop's own address are not the sender); pulls out the claims (amount, when, which pack, what went wrong, someone else's order number they ask for); writes a plan of up to five read-only lookups. | Addresses become `EMAIL_1`, `EMAIL_2` (first letter + domain) and card digits are removed before the model sees the message. Every value must be stated in the message (digits, 만/천 units or Korean number words); anything else is **dropped and shown**. The plan runs only on the sender's own trail. |
-| 1b. Re-read when unsure | `nvidia/Nemotron-3-Ultra-550b-a55b` (`LLM_MODEL_ESCALATE`) | Called only when code finds the first reading unsure (no JSON, no sender although there are addresses, unsupported values, or the reader says so). | Same checks; its answer is used only if it is itself clean. The page says why it was called. |
+| 1b. Re-read when unsure | `nvidia/Nemotron-3-Ultra-550b-a55b` (`LLM_MODEL_ESCALATE`) | Called only when code finds the first reading unsure (no JSON, no sender although there are addresses, unsupported values, or the reader says so). | Same checks; its answer is used only if it is itself clean (or if the first reader returned nothing usable). The page says why it was called. |
 | 2. Explain + reply | `nvidia/nemotron-3-super-120b-a12b` (`LLM_MODEL_EXPLAIN`, `LLM_MODEL_REPLY`) | The explanation, citing rows, and the reply in the customer's language (Korean, Japanese, English). | Every sentence is checked against the rows it cites. A reply that promises money, moves credits before the customer confirms, or suggests a screenshot is fake → the standard reply is used. |
 
 Each call's model, time, tokens and estimated cost (catalog prices) are on the page, with a total per case.
@@ -43,7 +43,7 @@ The page also shows **what the customer says vs. the records** (e.g. "you say 29
 ## Measured
 Every run is logged in `docs/measurements/` and summarised in `docs/measurements.md` (screenshots) and `docs/measurements_nebius.md` (messages). The held-out sets were built by a separate agent that never saw the prompts or the code, and committed before the first model run (git history). We tuned only on the dev sets.
 
-**Screenshots** (`docs/eval/screens/`, 16 held-out synthetic phone photos in Korean and Japanese, 6 invented app styles; 7 real payments, 1 unfinished checkout, 8 with the amount, time or date edited):
+**Screenshots** (`docs/eval/screens/`, 16 held-out synthetic phone photos in Korean and Japanese, 6 invented app styles; 7 genuine payments that are in the ledger, 1 unfinished checkout, 8 with the amount, time or date edited):
 
 | Reader of the photo | Amount right | Date + time right | Verdict right **with** the fields right |
 |---|---|---|---|
@@ -61,13 +61,13 @@ Every run is logged in `docs/measurements/` and summarised in `docs/measurements
 
 Older English-heavy set (40): rules only 38/40, Nemotron FILL. FILL: what the model still misses (ids from the log).
 
-From the version this builds on (still true of the verifier): six seeded cases right 6/6; the sentence checker caught 32 of 40 wrong sentences written by a separate model and wrongly rejected 2 of 20 true ones (`scripts/claim_eval.py`). 51 automated tests (`pytest`, never call a paid model).
+From the version this builds on (still true of the verifier): six seeded cases right 6/6; the sentence checker caught 32 of 40 wrong sentences written by a separate model and wrongly rejected 2 of 20 true ones (`scripts/claim_eval.py`). 52 automated tests (`pytest`, never call a paid model).
 
 ## Run it yourself
 ```bash
 git clone REPO_URL && cd paid-but-nothing-arrived-nebius
 uv venv --python 3.12 .venv && uv pip install --python .venv/bin/python -r requirements.txt
-.venv/bin/python data/gen_synthetic.py && .venv/bin/python -m pytest -q        # 51 tests, no key needed
+.venv/bin/python data/gen_synthetic.py && .venv/bin/python -m pytest -q        # 52 tests, no key needed
 cp .env.example .env.local    # put your Token Factory key in NEBIUS_API_KEY
 .venv/bin/uvicorn app.main:app --port 8765                                     # open http://127.0.0.1:8765
 ```
@@ -85,13 +85,14 @@ Public demo mode (what the hosted link runs): `DEMO_PUBLIC=1` — per-visitor da
 - `agent/actions.py` — human-approved fixes with an audit log. `app/` — FastAPI + one page.
 
 ## What existed before this hackathon, and what is new
-The submission period runs from 2026-08-26. This project was **first written on 2026-10-22–25** for another event (the Open Agent Hackathon), where it ran on a local data platform and on NVIDIA's own hosted Nemotron endpoint. That version is public and frozen at tag `submitted-2026-10-25` of github.com/jejuolledev/paid-but-nothing-arrived; its docs are kept in `docs/open-agent-2026-10-25/`. The first commit of this repository is that snapshot, unchanged except that the old demo video files were removed.
+The submission period runs from 2026-08-26. This project was **first written on 2026-10-22–25** for another event (the Open Agent Hackathon), where it ran on a local data platform and on NVIDIA's own hosted Nemotron endpoint. That version is public and frozen at tag `submitted-2026-10-25` of github.com/jejuolledev/paid-but-nothing-arrived; its docs are kept in `docs/open-agent-2026-10-25/`. The first commit of this repository is that snapshot, unchanged except that the old demo video files, Cursor session notes and a comic draft were removed and its docs were moved to `docs/open-agent-2026-10-25/`.
 
 **Added for Nebius × NVIDIA (2026-10-27 onward, see git log):**
 - Nemotron on **Nebius Token Factory** is now the model for every step (`agent/llm.py`).
+- **Screenshot proof** (`agent/proof.py`): Nemotron 3.5 Super VL reads the customer's payment screenshot, code checks the fields, the ledger decides; edited screenshots land in "not in the ledger".
 - New model step: **reading the message and planning the lookups** (`agent/intake.py`), with grounding and a sender-scoped plan. Before, the first address and the first order number in the message were taken by a regex.
 - **Customer's claims vs. records** (`agent/compare.py`) and the **rules-only comparison** on every result.
-- A **40-message held-out set** and `scripts/intake_eval.py` (rules vs. model).
+- Held-out sets frozen before any model run: **40 messages** (English-heavy), **22 Korean/Japanese messages** (`docs/eval/text_fallback.jsonl`) and **16 phone photos** (`docs/eval/screens/`), with `scripts/intake_eval.py` and `scripts/proof_eval.py` (rules or free OCR vs. model).
 - **Public demo mode**: per-visitor data, recorded runs, rate limits, key server-side; Dockerfile and Cloud Run script.
 - Page: what the model read, what it dropped, the plan, model calls with time and tokens.
 
