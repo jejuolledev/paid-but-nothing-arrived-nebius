@@ -74,6 +74,28 @@ def strip_thinking(text: str) -> str:
     return text.strip()
 
 
+SPEND_LEDGER = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "build", "spend_ledger.jsonl")
+
+
+class BudgetExceeded(RuntimeError):
+    pass
+
+
+def spent_usd() -> float:
+    """Total estimated spend of every real Token Factory call made from this checkout (build/spend_ledger.jsonl)."""
+    try:
+        with open(SPEND_LEDGER) as f:
+            return round(sum(json.loads(l).get("usd") or 0 for l in f if l.strip()), 6)
+    except FileNotFoundError:
+        return 0.0
+
+
+def _record_spend(entry: dict):
+    os.makedirs(os.path.dirname(SPEND_LEDGER), exist_ok=True)
+    with open(SPEND_LEDGER, "a") as f:
+        f.write(json.dumps(entry) + "\n")
+
+
 class CallLog(list):
     """Every model call of one investigation: role, model, provider, latency, tokens, outcome."""
 
@@ -104,6 +126,10 @@ class TracedClient:
             kw["extra_body"] = {**json.loads(extra), **kw.get("extra_body", {})}
         if "reasoning_effort" in kw and not os.getenv("LLM_REASONING"):
             kw.pop("reasoning_effort")
+        real = type(self._client).__module__.startswith("openai")  # a real HTTP client, not a test stand-in or the fake
+        budget = os.getenv("LLM_BUDGET_USD")
+        if real and budget and spent_usd() >= float(budget):
+            raise BudgetExceeded(f"spend ledger at ${spent_usd():.4f} >= budget ${float(budget):.2f}; stopping before the call")
         t0 = time.time()
         try:
             resp = self._client.chat.completions.create(**kw)
@@ -121,6 +147,9 @@ class TracedClient:
         self.log.add(role=_role, model=getattr(resp, "model", None) or kw.get("model"), requested_model=kw.get("model"),
                      provider=self.provider, ok=True, ms=int((time.time() - t0) * 1000),
                      prompt_tokens=pt, completion_tokens=ct, usd=cost_usd(kw.get("model"), pt, ct))
+        if real:
+            _record_spend({"ts": time.strftime("%Y-%m-%dT%H:%M:%S"), "role": _role, "model": kw.get("model"), "prompt_tokens": pt,
+                           "completion_tokens": ct, "usd": cost_usd(kw.get("model"), pt, ct), "ms": self.log[-1]["ms"]})
         return resp
 
 
