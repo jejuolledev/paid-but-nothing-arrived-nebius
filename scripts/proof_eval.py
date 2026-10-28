@@ -45,7 +45,7 @@ def status_class(s):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--set", default="heldout", choices=["dev", "heldout"])
-    ap.add_argument("--mode", default="ocr-keyword", choices=["ocr-current", "ocr-keyword", "model"])
+    ap.add_argument("--mode", default="ocr-keyword", choices=["ocr-current", "ocr-keyword", "model", "model-ocrtext"])
     ap.add_argument("--variant", default="photo", choices=["photo", "clean"])
     ap.add_argument("--model", default="")
     ap.add_argument("--json-mode", default="")
@@ -62,7 +62,7 @@ def main():
     from agent.tools import Tools
     from agent.llm import token_factory_client, model_for, CallLog
     client = None
-    if a.mode == "model":
+    if a.mode.startswith("model"):
         client, why = token_factory_client(CallLog(), timeout=float(os.getenv("LLM_TIMEOUT", "120")))
         if client is None:
             sys.exit(f"No vision model client ({why}). Put NEBIUS_API_KEY in .env.local (HANDOFF.md).")
@@ -73,12 +73,18 @@ def main():
         path = SCREENS / (it["file"] if a.variant == "photo" else it["clean_file"])
         jpeg, _ = prepare_image(path.read_bytes())
         ocr = ocr_cached(jpeg, cache) if (a.mode != "model" or not a.no_redact) else None
+        if a.mode == "model-ocrtext" and ocr is None:
+            sys.exit("model-ocrtext needs on-device OCR (macOS)")
         info = {}
-        if a.mode == "model":
+        if a.mode.startswith("model"):
             if ocr and not a.no_redact:
                 jpeg, _ = redact(jpeg, ocr)
             n0 = len(client.log)
-            r = read_screen(client, jpeg)
+            if a.mode == "model-ocrtext":
+                from agent.ocr import text_of
+                r = read_screen(client, None, ocr_text=text_of(ocr))
+            else:
+                r = read_screen(client, jpeg)
             f = check_fields(r["raw"], ocr) if r.get("ok") else None
             calls = client.log[n0:]
             info = {"ok": r.get("ok"), "error": r.get("error"), "json_mode": r.get("json_mode"), "model": r.get("model"),
@@ -111,8 +117,9 @@ def main():
         v = [r[key] for r in rows if r[key] is not None and (kinds is None or r["kind"] in kinds)]
         return f"{sum(v)}/{len(v)}" if v else "—"
     label = {"ocr-current": "macOS Vision OCR + today's rules", "ocr-keyword": "macOS Vision OCR + payment-word rules",
-             "model": f"{model_for('vision')} on Token Factory"}[a.mode]
-    if os.getenv("LLM_FAKE") == "1" and a.mode == "model":
+             "model": f"{model_for('vision')} on Token Factory",
+             "model-ocrtext": f"{model_for('vision')} given only the OCR text (no image)"}[a.mode]
+    if os.getenv("LLM_FAKE") == "1" and a.mode.startswith("model"):
         label = "FAKE dry run (not a model)"
     n = len(rows)
     summary = {"when": time.strftime("%Y-%m-%d %H:%M"), "set": a.set, "variant": a.variant, "n": n, "reader": label,
@@ -120,13 +127,13 @@ def main():
                "verdict": frac("verdict"), "verdict_true": frac("verdict", ("true",)), "verdict_doctored": frac("verdict", ("doctored",)),
                "verdict_unpaid": frac("verdict", ("unpaid",)), "verdict_strict": frac("verdict_strict"),
                "failed_calls": sum(1 for r in rows if r.get("ok") is False),
-               "avg_ms": (sum(r.get("ms") or 0 for r in rows) // n) if n and a.mode == "model" else None,
-               "usd": round(sum(r.get("usd") or 0 for r in rows), 5) if a.mode == "model" else None,
+               "avg_ms": (sum(r.get("ms") or 0 for r in rows) // n) if n and a.mode.startswith("model") else None,
+               "usd": round(sum(r.get("usd") or 0 for r in rows), 5) if a.mode.startswith("model") else None,
                "wall_s": round(time.time() - t0, 1)}
     print(json.dumps(summary, ensure_ascii=False))
     out = ROOT / "docs/measurements"
     out.mkdir(exist_ok=True)
-    tag = "fake" if (os.getenv("LLM_FAKE") == "1" and a.mode == "model") else a.mode
+    tag = "fake" if (os.getenv("LLM_FAKE") == "1" and a.mode.startswith("model")) else a.mode
     (out / f"proof_{a.set}_{a.variant}_{tag}_{time.strftime('%Y%m%d_%H%M')}.json").write_text(json.dumps({"summary": summary, "rows": rows}, ensure_ascii=False, indent=1))
     if tag != "fake":
         md = ROOT / "docs/measurements.md"

@@ -222,3 +222,10 @@ def test_thinking_toggle_per_job_and_length_is_reported(monkeypatch):
                                    usage=SimpleNamespace(prompt_tokens=1652, completion_tokens=1200))
     r = read_screen(TracedClient(Truncated(_screen()), CallLog(), "x"), prepare_image(_png())[0])
     assert not r["ok"] and "all its tokens" in r["error"]
+
+
+def test_ocr_text_only_mode_sends_no_image():
+    from agent.proof import read_screen
+    s = _Scripted(_screen())
+    r = read_screen(TracedClient(s, CallLog(), "x"), None, ocr_text="모아허브(MOAHUB)\n결제금액 24,900원")
+    assert r["ok"] and isinstance(s.sent[0]["messages"][1]["content"], str) and "OCR text" in s.sent[0]["messages"][0]["content"]

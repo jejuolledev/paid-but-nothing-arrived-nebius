@@ -128,15 +128,22 @@ def redact(jpeg: bytes, ocr: dict) -> tuple[bytes, list[str]]:
 
 # ---------- 2. the vision call ----------
 
-def read_screen(client, jpeg: bytes) -> dict:
+def read_screen(client, jpeg: bytes | None, ocr_text: str | None = None) -> dict:
     """One call to the vision model. {"ok", "raw", "model", "error", "json_mode"}."""
     from .agent_loop import _parse
     from .llm import model_for
     model = model_for("vision")
-    url = "data:image/jpeg;base64," + base64.b64encode(jpeg).decode()
-    messages = [{"role": "system", "content": SYSTEM_VISION},
-                {"role": "user", "content": [{"type": "text", "text": "The customer's screenshot:"},
-                                             {"type": "image_url", "image_url": {"url": url}}]}]
+    if ocr_text is not None:
+        # comparison mode (scripts/proof_eval.py --mode model-ocrtext): the same model and instructions, but it gets
+        # only the on-device OCR lines of the photo, top to bottom, no image. Separates "reading pixels" from "picking the row".
+        messages = [{"role": "system", "content": SYSTEM_VISION.replace("You read ONE photo of a phone screen",
+                     "You read the OCR text (lines top to bottom, possibly garbled) of ONE photo of a phone screen")},
+                    {"role": "user", "content": "OCR text of the customer's screenshot:\n" + ocr_text[:6000]}]
+    else:
+        url = "data:image/jpeg;base64," + base64.b64encode(jpeg).decode()
+        messages = [{"role": "system", "content": SYSTEM_VISION},
+                    {"role": "user", "content": [{"type": "text", "text": "The customer's screenshot:"},
+                                                 {"type": "image_url", "image_url": {"url": url}}]}]
     mode = os.getenv("LLM_VISION_JSON", "json_schema")  # json_schema | json_object | off
     out = {"model": model, "json_mode": mode}
     kw = dict(model=model, temperature=0, max_tokens=int(os.getenv("LLM_MAX_TOKENS_VISION", "4000")), messages=messages)

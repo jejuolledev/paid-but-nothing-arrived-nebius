@@ -34,7 +34,15 @@ sharpened by `docs/research_winners.md`. Built without a key (commit fceb04a and
   6 dev phone photos, KO/JA, 6 invented app styles, 8 edited) and `docs/eval/text_fallback.jsonl` (Korean-heavy).
 - Baseline without a model: macOS Vision OCR + rules → `docs/measurements.md`.
 
-## GATE — first hour after the key (Claude, 15 min). Do this before steps 1–10.
+## Spending rules (from 2026-10-28)
+- **No paid call until the promo credit shows on the account** (owner's rule). `/v1/models` is free and allowed.
+- Every real call is appended to `build/spend_ledger.jsonl` (model, tokens, estimated USD). Check: `.venv/bin/python -c "from agent.llm import spent_usd; print(spent_usd())"`.
+- Always run paid scripts with a budget stop, e.g. `LLM_BUDGET_USD=3 .venv/bin/python scripts/…`: the client refuses the next call once the ledger reaches it.
+- Before credits: 52 real calls, about $0.080 — 48 by mistake from pytest (the app reloaded `.env.local`; fixed by `tests/conftest.py`, tests now never reach a paid model) and 4 from the first gate run.
+- First gate run (void): Super VL read the photo right but spent all 1,200 tokens reasoning (`finish_reason=length`, empty content). Now: 4,000-token limits, `LLM_THINKING_<ROLE>=on|off` per job, `finish_reason` logged; the gate tries thinking off first. Lightning intake calls also hit their 1,500 limit every time (16/16) and so escalated to Ultra every time — check on dev whether `LLM_THINKING_INTAKE=off` or the new 4,000 limit stops that before measuring.
+- Estimated cost of the whole plan below: gate ≈ $0.01, screenshot dev+held-out (photo, clean, OCR-text) ≈ $0.15, text sets ≈ $0.30, precompute + recording ≈ $0.10. Well under $3.
+
+## GATE — first hour after the credit (Claude, 15 min). Do this before steps 1–10.
 ```bash
 .venv/bin/python scripts/tf_gate.py      # lists models, tries ONE dev screenshot on the NVIDIA vision id -> docs/gate_result.json
 ```
@@ -45,6 +53,7 @@ sharpened by `docs/research_winners.md`. Built without a key (commit fceb04a and
   .venv/bin/python -m pytest -q && git commit -am "Vision prompt from dev failures"   # commit BEFORE the held-out run
   .venv/bin/python scripts/proof_eval.py --mode model --set heldout             # ONCE; report, never tune after
   .venv/bin/python scripts/proof_eval.py --mode model --set heldout --variant clean
+  .venv/bin/python scripts/proof_eval.py --mode model-ocrtext --set heldout     # same Nemotron, OCR text only (win_gate §4)
   git add docs/measurements* && git commit -m "Held-out screenshot run: <numbers>"
   ```
   Compare with the OCR rows already in `docs/measurements.md`. If Nemotron does not beat "OCR + payment-word rules",
@@ -70,6 +79,9 @@ sharpened by `docs/research_winners.md`. Built without a key (commit fceb04a and
 .venv/bin/python scripts/precompute_proof.py                  # data/precomputed/proof_<id>.json (recorded runs for the public page)
 .venv/bin/uvicorn app.main:app --port 8765 &                  # LOCAL (macOS) so the boxes come from on-device OCR
 node scripts/record_proof_intro.mjs http://127.0.0.1:8765 docs/video/intro1
+node scripts/record_nebius.mjs http://127.0.0.1:8765 docs/video/take1
+python3 scripts/tts_en.py && node scripts/video_overlays.mjs
+python3 scripts/build_nebius_video.py docs/video/take1 docs/video/intro1     # intro: and take: shots, lines.json
 ```
 Beats in `docs/video/intro1/marks.json`: photo dropped → numbers light up on the photo → photo vs ledger table → the
 chain for that order → the edited screenshot → "a payment the ledger has never seen". Draft narration for these
