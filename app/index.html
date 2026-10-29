@@ -398,9 +398,15 @@ function trHeadline(h){
   if(lang!=='ko')return h;
   return HEADLINE_KO[h]||h;
 }
+const TOOL_EN={find_orders:'Orders by',find_payments:'Payments made by',order_for_payment:'Order behind payment',related_orders:'Other orders by',order_journey:'Full history of order'};
 function trTool(name){
-  if(lang!=='ko'||!name)return name;
-  return TOOL_KO[name]||name;
+  if(!name)return name;
+  return (lang==='ko'?TOOL_KO:TOOL_EN)[name]||name;
+}
+function trArgs(a){   // {"email":"EMAIL_2"} -> EMAIL_2 ; {"payment_id":"FROM_PAYMENTS"} -> the payment found above
+  if(a==null)return'';if(typeof a==='string')return a;
+  const v=Object.values(a).map(x=>({FROM_PAYMENTS:lang==='ko'?'위에서 찾은 결제':'the payment found above',BEST_ORDER:lang==='ko'?'찾은 주문':'the order found'}[x]||x));
+  return v.join(', ');
 }
 
 function dedupeCitations(text){
@@ -669,7 +675,7 @@ function renderSteps(steps){
   const items=steps.map(s=>{
     const bits=[`<div>${esc(s.thought||'')}</div>`];
     if(s.tool){
-      const args=s.args!=null?(typeof s.args==='string'?s.args:JSON.stringify(s.args)):'';
+      const args=trArgs(s.args);
       bits.push(`<div class="tool">${esc(trTool(s.tool))}${args?` ${esc(args)}`:''}${s.rows!=null?` · ${esc(rowsLabel(s.rows))}`:''}${s.refused?` · ${esc(i.refused)}`:(s.error?' · error':'')}</div>`);
       if(Array.isArray(s.sql)&&s.sql.length)bits.push(`<details class="sql"><summary>${esc(i.sqlSent)}</summary><pre>${esc(s.sql.map(prettySql).join('\n\n'))}</pre></details>`);
     }
@@ -700,7 +706,7 @@ function renderIntake(r){
   const rows=[row(i.sender,who(g.sender)),row(i.otherPeople,(g.other_people||[]).map(who).join(', ')),row(i.orderNos,esc((g.order_ids||[]).join(', '))),
     row(i.foreignNos,esc((g.foreign_order_ids||[]).join(', '))),row(i.amountSaid,g.amount?esc(Number(g.amount.value).toLocaleString()+' '+g.amount.currency):''),
     row(i.paidWhen,esc(g.paid_when||'')),row(i.pack,esc(g.pack||'')),row(i.complaint,esc(String(g.complaint||'').replace(/_/g,' '))),row(i.wants,esc((g.wants||[]).join(', ').replace(/_/g,' ')))].join('');
-  const plan=(g.plan||[]).map(s=>`<li><span class="tool">${esc(trTool(s.tool))} ${esc(JSON.stringify(s.args))}</span> — ${esc(s.why)}</li>`).join('');
+  const plan=(g.plan||[]).map(s=>`<li><span class="tool">${esc(trTool(s.tool))} ${esc(trArgs(s.args))}</span> — ${esc(s.why)}</li>`).join('');
   const drop=(g.dropped||[]).length?`<p class="drop">${esc(i.dropped)} ${esc(g.dropped.map(d=>d.field+': '+(typeof d.value==='string'?d.value:JSON.stringify(d.value))+' ('+d.why+')').join('; '))}</p>`:'';
   return `<div class="card"><h2>${esc(i.intakeTitle)} <span class="tag">${esc(k.model||'')}</span></h2>
     <details><summary style="font-size:13px">${esc(i.intakeSaw)}</summary><div class="masked">${esc(k.masked||'')}</div></details>
