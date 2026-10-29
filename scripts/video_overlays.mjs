@@ -39,8 +39,8 @@ await shot(card(`<div style="font-size:30px;color:#9aa3b2;letter-spacing:.08em;t
 const stat = (n, t) => `<div style="flex:1;border:2px solid #2a2f3a;border-radius:18px;padding:30px 34px"><div style="font-size:84px;font-weight:800;color:#7ee2a8">${esc(n)}</div><div style="font-size:30px;color:#c3c9d4;margin-top:8px">${t}</div></div>`;
 await shot(card(`<div style="font-size:30px;color:#9aa3b2;letter-spacing:.08em;text-transform:uppercase">Measured · held-out, run once</div>
 <div style="font-size:54px;font-weight:800;margin:14px 0 46px">${M.held_out_n} Korean-heavy messages (Korean and Japanese) written by a separate agent</div>
-<div style="display:flex;gap:34px">${stat(M.model_sender + ' vs ' + M.rules_sender, 'who is writing · Nemotron vs rules alone')}${stat(M.model_end_to_end + ' vs ' + M.rules_end_to_end, 'right order and broken link · Nemotron vs rules alone (rules: one more)')}</div>
-<div style="font-size:26px;color:#9aa3b2;margin-top:40px">${esc(M.model_id)} on Nebius Token Factory · 40 English-heavy messages: ${esc(M.en40_model)} vs ${esc(M.en40_rules)} · all data synthetic</div>`), 'card_measured', false);
+<div style="display:flex;gap:34px">${stat(M.model_sender + ' vs ' + M.rules_sender, 'who is writing · Nemotron vs rules alone')}</div>
+<div style="font-size:26px;color:#9aa3b2;margin-top:40px">${esc(M.model_id)} on Nebius Token Factory · right order and broken link: ${esc(M.model_end_to_end)} vs ${esc(M.rules_end_to_end)} (rules one more) · 40 English-heavy messages: ${esc(M.en40_model)} vs ${esc(M.en40_rules)} · every miss in the README · all data synthetic</div>`), 'card_measured', false);
 
 // Cold open: the two recorded results side by side (frames of the screenshot take, docs/video/parts/cold_*.png).
 const b64 = f => fs.existsSync(f) ? 'data:image/png;base64,' + fs.readFileSync(f).toString('base64') : '';
@@ -55,7 +55,7 @@ const pick = (who, val, note, color) => `<div style="border:2px solid ${color};b
 const d05 = 'data:image/jpeg;base64,' + fs.readFileSync('app/proof_examples/d05.jpg').toString('base64');
 const picks = [pick('Free on-device OCR + payment-word rules', '288,300원', 'the card bill due on 10/25: the wrong line', '#ff8a8c'),
   pick('Nemotron 3.5 Super VL · Nebius Token Factory', '9,900원 · 10/20 03:00', 'the payment to MOAHUB', '#7ee2a8'),
-  pick('The payment provider’s ledger', 'never saw it', 'the real payment was on 10/19: the date was edited', '#f5c46b')];
+  pick('The payment provider’s ledger', 'no payment at that time', '9,900원 was paid on 10/19, not 10/20: the date was edited', '#f5c46b')];
 for (let k = 0; k <= 3; k++)   // card_pick_0 … _3: the answers appear one by one (the video cuts between them)
   await shot(card(`<div style="margin-top:-110px;display:flex;gap:60px;align-items:flex-start">
 <img src="${d05}" style="height:900px;border-radius:18px">

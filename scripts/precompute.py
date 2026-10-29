@@ -25,7 +25,10 @@ assert len(EXAMPLES) == 6, EXAMPLES
 out = ROOT / "data/precomputed"
 out.mkdir(parents=True, exist_ok=True)
 commit = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
+ONLY = {int(x) for x in sys.argv[1:]}   # optional: case numbers to record again
 for n, msg in EXAMPLES.items():
+    if ONLY and n not in ONLY:
+        continue
     sql_backend._CACHE.clear()
     t = time.time()
     r = investigate(msg)

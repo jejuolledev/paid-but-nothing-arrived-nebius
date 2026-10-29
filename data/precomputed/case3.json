@@ -1,6 +1,6 @@
 {
  "meta": {
-  "recorded_at": "2026-10-29T16:15:41+09:00",
+  "recorded_at": "2026-10-29T16:58:58+09:00",
   "provider": "Nebius Token Factory",
   "models": [
    "nvidia/Nemotron-3_5-Lightning",
@@ -10,8 +10,8 @@
    "intake": "nvidia/Nemotron-3_5-Lightning",
    "explain": "nvidia/nemotron-3-super-120b-a12b"
   },
-  "code_commit": "0c7ce51",
-  "wall_ms": 9221,
+  "code_commit": "a2fe063",
+  "wall_ms": 4924,
   "status": "ok"
  },
  "result": {
@@ -53,28 +53,14 @@
       "args": {
        "order_id": "ord_0903"
       },
-      "why": "Locate the order the customer references to see its details and payment status."
-     },
-     {
-      "tool": "find_payments",
-      "args": {
-       "email": "EMAIL_1"
-      },
-      "why": "Check the payment ledger for EMAIL_1 to see if there are duplicate payments or credits."
-     },
-     {
-      "tool": "order_for_payment",
-      "args": {
-       "payment_id": "FROM_PAYMENTS"
-      },
-      "why": "Retrieve the order record behind the payment found to confirm the credit grant."
+      "why": "Locate the order the customer references to see its details and current credit state."
      },
      {
       "tool": "order_journey",
       "args": {
        "order_id": "ord_0903"
       },
-      "why": "View the full history of ord_0903 to understand the sequence of credit grants and identify the duplicate."
+      "why": "Check the full history of that order to confirm whether duplicate credits were granted."
      }
     ],
     "dropped": []
@@ -104,10 +90,10 @@
     "requested_model": "nvidia/Nemotron-3_5-Lightning",
     "provider": "Nebius Token Factory",
     "ok": true,
-    "ms": 2268,
+    "ms": 2022,
     "prompt_tokens": 863,
-    "completion_tokens": 295,
-    "usd": 0.000123,
+    "completion_tokens": 178,
+    "usd": 9.5e-05,
     "finish": "stop",
     "thinking": false
    },
@@ -117,10 +103,10 @@
     "requested_model": "nvidia/nemotron-3-super-120b-a12b",
     "provider": "Nebius Token Factory",
     "ok": true,
-    "ms": 6814,
-    "prompt_tokens": 1759,
-    "completion_tokens": 1410,
-    "usd": 0.001797,
+    "ms": 2871,
+    "prompt_tokens": 1783,
+    "completion_tokens": 510,
+    "usd": 0.000994,
     "finish": "stop",
     "thinking": null
    }
@@ -186,8 +172,8 @@
    "2 grants found (grants:g_ord_0903, grants:g_ord_0903_retry)"
   ],
   "unverified": [],
-  "explanation": "The order ord_0903 was paid once (payments:pay_0903, orders:ord_0903) but the grant process ran twice: the initial attempt timed out after writing the first grant row, and a manual retry created a second grant for the same email and reward (grants:g_ord_0903, grants:g_ord_0903_retry). This resulted in the customer receiving 60 credits twice.",
-  "customer_reply": "Hi, we noticed that your order ord_0903 resulted in the 60‑credit reward being granted twice. We will remove the extra credit once we have approval; your original 60 credits remain valid. Please let us know if you have any questions.",
+  "explanation": "The order ord_0903 shows a single paid charge of 44900 KRW [orders:ord_0903] but two grant rows for the same email and reward (fam60) were created: g_ord_0903 and g_ord_0903_retry [grants:g_ord_0903][grants:g_ord_0903_retry]. This resulted in the customer receiving the credits twice.",
+  "customer_reply": "Hello, we noticed that the reward credits for your order were accidentally applied twice. We are reviewing the duplicate grant and will remove the extra credit once approved. No further action is needed from you.",
   "fix_action": "Revoke the duplicate grant (requires approval). Code fix: unique index on (email, reward_key, order_id); make the grant idempotent.",
   "rows": {
    "orders": [
@@ -287,32 +273,32 @@
    {
     "step": "intake",
     "detail": "read the message",
-    "ms": 2272
+    "ms": 2023
    },
    {
     "step": "plan",
-    "detail": "4 planned lookup(s), reached ord_0903",
-    "ms": 2281
+    "detail": "2 planned lookup(s), reached ord_0903",
+    "ms": 2026
    },
    {
     "step": "order_journey",
     "detail": "one query; 12 joined rows → 9 rows across 5 tables",
-    "ms": 2287
+    "ms": 2027
    },
    {
     "step": "verify_chain",
     "detail": "broken=credit_granted",
-    "ms": 2287
+    "ms": 2027
    },
    {
     "step": "llm_explain",
     "detail": "nvidia/nemotron-3-super-120b-a12b citations_ok=True",
-    "ms": 9106
+    "ms": 4900
    }
   ],
   "steps": [
    {
-    "thought": "Locate the order the customer references to see its details and payment status.",
+    "thought": "Locate the order the customer references to see its details and current credit state.",
     "tool": "find_orders",
     "args": {
      "order_id": "ord_0903"
@@ -324,31 +310,7 @@
     ]
    },
    {
-    "thought": "Check the payment ledger for EMAIL_1 to see if there are duplicate payments or credits.",
-    "tool": "find_payments",
-    "args": {
-     "email": "EMAIL_1"
-    },
-    "rows": 1,
-    "planned": true,
-    "sql": [
-     "SELECT * FROM payments WHERE lower(customer_email) = lower('sora.kim903@example.com') ORDER BY created_at DESC LIMIT 10"
-    ]
-   },
-   {
-    "thought": "Retrieve the order record behind the payment found to confirm the credit grant.",
-    "tool": "order_for_payment",
-    "args": {
-     "payment_id": "FROM_PAYMENTS"
-    },
-    "rows": 1,
-    "planned": true,
-    "sql": [
-     "SELECT * FROM orders WHERE payment_id = 'pay_0903'"
-    ]
-   },
-   {
-    "thought": "View the full history of ord_0903 to understand the sequence of credit grants and identify the duplicate.",
+    "thought": "Check the full history of that order to confirm whether duplicate credits were granted.",
     "tool": "order_journey",
     "args": {
      "order_id": "ord_0903"
@@ -364,18 +326,6 @@
    {
     "tool": "find_orders",
     "sql": "SELECT * FROM orders WHERE order_id = 'ord_0903' ORDER BY created_at DESC LIMIT 10",
-    "rows": 1,
-    "backend": "duckdb-local"
-   },
-   {
-    "tool": "find_payments",
-    "sql": "SELECT * FROM payments WHERE lower(customer_email) = lower('sora.kim903@example.com') ORDER BY created_at DESC LIMIT 10",
-    "rows": 1,
-    "backend": "duckdb-local"
-   },
-   {
-    "tool": "order_for_payment",
-    "sql": "SELECT * FROM orders WHERE payment_id = 'pay_0903'",
     "rows": 1,
     "backend": "duckdb-local"
    },
@@ -406,32 +356,30 @@
    "unknown_refs": [],
    "claims": [
     {
-     "sentence": "The order ord_0903 was paid once (payments:pay_0903, orders:ord_0903) but the grant process ran twice: the initial attempt timed out after writing the first grant row, and a manual retry created a second grant for the same email and reward (grants:g_ord_0903, grants:g_ord_0903_retry).",
+     "sentence": "The order ord_0903 shows a single paid charge of 44900 KRW [orders:ord_0903] but two grant rows for the same email and reward (fam60) were created: g_ord_0903 and g_ord_0903_retry [grants:g_ord_0903][grants:g_ord_0903_retry].",
      "refs": [
-      "payments:pay_0903",
       "orders:ord_0903",
       "grants:g_ord_0903",
       "grants:g_ord_0903_retry"
      ],
      "facts": [
-      "timed out",
+      "44900",
+      "fam60",
       "ord_0903",
-      "paid",
-      "twice"
+      "g_ord_0903",
+      "g_ord_0903_retry",
+      "paid"
      ],
      "unsupported": []
     },
     {
-     "sentence": "This resulted in the customer receiving 60 credits twice.",
+     "sentence": "This resulted in the customer receiving the credits twice.",
      "refs": [
-      "payments:pay_0903",
       "orders:ord_0903",
       "grants:g_ord_0903",
       "grants:g_ord_0903_retry"
      ],
      "facts": [
-      "60",
-      "60 credits",
       "twice"
      ],
      "unsupported": []
@@ -441,6 +389,6 @@
   },
   "backend": "duckdb-local",
   "lang": "en",
-  "elapsed_ms": 9114
+  "elapsed_ms": 4903
  }
 }

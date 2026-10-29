@@ -1,6 +1,6 @@
 {
  "meta": {
-  "recorded_at": "2026-10-29T16:16:15+09:00",
+  "recorded_at": "2026-10-29T16:59:33+09:00",
   "provider": "Nebius Token Factory",
   "models": [
    "nvidia/Nemotron-3_5-Lightning",
@@ -10,8 +10,8 @@
    "intake": "nvidia/Nemotron-3_5-Lightning",
    "explain": "nvidia/nemotron-3-super-120b-a12b"
   },
-  "code_commit": "0c7ce51",
-  "wall_ms": 11401,
+  "code_commit": "a2fe063",
+  "wall_ms": 13414,
   "status": "ok"
  },
  "result": {
@@ -73,7 +73,7 @@
       "args": {
        "order_id": "BEST_ORDER"
       },
-      "why": "See the full order history and check credit delivery status."
+      "why": "See the full history of the order to check credit delivery status."
      }
     ],
     "dropped": []
@@ -123,9 +123,9 @@
     "requested_model": "nvidia/Nemotron-3_5-Lightning",
     "provider": "Nebius Token Factory",
     "ok": true,
-    "ms": 2146,
+    "ms": 2122,
     "prompt_tokens": 891,
-    "completion_tokens": 235,
+    "completion_tokens": 237,
     "usd": 0.00011,
     "finish": "stop",
     "thinking": false
@@ -136,10 +136,10 @@
     "requested_model": "nvidia/nemotron-3-super-120b-a12b",
     "provider": "Nebius Token Factory",
     "ok": true,
-    "ms": 9135,
-    "prompt_tokens": 1682,
-    "completion_tokens": 1419,
-    "usd": 0.001782,
+    "ms": 11260,
+    "prompt_tokens": 1706,
+    "completion_tokens": 2355,
+    "usd": 0.002631,
     "finish": "stop",
     "thinking": null
    }
@@ -208,8 +208,8 @@
   "unverified": [
    "Whether the order address is a typo of the payer's address or a second account (ask the customer)"
   ],
-  "explanation": "The payment of 24,900 KRW was authorized and recorded as paid (payments:pay_0906, orders:ord_0906). However, the reward credits were granted to l***@exmaple.com instead of the payer’s address, and the confirmation email bounced (grants:g_ord_0906, mail_events:m_ord_0906@bounced). This indicates an account mismatch where the order used a different email than the one that paid.",
-  "customer_reply": "Thank you for writing, and sorry for the worry. Your payment went through. The order was saved under a slightly different email address than the one you paid with, so the credits and the confirmation went there instead. Could you confirm that the address you paid with is yours? As soon as you do, I will move the credits there.",
+  "explanation": "The payment of 24,900 KRW was recorded as PAID (payments:pay_0906) and the order marked paid (orders:ord_0906), but the order’s email is l***@exmaple.com, so the credits were granted to that address (grants:g_ord_0906) and the notification bounced (mail_events:m_ord_0906@bounced).",
+  "customer_reply": "Your payment of 24,900 KRW was successful, but the credits were sent to liam.patel906@exmaple.com and the email bounced. Please confirm that the email address you used to pay is yours; once confirmed we will move the credits to your account.",
   "fix_action": "Move the credits to the payer's account after the customer confirms (requires approval). Code fix: prefill checkout with the signed-in address and warn on unknown domains.",
   "rows": {
    "orders": [
@@ -299,27 +299,27 @@
    {
     "step": "intake",
     "detail": "read the message",
-    "ms": 2153
+    "ms": 2124
    },
    {
     "step": "plan",
     "detail": "3 planned lookup(s), reached ord_0906",
-    "ms": 2163
+    "ms": 2127
    },
    {
     "step": "order_journey",
     "detail": "one query; 6 joined rows → 8 rows across 5 tables",
-    "ms": 2172
+    "ms": 2128
    },
    {
     "step": "verify_chain",
     "detail": "broken=account_mismatch",
-    "ms": 2172
+    "ms": 2128
    },
    {
     "step": "llm_explain",
     "detail": "nvidia/nemotron-3-super-120b-a12b citations_ok=True",
-    "ms": 11313
+    "ms": 13391
    }
   ],
   "steps": [
@@ -348,7 +348,7 @@
     ]
    },
    {
-    "thought": "See the full order history and check credit delivery status.",
+    "thought": "See the full history of the order to check credit delivery status.",
     "tool": "order_journey",
     "args": {
      "order_id": "BEST_ORDER"
@@ -400,32 +400,7 @@
    "unknown_refs": [],
    "claims": [
     {
-     "sentence": "The payment of 24,900 KRW was authorized and recorded as paid (payments:pay_0906, orders:ord_0906).",
-     "refs": [
-      "payments:pay_0906",
-      "orders:ord_0906"
-     ],
-     "facts": [
-      "24900",
-      "paid"
-     ],
-     "unsupported": []
-    },
-    {
-     "sentence": "However, the reward credits were granted to l***@exmaple.com instead of the payer’s address, and the confirmation email bounced (grants:g_ord_0906, mail_events:m_ord_0906@bounced).",
-     "refs": [
-      "grants:g_ord_0906",
-      "mail_events:m_ord_0906@bounced"
-     ],
-     "facts": [
-      "exmaple.com",
-      "granted",
-      "bounced"
-     ],
-     "unsupported": []
-    },
-    {
-     "sentence": "This indicates an account mismatch where the order used a different email than the one that paid.",
+     "sentence": "The payment of 24,900 KRW was recorded as PAID (payments:pay_0906) and the order marked paid (orders:ord_0906), but the order’s email is l***@exmaple.com, so the credits were granted to that address (grants:g_ord_0906) and the notification bounced (mail_events:m_ord_0906@bounced).",
      "refs": [
       "payments:pay_0906",
       "orders:ord_0906",
@@ -433,17 +408,19 @@
       "mail_events:m_ord_0906@bounced"
      ],
      "facts": [
-      "paid"
+      "24900",
+      "exmaple.com",
+      "paid",
+      "granted",
+      "bounced"
      ],
      "unsupported": []
     }
    ],
-   "claims_ok": true,
-   "reply_replaced": true,
-   "reply_reason": "contains a masked placeholder"
+   "claims_ok": true
   },
   "backend": "duckdb-local",
   "lang": "en",
-  "elapsed_ms": 11319
+  "elapsed_ms": 13392
  }
 }

@@ -21,7 +21,8 @@ SYSTEM = (
     "customer_reply (written BY the seller TO the customer, <=90 words, plain and kind; state what happened and what you will do; "
     "if nothing was charged say so clearly; never ask the customer to investigate; no internal refs; "
     "never say a fix is done or under way — the seller has not approved it yet; if the chain shows credits went to a "
-    "different address, ask the customer to confirm that the address they paid with is theirs (name it) and say the credits move after they confirm; never ask them for some other address), "
+    "different address, ask the customer to confirm that the address they paid with is theirs (name it) and say the credits move after they confirm; never ask them for some other address; "
+    "do not greet by name or address; when you name an address, write it exactly as it appears in the rows), "
     "fix_action (one imperative sentence for the seller)."
 )
 
@@ -91,6 +92,20 @@ def _redact(journey: dict, customer_email: str = "") -> dict:
     from .agent_loop import Aliaser
     al = Aliaser(customer_email)
     return {t: al.rows(rows) for t, rows in journey.items()}
+
+
+def _unmask_reply(reply: str, journey: dict, customer_email: str) -> str:
+    from .agent_loop import Aliaser, EMAIL_RE as _E
+    al = Aliaser(customer_email)
+    real = {v.lower() for rows in journey.values() for r in rows for v in r.values() if isinstance(v, str) and _E.fullmatch(v)}
+    out = str(reply or "")
+    for a in sorted(real, key=len, reverse=True):
+        m = al.email(a)
+        if m != "CUSTOMER" and m in out:
+            out = out.replace(m, a)
+    if customer_email:
+        out = re.sub(r"(?<![A-Za-z])CUSTOMER(?![A-Za-z])", customer_email, out)
+    return out
 
 
 def mask_card_digits(text: str) -> str:
@@ -583,6 +598,9 @@ def investigate(message: str, email: str = "", order_id: str = "", backend=None,
                         "claims_ok": claims_ok}
             ok = ok and claims_ok
             texts["fix_action"] = verdict.suggested_fix  # the fix is decided by the verifier, never by the model
+            # The model saw CUSTOMER and masked forms (l***@domain); put the real addresses of this case's own rows back
+            # before the reply reaches the seller. Only addresses from the sender's own trail can appear here.
+            texts["customer_reply"] = _unmask_reply(texts.get("customer_reply", ""), journey, email)
             why_not = _reply_problem(texts.get("customer_reply", ""), verdict)
             if why_not:
                 print(f"[investigator] model reply not used ({why_not}): {texts.get('customer_reply', '')[:300]!r}", flush=True)
@@ -640,8 +658,8 @@ def _public_intake(intake: dict | None) -> dict | None:
     return out
 
 
-REPLY_MUST = {None: r"never charged|not charged|no charge|wasn't charged|was not charged|not been charged|in your account|went through|청구되지|이용권|請求|クレジット",
-              "order_created": r"payment (went|came) through|was processed|confirm|releas|grant|결제|확인|이용권|決済|お支払い|確認|クレジット",
+REPLY_MUST = {None: r"never charged|not charged|nothing was charged|no payment was (?:taken|made)|no charge|wasn't charged|was not charged|not been charged|in your account|went through|청구되지|이용권|請求|クレジット",
+              "order_created": r"payment (went|came) through|was processed|successful|succeeded|confirm|releas|grant|결제|확인|이용권|決済|お支払い|確認|クレジット",
               "credit_granted": r"twice|duplicate|double|two|두 번|중복|二重|重複", "mail_delivered": r"mail|notice|notif|메일|안내|メール",
               "account_mismatch": r"address|account|email|typo|주소|アドレス|アカウント"}
 

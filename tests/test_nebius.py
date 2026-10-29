@@ -238,3 +238,12 @@ def test_photo_path_does_not_pull_someone_elses_payments():
                           use_model=False)
     blob = json.dumps(r, default=str)
     assert r["proof"]["sender"] is None and "4242" not in json.dumps(r["proof"]["comparison"]) and "ord_0002" not in blob
+
+
+def test_reply_gets_real_addresses_of_its_own_rows_back():
+    from agent.investigator import _unmask_reply
+    j = {"orders": [{"ref": "orders:ord_0906", "email": "liam.patel906@exmaple.com"}],
+         "payments": [{"ref": "payments:pay_0906", "customer_email": "liam.patel906@example.com"}]}
+    out = _unmask_reply("Credits went to l***@exmaple.com. Is that yours, CUSTOMER?", j, "liam.patel906@example.com")
+    assert "liam.patel906@exmaple.com" in out and "CUSTOMER" not in out and "***" not in out
+    assert _unmask_reply("k***@example.org", j, "liam.patel906@example.com") == "k***@example.org"   # not in the rows: stays masked

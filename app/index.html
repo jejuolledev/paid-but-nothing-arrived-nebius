@@ -154,7 +154,7 @@ const I18N={
     resetDone:'Demo data reset. Click a case to start again.',
     evidenceBtn:'Dispute evidence bundle',
     ms:'ms',
-    answeredBy:m=>'Answered by: '+m,
+    answeredBy:m=>'Models used: '+m,
     templateExplain:'Explanation: template (no model connected)',
     failedExplain:'Explanation: verifier text (model call failed twice)',
     unreachableExplain:'Explanation: verifier text (no model reachable)',
@@ -194,7 +194,7 @@ const I18N={
     rulesSame:'The rules-only lookup reaches the same order here; the model adds the claims and the plan.',
     recheckExplain:'Re-checked by the verifier after your fix',
     dataZetaris:'Data: Zetaris',
-    dataLocal:'Data: local files',
+    dataLocal:'Data: synthetic shop records',
     approveFix:'Approve fix',
     approving:'Applying fix…',
     routedBy:(model,rid)=>'Routed by Meterless Nightshift → '+model+' · receipt '+rid,
@@ -259,7 +259,7 @@ const I18N={
     resetDone:'데모 데이터를 되돌렸습니다. 사례를 눌러 다시 시작하세요.',
     evidenceBtn:'분쟁용 근거 묶음',
     ms:'ms',
-    answeredBy:m=>'답변: '+m,
+    answeredBy:m=>'사용한 모델: '+m,
     templateExplain:'설명: 템플릿(연결된 모델 없음)',
     failedExplain:'설명: 검증기 문장(모델 호출 두 번 실패)',
     unreachableExplain:'설명: 검증기 문장(연결된 모델 없음)',
@@ -299,7 +299,7 @@ const I18N={
     rulesSame:'여기서는 규칙만으로도 같은 주문에 닿습니다. 모델은 주장과 조회 계획을 더합니다.',
     recheckExplain:'수정 후 검증기가 다시 확인함',
     dataZetaris:'데이터: Zetaris',
-    dataLocal:'데이터: 로컬 파일',
+    dataLocal:'데이터: 가상 가게 기록',
     approveFix:'수정 승인',
     approving:'수정 적용 중…',
     routedBy:(model,rid)=>'Meterless Nightshift 경유 → '+model+' · receipt '+rid,
@@ -452,7 +452,7 @@ function statusLine(r){
   else if(r.llm==='failed')parts.push(i.failedExplain);
   else if(r.llm==='unreachable')parts.push(i.unreachableExplain);
   else if(r.llm==='none'||!r.llm)parts.push(i.templateExplain);
-  else parts.push(i.answeredBy(r.llm));
+  else parts.push(i.answeredBy([...new Set((r.model_calls||[]).filter(c=>c.ok!==false).map(c=>String(c.model||'').replace(/^nvidia\//,'')))].join(', ')||r.llm));
   if(data)parts.push(data);
   if(r.elapsed_ms!=null)parts.push(r.elapsed_ms+' '+i.ms);
   return parts.join(' · ');

@@ -4,7 +4,7 @@
   {
    "id": "P00",
    "shot": "cards:pick_0,pick_1,pick_2,pick_3",
-   "text": "A customer writes: “I paid, here's my screenshot.” Free OCR with rules grabs two hundred eighty-eight thousand won: the card bill. Nemotron picks the payment to the shop. And the payment ledger has never seen it. The date was edited."
+   "text": "A customer writes: “I paid, here's my screenshot.” Free OCR with rules grabs two hundred eighty-eight thousand won: the card bill. Nemotron picks the payment to the shop. And the payment ledger has no payment at that time. The date was edited."
   },
   {
    "id": "P01",
@@ -97,7 +97,7 @@
   {
    "id": "N13",
    "shot": "card:title",
-   "text": "Paid, but nothing arrived? Now you can show the customer where the money stopped. NVIDIA Nemotron, on Nebius Token Factory."
+   "text": "Banks already warn sellers not to trust payment screenshots. Paid, but nothing arrived? Now you can show the customer where the money stopped. NVIDIA Nemotron, on Nebius Token Factory."
   }
  ]
 }
