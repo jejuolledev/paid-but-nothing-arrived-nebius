@@ -653,7 +653,7 @@ def _reply_problem(reply: str, v) -> str | None:
     if v.broken == "account_mismatch" and (not re.search(r"confirm|확인해|ご確認", reply, re.I)
                                            or re.search(r"(are|am|we're|i'm) (now )?moving|right away|already moved|옮기고 있|옮겼", reply, re.I)):
         return "moves credits before the customer confirms"  # credits move only after confirmation and approval
-    if re.search(r"\*\*\*@|\bCUSTOMER\b", reply):
+    if re.search(r"\*\*\*@|(?<![A-Za-z])CUSTOMER(?![A-Za-z])|(?<![A-Za-z])EMAIL_\d", reply):  # also "CUSTOMER님", "CUSTOMERさま"
         return "contains a masked placeholder"  # placeholders are for the model, never for the customer
     if re.search(r"where you('d| would) like|which (email|address)|(send|give|tell) (us|me) (the|your|an?) (new |other |different )?(email|address)|another (email|address)|new (email|address)|원하시는 (주소|이메일)|다른 (주소|이메일)을 알려", reply, re.I):
         return "asks for a different address"  # the fix only moves credits to the payer's own address

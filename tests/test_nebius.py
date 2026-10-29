@@ -212,3 +212,10 @@ def test_shop_address_is_never_the_customer():
     from agent.intake import regex_baseline
     msg = "받는사람: help@moahub.example, jun.park902@example.com\n결제 대기래요"
     assert regex_baseline(msg)["sender_email"] == "jun.park902@example.com"
+
+
+def test_reply_with_a_placeholder_glued_to_korean_is_refused():
+    from agent.investigator import _reply_problem
+    from types import SimpleNamespace
+    v = SimpleNamespace(broken="order_created", headline="Paid, but the order was never confirmed.")
+    assert _reply_problem("안녕하세요, CUSTOMER님. 결제는 확인되었습니다.", v) == "contains a masked placeholder"

@@ -1,19 +1,85 @@
 {
- "_note": "Screenshot-first narration (2026-10-28). 'intro:' shots come from scripts/record_proof_intro.mjs (docs/video/intro1), 'take:' shots from scripts/record_nebius.mjs (docs/video/take1). The text-only version is in lines_v1_textonly.json. Replace FILL in N12 only after the held-out runs. Say 'Nemotron' and 'Nebius Token Factory' aloud.",
+ "_note": "Final narration 2026-10-29 (numbers from docs/measurements.md and docs/measurements_nebius.md, held-out runs). 'intro:' shots from scripts/record_proof_intro.mjs (docs/video/intro1), 'take:' from scripts/record_nebius.mjs (docs/video/take1).",
  "lines": [
-  {"id": "P01", "shot": "intro:true_typed..true_click", "text": "“I paid. Here's my screenshot.” That is how a customer can write to a small online shop: a phone photo of their banking app, in Korean or Japanese."},
-  {"id": "P02", "shot": "intro:true_result..true_highlight", "text": "Nemotron 3.5 Super VL, on Nebius Token Factory, reads the photo. The payment, not the balance, not the points, not the phone's clock."},
-  {"id": "P03", "shot": "intro:true_table..true_chain", "text": "The payment provider's ledger checks it: same amount, within ten minutes. Then the money chain shows the one link where the money got stuck, with the rows that prove it."},
-  {"id": "P04", "shot": "intro:doctored_typed..doctored_result", "text": "Another card alert. Its date was edited."},
-  {"id": "P05", "shot": "intro:doctored_highlight..doctored_table", "text": "The ledger has never seen that payment. The model can't spot the edit; the ledger can. The reply politely asks for the card statement, and nothing changes."},
-  {"id": "N03", "shot": "take:typed..investigate_click", "text": "Messages are messy too. Two addresses: the account is his wife's, but he paid with his own."},
-  {"id": "N04", "shot": "take:intake", "text": "Nemotron 3.5 Lightning reads the message: who is writing, what they claim, which records to look up. Addresses are masked before the model sees them, and anything the message doesn't say is dropped."},
-  {"id": "N05", "shot": "take:rules_only", "text": "A simple rule would grab the first address and find nothing."},
-  {"id": "N07", "shot": "take:chain..claims", "text": "A verifier, not the model, walks the chain. The order was saved under a typo, exmaple dot com, and the mail bounced."},
-  {"id": "N09", "shot": "take:calls", "text": "Every call is on screen: which Nemotron did which job, the time, the tokens and the cost. Ultra is called only when the first reading is unsure."},
-  {"id": "N10", "shot": "take:approve..after_fix", "text": "Approve, and the fix runs. On the public demo, only your own copy of the data changes."},
-  {"id": "N11", "shot": "take:case5_click..result5", "text": "Ask for someone else's order, and it is not read. And when nothing was charged, it says so. Nothing is broken. You were never charged."},
-  {"id": "N12", "shot": "card:measured", "text": "FILL AFTER MEASURING: e.g. On sixteen phone photos built by a separate agent, Nemotron read the payment right on X; free OCR with rules, three."},
-  {"id": "N13", "shot": "card:title", "text": "Paid, but nothing arrived? Here's the proof, found in one pass."}
+  {
+   "id": "P00",
+   "shot": "card:cold",
+   "text": "Two payment screenshots from customers. One was edited. Nemotron reads both, and the ledger knows which is which."
+  },
+  {
+   "id": "P01",
+   "shot": "intro:true_typed..true_click",
+   "text": "Here's how. “I paid, here's my screenshot.” That's how customers write to a small online shop: a phone photo of their banking app, in Korean or Japanese."
+  },
+  {
+   "id": "P02",
+   "shot": "intro:true_result..true_highlight",
+   "text": "Nemotron 3.5 Super VL, on Nebius Token Factory, reads the photo. The payment, not the running total, not the ad, not the phone's clock."
+  },
+  {
+   "id": "P03",
+   "shot": "intro:true_table..true_chain",
+   "text": "Then the payment provider's ledger checks it: same amount, within ten minutes. And the money chain shows the one link where the money got stuck."
+  },
+  {
+   "id": "P04",
+   "shot": "intro:doctored_typed..doctored_result",
+   "text": "Another card alert. This one has its date edited."
+  },
+  {
+   "id": "P05",
+   "shot": "intro:doctored_highlight..doctored_table",
+   "text": "Nemotron reads the edited date as written. It can't spot the edit. The ledger can: it has never seen that payment. The reply politely asks for the card statement, and nothing changes."
+  },
+  {
+   "id": "P06",
+   "shot": "card:measured_proof",
+   "text": "On sixteen held-out phone photos made by a separate agent, Nemotron read the payment and got the verdict right on fourteen. Free on-device OCR with payment rules: three."
+  },
+  {
+   "id": "N03",
+   "shot": "take:typed..investigate_click",
+   "text": "Messages are messy too. Two addresses: the account is his wife's, but he paid with his own."
+  },
+  {
+   "id": "N04",
+   "shot": "take:intake",
+   "text": "Nemotron 3.5 Lightning reads the message: who is writing, what they claim, which records to look up. Addresses are masked before the model sees them, and anything the message doesn't say is dropped."
+  },
+  {
+   "id": "N05",
+   "shot": "take:rules_only",
+   "text": "A simple rule would grab the first address and find nothing."
+  },
+  {
+   "id": "N07",
+   "shot": "take:chain..claims",
+   "text": "A verifier, not the model, walks the chain. The order was saved under a typo, exmaple dot com, and the mail bounced."
+  },
+  {
+   "id": "N09",
+   "shot": "take:calls",
+   "text": "Every call is on screen: which Nemotron did which job, the time, the tokens and the cost. Ultra is called only when the first reading is unsure."
+  },
+  {
+   "id": "N10",
+   "shot": "take:approve..after_fix",
+   "text": "Approve, and the fix runs. On the public demo, only your own copy of the data changes."
+  },
+  {
+   "id": "N11",
+   "shot": "take:case5_click..result5",
+   "text": "Ask for someone else's order, and it is not read. And when nothing was charged, it says so. Nothing is broken. You were never charged."
+  },
+  {
+   "id": "N12",
+   "shot": "card:measured",
+   "text": "On twenty-two Korean and Japanese messages, Nemotron found who was writing in twenty; rules alone, sixteen. End to end, rules got one more right. One of Nemotron's misses was an attack where it named no sender, so nobody's records were read."
+  },
+  {
+   "id": "N13",
+   "shot": "card:title",
+   "text": "Paid, but nothing arrived? Here's the proof, found in one pass. NVIDIA Nemotron, on Nebius Token Factory."
+  }
  ]
 }

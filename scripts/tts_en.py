@@ -14,6 +14,8 @@ TTS = os.environ.get("TTS_HOST", "http://127.0.0.1:8191")
 STT = os.environ.get("STT_HOST", "http://127.0.0.1:8192")
 VOICE = os.environ.get("VOICE", "Calm adult male narrator, clear American English, warm and steady, medium pace")
 SEED = int(os.environ.get("VOICE_SEED", "21"))
+# This voice says "Nemotron" as "Mematron"; "Nemo-tron" comes out right (Whisper hears "NemoTron", 2026-10-29).
+SAY_NEMOTRON = os.environ.get("SAY_NEMOTRON", "Nemo-tron")
 OUT = ROOT / "docs/video/vo"; OUT.mkdir(parents=True, exist_ok=True)
 
 
@@ -45,7 +47,7 @@ for l in lines:
     best = None
     for k in range(3):
         tmp = OUT / f"_{l['id']}_{k}.wav"
-        tts(l["text"], SEED, tmp)
+        tts(l["text"].replace("Nemotron", SAY_NEMOTRON), SEED, tmp)   # spelled for the voice; subtitles keep "Nemotron"
         heard = stt(tmp)
         score = difflib.SequenceMatcher(None, norm(l["text"]), norm(heard)).ratio()
         print(l["id"], k, round(score, 3), heard[:90])

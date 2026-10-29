@@ -1,12 +1,23 @@
 {
- "_note": "Fill from docs/measurements_nebius.md after HANDOFF step 3. Shown on the measured card; must match README.",
- "held_out_n": 40,
- "model_end_to_end": "?/40",
- "rules_end_to_end": "38/40",
- "model_sender": "?/40",
- "rules_sender": "38/40",
- "complaint": "?/40",
- "dropped_values": "?",
- "avg_ms": "?",
- "model_id": "nvidia/nemotron-3-super-120b-a12b"
+ "_note": "From docs/measurements.md (photos, held-out 2026-10-29 15:46-15:49) and docs/measurements_nebius.md (messages, 16:03). Must match README.",
+ "proof": {
+  "n": 16,
+  "model_strict": "14/16",
+  "ocr_strict": "3/16",
+  "ocrtext_strict": "13/16",
+  "doctored": "8/8",
+  "avg_s": "5.5",
+  "usd_per_photo": "0.0008"
+ },
+ "held_out_n": 22,
+ "model_sender": "20/22",
+ "rules_sender": "16/22",
+ "model_end_to_end": "20/22",
+ "rules_end_to_end": "21/22",
+ "complaint": "16/22",
+ "dropped_values": "7",
+ "avg_ms": "15540",
+ "model_id": "nvidia/Nemotron-3_5-Lightning (Ultra when unsure)",
+ "en40_model": "40/40",
+ "en40_rules": "38/40"
 }

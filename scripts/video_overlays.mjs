@@ -37,16 +37,23 @@ await shot(card(`<div style="font-size:30px;color:#9aa3b2;letter-spacing:.08em;t
 <div style="font-size:28px;color:#9aa3b2;margin-top:56px">Fixes run only after the seller clicks Approve.</div>`), 'card_arch', false);
 
 const stat = (n, t) => `<div style="flex:1;border:2px solid #2a2f3a;border-radius:18px;padding:30px 34px"><div style="font-size:84px;font-weight:800;color:#7ee2a8">${esc(n)}</div><div style="font-size:30px;color:#c3c9d4;margin-top:8px">${t}</div></div>`;
-await shot(card(`<div style="font-size:30px;color:#9aa3b2;letter-spacing:.08em;text-transform:uppercase">Measured</div>
-<div style="font-size:58px;font-weight:800;margin:14px 0 46px">${M.held_out_n} messy messages written by a separate model</div>
-<div style="display:flex;gap:34px">${stat(M.model_end_to_end, 'right order and broken link, with Nemotron reading the message')}${stat(M.rules_end_to_end, 'the same, with rules only')}${stat(M.complaint, 'complaint read correctly')}</div>
-<div style="font-size:26px;color:#9aa3b2;margin-top:40px">Model: ${esc(M.model_id)} on Nebius Token Factory · values the message did not support and were dropped: ${esc(M.dropped_values)} · avg model time per message: ${esc(M.avg_ms)} ms · all data synthetic</div>`), 'card_measured', false);
+await shot(card(`<div style="font-size:30px;color:#9aa3b2;letter-spacing:.08em;text-transform:uppercase">Measured · held-out, run once</div>
+<div style="font-size:54px;font-weight:800;margin:14px 0 46px">${M.held_out_n} Korean and Japanese messages written by a separate agent</div>
+<div style="display:flex;gap:34px">${stat(M.model_sender + ' vs ' + M.rules_sender, 'who is writing · Nemotron vs rules alone')}${stat(M.model_end_to_end + ' vs ' + M.rules_end_to_end, 'right order and broken link · Nemotron vs rules alone')}</div>
+<div style="font-size:26px;color:#9aa3b2;margin-top:40px">${esc(M.model_id)} on Nebius Token Factory · 40 English-heavy messages: ${esc(M.en40_model)} vs ${esc(M.en40_rules)} · all data synthetic</div>`), 'card_measured', false);
+
+// Cold open: the two recorded results side by side (frames of the screenshot take, docs/video/parts/cold_*.png).
+const b64 = f => fs.existsSync(f) ? 'data:image/png;base64,' + fs.readFileSync(f).toString('base64') : '';
+const shotPane = (img, tag, color) => `<div style="flex:1;display:flex;flex-direction:column;gap:14px"><div style="font-size:30px;font-weight:800;color:${color}">${tag}</div><div style="overflow:hidden;border:2px solid ${color};border-radius:16px"><img src="${img}" style="width:100%;display:block"></div></div>`;
+await shot(card(`<div style="margin-top:-40px;font-size:56px;font-weight:800;line-height:1.2">Two “I paid” screenshots. One was edited.</div>
+<div style="font-size:30px;color:#9aa3b2;margin:10px 0 30px">Nemotron reads both on Nebius Token Factory. The payment ledger knows which is which.</div>
+<div style="display:flex;gap:40px">${shotPane(b64(OUT + '/cold_true.png'), 'Real: in the ledger', '#3ccf7a')}${shotPane(b64(OUT + '/cold_doc.png'), 'Edited date: the ledger never saw it', '#ff6b6b')}</div>`), 'card_cold', false);
 
 const P = M.proof;
 await shot(card(`<div style="font-size:30px;color:#9aa3b2;letter-spacing:.08em;text-transform:uppercase">Measured · held-out, run once</div>
 <div style="font-size:54px;font-weight:800;margin:14px 0 46px">${esc(P.n)} phone photos of payment screens, made by a separate agent</div>
-<div style="display:flex;gap:34px">${stat(P.model_strict, 'payment read right and verdict right · Nemotron 3.5 Super VL')}${stat(P.ocr_strict, 'the same · free on-device OCR + payment-word rules')}${stat(P.doctored, 'edited screenshots ended as “not in the ledger”')}</div>
-<div style="font-size:26px;color:#9aa3b2;margin-top:40px">Same Nemotron given only the OCR text, no image: ${esc(P.ocrtext_strict)} · avg ${esc(P.avg_s)} s and $${esc(P.usd_per_photo)} per photo on Nebius Token Factory · synthetic screens, Korean and Japanese</div>`), 'card_measured_proof', false);
+<div style="display:flex;gap:34px">${stat(P.model_strict, 'payment read right and verdict right · Nemotron 3.5 Super VL')}${stat(P.ocr_strict, 'the same · free on-device OCR + payment-word rules')}${stat(P.ocrtext_strict, 'the same · Nemotron given only the OCR text, no image')}</div>
+<div style="font-size:26px;color:#9aa3b2;margin-top:40px">Edited screenshots: ${esc(P.doctored)} ended as “not in the ledger” with either reader (the ledger catches them, not the reader) · avg ${esc(P.avg_s)} s and $${esc(P.usd_per_photo)} per photo on Nebius Token Factory · synthetic screens, Korean and Japanese</div>`), 'card_measured_proof', false);
 
 await shot(card(`<div style="height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center">
 <div style="font-size:96px;font-weight:800">Paid, but nothing arrived?</div><div style="font-size:52px;color:#7ee2a8;margin-top:18px">Found in one pass.</div>

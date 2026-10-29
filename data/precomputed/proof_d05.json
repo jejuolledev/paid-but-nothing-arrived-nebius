@@ -1,6 +1,6 @@
 {
  "meta": {
-  "recorded_at": "2026-10-29T16:14:29+09:00",
+  "recorded_at": "2026-10-29T16:19:02+09:00",
   "provider": "Nebius Token Factory",
   "models": [
    "nvidia/Nemotron-3.5-Super-VL",
@@ -12,8 +12,8 @@
    "explain": "nvidia/nemotron-3-super-120b-a12b",
    "reply": "nvidia/nemotron-3-super-120b-a12b"
   },
-  "code_commit": "0c7ce51",
-  "wall_ms": 8062,
+  "code_commit": "54da30a",
+  "wall_ms": 9832,
   "status": "ok"
  },
  "result": {
@@ -31,7 +31,7 @@
     "requested_model": "nvidia/Nemotron-3.5-Super-VL",
     "provider": "Nebius Token Factory",
     "ok": true,
-    "ms": 3989,
+    "ms": 3653,
     "prompt_tokens": 1920,
     "completion_tokens": 297,
     "usd": 0.000843,
@@ -44,10 +44,10 @@
     "requested_model": "nvidia/nemotron-3-super-120b-a12b",
     "provider": "Nebius Token Factory",
     "ok": true,
-    "ms": 3718,
+    "ms": 5051,
     "prompt_tokens": 262,
-    "completion_tokens": 740,
-    "usd": 0.000745,
+    "completion_tokens": 883,
+    "usd": 0.000873,
     "finish": "stop",
     "thinking": null
    }
@@ -113,7 +113,7 @@
    "Customer's spam folder"
   ],
   "explanation": "The mail send failed at the provider (mail provider error: missing API key), so the customer has the credits but no notice. [server_logs:2026-10-18T18:00:09Z@/api/mail/send]",
-  "customer_reply": "안녕하세요, [shop]입니다. 고객님께서 보내주신 결제 스크린샷(금액 9,900원, 날짜 10월 20일, 시간 03:00)을 확인했으나, 해당 주소의 결제 내역에서 같은 금액과 시간을 찾지 못했습니다. 혹시 다른 카드나 주소로 결제하셨는지 확인 부탁드리며, 카드 명세서의 해당 라인을 캡처해 주시면 감사하겠습니다. 감사합니다.",
+  "customer_reply": "안녕하세요, 고객님. 결제 내역을 확인해 보니 2026년 10월 19일 03시 00분에 9,900원 결제가 확인되었으나, 고객님이 보내주신 스크린샷에 표시된 10월 20일 03시 00분의 9,900원 기록은 찾지 못했습니다. 해당 주소에서 확인 가능한 내용은 위와 같습니다. 카드 명세서 라인이나 다른 카드·주소 사용 여부를 알려주시면 감사하겠습니다.",
   "fix_action": "Nothing to fix yet: ask the customer for the card statement line before changing anything.",
   "rows": {
    "orders": [
@@ -186,22 +186,22 @@
    {
     "step": "find_orders",
     "detail": "1 order(s) for noah.chen904@example.com",
-    "ms": 0
+    "ms": 1
    },
    {
     "step": "order_journey",
     "detail": "one query; 3 joined rows → 6 rows across 4 tables",
-    "ms": 2
+    "ms": 6
    },
    {
     "step": "verify_chain",
     "detail": "broken=mail_delivered",
-    "ms": 2
+    "ms": 6
    },
    {
     "step": "template_texts",
     "detail": "re-check after a fix — verifier only",
-    "ms": 2
+    "ms": 6
    }
   ],
   "steps": [],
@@ -226,7 +226,7 @@
   },
   "backend": "duckdb-local",
   "lang": "ko",
-  "elapsed_ms": 2,
+  "elapsed_ms": 6,
   "proof_blocks_fix": true,
   "proof": {
    "fields": {
@@ -332,9 +332,9 @@
     },
     {
      "field": "status",
-     "photo": "unknown",
+     "photo": "not read",
      "ledger": "PAID",
-     "result": "differs",
+     "result": "unchecked",
      "ref": "payments:pay_0904"
     }
    ],
@@ -491,6 +491,6 @@
     "model": "nvidia/nemotron-3-super-120b-a12b"
    }
   },
-  "proof_elapsed_ms": 8062
+  "proof_elapsed_ms": 9831
  }
 }

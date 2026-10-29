@@ -351,8 +351,9 @@ def decide(f: dict | None, payments: list[dict]) -> dict:
              bool(p and when and abs((loc - when).total_seconds()) <= TOLERANCE_MIN * 60)),
             ("card", f"…{f['card_last4']}" if f.get("card_last4") else "not shown", f"…{p['card_last4']}" if p and p.get("card_last4") else "—",
              None if not f.get("card_last4") or not p else str(p.get("card_last4")) == f["card_last4"]),
-            ("status", f.get("status_text") or f.get("status") or "—", str(p.get("status")) if p else "—",
-             None if not p else (f.get("status") in PAID_STATES) == (str(p.get("status", "")).upper() == "PAID"))]
+            ("status", f.get("status_text") or ("not read" if f.get("status") == "unknown" else f.get("status")) or "—",
+             str(p.get("status")) if p else "—",
+             None if not p or f.get("status") == "unknown" else (f.get("status") in PAID_STATES) == (str(p.get("status", "")).upper() == "PAID"))]
     out["comparison"] = [{"field": a, "photo": b, "ledger": c, "result": "match" if ok else ("unchecked" if ok is None else "differs"),
                           "ref": p.get("ref") if p else None} for a, b, c, ok in rows]
     return out
