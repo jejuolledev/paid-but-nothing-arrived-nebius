@@ -64,3 +64,6 @@ with ms and USD); `scripts/intake_eval.py --set fallback_heldout --mode model` a
 | 2026-10-29 15:41 | dev (6) | photo | nvidia/Nemotron-3.5-Super-VL on Token Factory | 5/6 | 5/6 | 4/5 | 5/6 | 4/6 | 2/3 | 1/2 | 1/1 | 4/6 | 0 | 27413 | 0.00477 |
 | 2026-10-29 15:43 | dev (6) | photo | nvidia/Nemotron-3.5-Super-VL on Token Factory | 5/6 | 6/6 | 3/5 | 4/6 | 5/6 | 2/3 | 2/2 | 1/1 | 5/6 | 0 | 14799 | 0.00482 |
 | 2026-10-29 15:44 | dev (6) | clean | nvidia/Nemotron-3.5-Super-VL on Token Factory | 6/6 | 6/6 | 3/5 | 4/6 | 6/6 | 3/3 | 2/2 | 1/1 | 6/6 | 0 | 11224 | 0.00462 |
+| 2026-10-29 15:46 | heldout (16) | photo | nvidia/Nemotron-3.5-Super-VL on Token Factory | 14/16 | 14/16 | 11/15 | 12/16 | 14/16 | 6/7 | 8/8 | 0/1 | 14/16 | 0 | 5508 | 0.01235 |
+| 2026-10-29 15:47 | heldout (16) | clean | nvidia/Nemotron-3.5-Super-VL on Token Factory | 15/16 | 15/16 | 11/15 | 12/16 | 15/16 | 7/7 | 8/8 | 0/1 | 15/16 | 0 | 4968 | 0.01235 |
+| 2026-10-29 15:49 | heldout (16) | photo | nvidia/Nemotron-3.5-Super-VL given only the OCR text (no image) | 15/16 | 13/16 | 12/15 | 10/16 | 13/16 | 6/7 | 6/8 | 1/1 | 13/16 | 1 | 7450 | 0.01039 |
