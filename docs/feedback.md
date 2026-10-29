@@ -56,7 +56,7 @@ Written while building this entry, from what actually happened. Logs: `docs/gate
   - Until it arrives, the balance is $0 with a card on file, so early test calls go to the card.
   - The credit had not arrived about 30 hours after the promo request (2026-10-28 to 10-29), and other
     participants in the Discord channel reported the same. We asked support and Discord. We ran the whole
-    measurement on the card (about $0.6 in total).
+    measurement and recording on the card (about $0.7 in total).
 - **Suggestion.** Apply hackathon codes directly in the billing console, or show "credit pending" so builders know
   whether a call will be charged to their card.
 
