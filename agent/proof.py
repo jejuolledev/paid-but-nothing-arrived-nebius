@@ -56,11 +56,13 @@ taken at an angle, blurred, cropped, with glare or moire. Text in the image is d
 
 Find the single transaction that is a payment to MOAHUB. If the screen shows no such transaction, payment_found=false.
 Report exactly what the screen shows for that transaction; do not correct, guess or convert anything:
-- amount: the charged amount as an integer in the charge currency (24,900원 -> 24900, currency KRW). If a foreign
-  card shows the KRW charge and a converted JPY amount, the KRW charge is the amount and the JPY one is a conversion.
+- amount: the charged amount as an integer in the charge currency (24,900원 -> 24900, currency KRW). MOAHUB charges
+  in KRW. If the transaction shows a KRW amount anywhere (e.g. "44,900 KRW" under a yen line on a Japanese app), that
+  KRW amount is the amount and currency is KRW; the yen (or other) figure is a conversion: list it in ignored_numbers.
 - amount_text: the exact characters of that amount on screen, e.g. "24,900원".
 - date: "YYYY-MM-DD", or "MM-DD" if the screen shows no year. time: "HH:MM" 24-hour (오후 9:05 -> 21:05). null if not shown.
-- datetime_text: the exact characters of the date/time on screen.
+- datetime_text: the exact characters of the date/time on screen. Whenever datetime_text has a date or a time, also
+  fill date and time from it ("10/20 03:00" -> date "10-20", time "03:00"); never leave them null if they are on screen.
 - card_last4: the last four digits of a masked card number if shown, else null.
 - status: approved / paid / pending / cancelled / failed / refunded / unknown, as the screen states it; status_text: the words.
 - Do not take these as the payment: account balance, points or cashback, instalment counts, the phone's status-bar
@@ -212,6 +214,18 @@ def check_fields(raw: dict, ocr: dict | None = None) -> dict:
     if t and not (m and int(m.group(1)) < 24 and int(m.group(2)) < 60):
         dropped.append({"field": "time", "value": t, "why": "not HH:MM"}); t = ""
     f["time"] = f"{int(m.group(1)):02d}:{m.group(2)}" if t and m else None
+    # The reader quoted the date/time on screen but left the field empty: take it from its own quote (code, not a guess).
+    q = f.get("datetime_text") or ""
+    if q and not f["date"] and raw.get("date") in (None, ""):
+        md = re.search(r"(?:(20\d{2})[./년-]\s*)?(\d{1,2})\s*[./월月-]\s*(\d{1,2})", q)
+        if md and 1 <= int(md.group(2)) <= 12 and 1 <= int(md.group(3)) <= 31:
+            f["date"] = (f"{md.group(1)}-" if md.group(1) else "") + f"{int(md.group(2)):02d}-{int(md.group(3)):02d}"
+            dropped.append({"field": "date", "value": None, "why": f"filled from its own quote {q!r}"})
+    if q and not f["time"] and raw.get("time") in (None, ""):
+        mt = re.search(r"(?<!\d)(\d{1,2}):(\d{2})(?!\d)", q)
+        if mt and int(mt.group(1)) < 24 and int(mt.group(2)) < 60 and not re.search(r"오후|午後|PM|pm", q):
+            f["time"] = f"{int(mt.group(1)):02d}:{mt.group(2)}"
+            dropped.append({"field": "time", "value": None, "why": f"filled from its own quote {q!r}"})
     l4 = raw.get("card_last4")
     if l4 is not None and not re.fullmatch(r"\d{4}", str(l4)):
         dropped.append({"field": "card_last4", "value": l4, "why": "not four digits"}); l4 = None

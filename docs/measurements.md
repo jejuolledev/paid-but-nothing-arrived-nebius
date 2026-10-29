@@ -61,3 +61,6 @@ with ms and USD); `scripts/intake_eval.py --set fallback_heldout --mode model` a
 | 2026-10-27 22:35 | dev (6) | photo | macOS Vision OCR + payment-word rules | 3/6 | 1/6 | 3/5 | 2/6 | 3/6 | 1/3 | 2/2 | 0/1 | 1/6 | 0 | — | — |
 | 2026-10-27 22:35 | dev (6) | clean | macOS Vision OCR + today's rules | 2/6 | 0/6 | 2/5 | 0/6 | 2/6 | 0/3 | 2/2 | 0/1 | 0/6 | 0 | — | — |
 | 2026-10-27 22:35 | dev (6) | clean | macOS Vision OCR + payment-word rules | 4/6 | 4/6 | 2/5 | 2/6 | 3/6 | 1/3 | 2/2 | 0/1 | 2/6 | 0 | — | — |
+| 2026-10-29 15:41 | dev (6) | photo | nvidia/Nemotron-3.5-Super-VL on Token Factory | 5/6 | 5/6 | 4/5 | 5/6 | 4/6 | 2/3 | 1/2 | 1/1 | 4/6 | 0 | 27413 | 0.00477 |
+| 2026-10-29 15:43 | dev (6) | photo | nvidia/Nemotron-3.5-Super-VL on Token Factory | 5/6 | 6/6 | 3/5 | 4/6 | 5/6 | 2/3 | 2/2 | 1/1 | 5/6 | 0 | 14799 | 0.00482 |
+| 2026-10-29 15:44 | dev (6) | clean | nvidia/Nemotron-3.5-Super-VL on Token Factory | 6/6 | 6/6 | 3/5 | 4/6 | 6/6 | 3/3 | 2/2 | 1/1 | 6/6 | 0 | 11224 | 0.00462 |

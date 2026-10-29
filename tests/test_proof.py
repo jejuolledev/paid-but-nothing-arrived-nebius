@@ -229,3 +229,10 @@ def test_ocr_text_only_mode_sends_no_image():
     s = _Scripted(_screen())
     r = read_screen(TracedClient(s, CallLog(), "x"), None, ocr_text="모아허브(MOAHUB)\n결제금액 24,900원")
     assert r["ok"] and isinstance(s.sent[0]["messages"][1]["content"], str) and "OCR text" in s.sent[0]["messages"][0]["content"]
+
+
+def test_check_fields_fills_empty_date_time_from_its_own_quote_only():
+    f = check_fields(_screen(date=None, time=None, datetime_text="10/20 03:00"))
+    assert f["date"] == "10-20" and f["time"] == "03:00"
+    f = check_fields(_screen(date=None, time=None, datetime_text="오후 3:05"))   # 12-hour quote: not guessed
+    assert f["time"] is None

@@ -1,5 +1,5 @@
 {
- "when": "2026-10-28 14:07",
+ "when": "2026-10-29 15:37",
  "all": [
   "MiniMaxAI/MiniMax-M3",
   "MiniMaxAI/MiniMax-M3.1-Flash",
@@ -45,64 +45,26 @@
  "tries": [
   {
    "model": "nvidia/Nemotron-3.5-Super-VL",
+   "thinking": "off",
    "json_mode": "json_schema",
-   "ok": false,
-   "error": "ValueError: no JSON object in the reply",
-   "ms": 8751,
+   "ok": true,
+   "error": null,
+   "finish": [
+    "stop"
+   ],
+   "tokens": [
+    [
+     1652,
+     146
+    ]
+   ],
+   "ms": 34462,
    "fields": {
-    "amount": null,
-    "date": null,
-    "time": null,
-    "card_last4": null,
-    "status": null
-   },
-   "gold": {
     "amount": 9900,
-    "currency": "KRW",
-    "paid_at_local": "2026-10-16 05:00",
-    "shown_as": "10/16 05:00 (no year on screen)",
-    "utc_offset": "+09:00",
-    "card_last4": "4444",
-    "status": "approved",
-    "merchant": "MOAHUB"
-   }
-  },
-  {
-   "model": "nvidia/Nemotron-3.5-Super-VL",
-   "json_mode": "json_object",
-   "ok": false,
-   "error": "ValueError: no JSON object in the reply",
-   "ms": 7277,
-   "fields": {
-    "amount": null,
-    "date": null,
-    "time": null,
+    "date": "2026-10-16",
+    "time": "05:00",
     "card_last4": null,
-    "status": null
-   },
-   "gold": {
-    "amount": 9900,
-    "currency": "KRW",
-    "paid_at_local": "2026-10-16 05:00",
-    "shown_as": "10/16 05:00 (no year on screen)",
-    "utc_offset": "+09:00",
-    "card_last4": "4444",
-    "status": "approved",
-    "merchant": "MOAHUB"
-   }
-  },
-  {
-   "model": "nvidia/Nemotron-3.5-Super-VL",
-   "json_mode": "off",
-   "ok": false,
-   "error": "ValueError: no JSON object in the reply",
-   "ms": 6891,
-   "fields": {
-    "amount": null,
-    "date": null,
-    "time": null,
-    "card_last4": null,
-    "status": null
+    "status": "unknown"
    },
    "gold": {
     "amount": 9900,
@@ -116,6 +78,8 @@
    }
   }
  ],
- "decision": "RERUN (first run void, see note_1028)",
- "note_1028": "VOID as a decision: Super VL read the photo correctly (9,900 KRW, 10/16 05:00, MOAHUB, in reasoning_content) but used all 1,200 max_tokens on reasoning (finish_reason=length, reasoning_tokens=1200, image tokens 1202), so content was empty. Not a vision failure. Rerun scripts/tf_gate.py after credits arrive (thinking off / 4,000 tokens)."
+ "decision": "PHOTO",
+ "vision_model": "nvidia/Nemotron-3.5-Super-VL",
+ "json_mode": "json_schema",
+ "thinking": "off"
 }
