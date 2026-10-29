@@ -570,7 +570,8 @@ def investigate(message: str, email: str = "", order_id: str = "", backend=None,
     receipts = [st.get("receipt") for st in steps]
     if client:
         try:
-            lang_note = {"ko": " Reply language: Korean (polite 존댓말).", "ja": " Reply language: Japanese (polite です/ます)."}.get(lang, "")
+            lang_note = {"ko": " customer_reply language: Korean (polite 존댓말). Write explanation and fix_action in English (the seller's page).",
+                         "ja": " customer_reply language: Japanese (polite です/ます). Write explanation and fix_action in English (the seller's page)."}.get(lang, "")
             user_payload = _mask(json.dumps(ensure_ascii=False, obj={"customer_message": message[:2000], "chain": verdict.to_dict(),
                                              "rows": _redact(journey, email), "investigation": loop_finding}, default=str), email)
             from .agent_loop import _parse

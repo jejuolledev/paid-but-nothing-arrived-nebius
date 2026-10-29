@@ -12,7 +12,7 @@ const [base = 'http://127.0.0.1:8765', out = 'docs/video/intro1', imgTrue, imgDo
 const ex = JSON.parse(fs.readFileSync('app/proof_examples/examples.json', 'utf8'));
 const pick = k => ex.find(e => e.kind === k);
 const T = imgTrue ? { file: imgTrue, message: pick('true').message } : { file: `app/proof_examples/${pick('true').id}.jpg`, message: pick('true').message };
-const FOLLOW = '아 죄송해요, 19일 새벽이었어요. 캡처는 다른 앱에서 했어요.';
+const FOLLOW = '아 죄송해요, 19일 새벽이었어요. 날짜를 잘못 말했네요.';
 const D = imgDoc ? { file: imgDoc, message: pick('doctored').message } : { file: `app/proof_examples/${pick('doctored').id}.jpg`, message: pick('doctored').message };
 fs.mkdirSync(out, { recursive: true });
 const b = await chromium.launch();

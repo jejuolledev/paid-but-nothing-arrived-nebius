@@ -133,6 +133,17 @@ def merge(prev: dict, read: dict) -> tuple[dict, list]:
         changed.append({"field": "time", "photo": prev.get("time"), "now": read["time"]}); f["time"] = read["time"]
     if read.get("amount") is not None:
         changed.append({"field": "amount", "photo": prev.get("amount"), "now": read["amount"]}); f["amount"] = read["amount"]
+    try:   # the first turn's fields come back from the page: keep only well-formed values
+        f["amount"] = int(f["amount"]) if f.get("amount") is not None else None
+    except (TypeError, ValueError):
+        f["amount"] = None
+    for k in ("date", "time", "card_last4", "currency", "status"):
+        if f.get(k) is not None and not isinstance(f[k], str):
+            f[k] = None
+    if f.get("date") and not re.fullmatch(r"(?:20\d{2}-)?\d{2}-\d{2}", f["date"]):
+        f["date"] = None
+    if f.get("time") and not re.fullmatch(r"\d{2}:\d{2}", f["time"]):
+        f["time"] = None
     f["ignored_numbers"], f["dropped"], f["ocr_check"] = [], [], None
     f["source"] = "photo + customer's follow-up"
     return f, changed

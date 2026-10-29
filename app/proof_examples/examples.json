@@ -10,8 +10,8 @@
  },
  {
   "id": "d05",
-  "label": "Card alert with its date edited",
-  "label_ko": "날짜를 고친 카드 알림 캡처",
+  "label": "Card alert with the wrong date",
+  "label_ko": "날짜가 틀린 카드 알림 캡처",
   "lang": "ko",
   "kind": "doctored",
   "message": "20일에 결제했어요 noah.chen904@example.com",

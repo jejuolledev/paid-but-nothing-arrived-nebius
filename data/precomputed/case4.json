@@ -1,6 +1,6 @@
 {
  "meta": {
-  "recorded_at": "2026-10-29T16:59:11+09:00",
+  "recorded_at": "2026-10-29T18:37:18+09:00",
   "provider": "Nebius Token Factory",
   "models": [
    "nvidia/Nemotron-3_5-Lightning",
@@ -10,8 +10,8 @@
    "intake": "nvidia/Nemotron-3_5-Lightning",
    "explain": "nvidia/nemotron-3-super-120b-a12b"
   },
-  "code_commit": "a2fe063",
-  "wall_ms": 12283,
+  "code_commit": "f25fdf8",
+  "wall_ms": 6795,
   "status": "ok"
  },
  "result": {
@@ -61,7 +61,7 @@
       "args": {
        "order_id": "ord_0904"
       },
-      "why": "Get the full history of the order to see if an email was sent or if there was a delivery issue."
+      "why": "Get the full history of ord_0904 to see if an email was sent or if there are any delivery issues."
      }
     ],
     "dropped": []
@@ -91,10 +91,10 @@
     "requested_model": "nvidia/Nemotron-3_5-Lightning",
     "provider": "Nebius Token Factory",
     "ok": true,
-    "ms": 1930,
+    "ms": 1619,
     "prompt_tokens": 865,
-    "completion_tokens": 190,
-    "usd": 9.7e-05,
+    "completion_tokens": 193,
+    "usd": 9.8e-05,
     "finish": "stop",
     "thinking": false
    },
@@ -104,10 +104,10 @@
     "requested_model": "nvidia/nemotron-3-super-120b-a12b",
     "provider": "Nebius Token Factory",
     "ok": true,
-    "ms": 10320,
-    "prompt_tokens": 1418,
-    "completion_tokens": 1462,
-    "usd": 0.001741,
+    "ms": 5136,
+    "prompt_tokens": 1452,
+    "completion_tokens": 1086,
+    "usd": 0.001413,
     "finish": "stop",
     "thinking": null
    }
@@ -172,8 +172,8 @@
   "unverified": [
    "Customer's spam folder"
   ],
-  "explanation": "The payment for order ord_0904 was confirmed (payments:pay_0904) and the order marked paid (orders:ord_0904), triggering a grant of 10 credits (grants:g_ord_0904). However, the subsequent email send failed because the mail provider reported a missing API key (server_logs:2026-10-18T18:00:09Z@/api/mail/send), so the customer received the credits but no notification.",
-  "customer_reply": "Your payment of 9900 KRW was successful and 10 credits were added to your account. The confirmation email was not sent due to a technical issue with our mail service. We will request approval to resend that notification so you receive it.",
+  "explanation": "The mail send failed at the provider (mail provider error: missing API key), so the customer has the credits but no notice. [server_logs:2026-10-18T18:00:09Z@/api/mail/send]",
+  "customer_reply": "We see that your 10 credits were added to your account for order ord_0904, but the confirmation email did not go out due to a technical issue. Once approved, we will resend that email to you.",
   "fix_action": "Resend the credit mail (requires approval). Code fix: alert on mail/send errors and retry with backoff.",
   "rows": {
    "orders": [
@@ -246,27 +246,27 @@
    {
     "step": "intake",
     "detail": "read the message",
-    "ms": 1932
+    "ms": 1621
    },
    {
     "step": "plan",
     "detail": "2 planned lookup(s), reached ord_0904",
-    "ms": 1934
+    "ms": 1624
    },
    {
     "step": "order_journey",
     "detail": "one query; 3 joined rows → 6 rows across 4 tables",
-    "ms": 1936
+    "ms": 1627
    },
    {
     "step": "verify_chain",
     "detail": "broken=mail_delivered",
-    "ms": 1936
+    "ms": 1627
    },
    {
     "step": "llm_explain",
-    "detail": "nvidia/nemotron-3-super-120b-a12b citations_ok=True",
-    "ms": 12258
+    "detail": "nvidia/nemotron-3-super-120b-a12b citations_ok=False",
+    "ms": 6765
    }
   ],
   "steps": [
@@ -283,7 +283,7 @@
     ]
    },
    {
-    "thought": "Get the full history of the order to see if an email was sent or if there was a delivery issue.",
+    "thought": "Get the full history of ord_0904 to see if an email was sent or if there are any delivery issues.",
     "tool": "order_journey",
     "args": {
      "order_id": "ord_0904"
@@ -325,42 +325,31 @@
   "llm": "nvidia/nemotron-3-super-120b-a12b",
   "citation_check": {
    "checked": true,
-   "ok": true,
+   "ok": false,
    "unknown_refs": [],
    "claims": [
     {
-     "sentence": "The payment for order ord_0904 was confirmed (payments:pay_0904) and the order marked paid (orders:ord_0904), triggering a grant of 10 credits (grants:g_ord_0904).",
-     "refs": [
-      "payments:pay_0904",
-      "orders:ord_0904",
-      "grants:g_ord_0904"
-     ],
-     "facts": [
-      "10",
-      "ord_0904",
-      "10 credits",
-      "paid",
-      "order ord_0904 was confirmed"
-     ],
-     "unsupported": []
-    },
-    {
-     "sentence": "However, the subsequent email send failed because the mail provider reported a missing API key (server_logs:2026-10-18T18:00:09Z@/api/mail/send), so the customer received the credits but no notification.",
+     "sentence": "Credits were successfully granted for order ord_0904, as shown by the grant row and the paid order status, but the notification email failed to send because the mail provider reported a missing API key error.[server_logs:2026-10-18T18:00:09Z@/api/mail/send] This left the customer with the credits but no email confirmation.",
      "refs": [
       "server_logs:2026-10-18T18:00:09Z@/api/mail/send"
      ],
      "facts": [
       "api key",
-      "received the credits",
+      "ord_0904",
+      "paid",
+      "granted",
       "failed"
      ],
-     "unsupported": []
+     "unsupported": [
+      "paid"
+     ]
     }
    ],
-   "claims_ok": true
+   "claims_ok": false,
+   "replaced_with_verifier_text": true
   },
   "backend": "duckdb-local",
   "lang": "en",
-  "elapsed_ms": 12260
+  "elapsed_ms": 6769
  }
 }

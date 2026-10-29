@@ -40,3 +40,9 @@ def test_merge_keeps_the_photo_values_it_does_not_replace():
 def test_a_month_the_answer_does_not_write_is_not_taken_from_the_model():
     kept, _ = ground({"date": "11-19"}, "아 죄송해요, 19일 새벽이었어요.")
     assert "date" not in kept and kept["day"] == 19
+
+
+def test_malformed_first_turn_fields_from_the_page_do_not_break_the_check():
+    prev = dict(PREV, fields=dict(PREV_FIELDS, amount="abc", date=5, time="3am"))
+    r = investigate_followup(prev, "19일이요", use_model=False)
+    assert r["proof"]["verdict"] in ("unread", "no_matching_payment")

@@ -6,7 +6,7 @@ Written while building this entry, from what actually happened. Logs: `docs/gate
 - **Nebius Token Factory** (OpenAI-compatible API): every model call at runtime, from a FastAPI server. The key stays on the server.
 - **NVIDIA Nemotron, a different model per job:**
   - `nvidia/Nemotron-3.5-Super-VL` reads the customer's payment screenshot.
-  - `nvidia/Nemotron-3_5-Lightning` reads the message and plans the read-only lookups.
+  - `nvidia/Nemotron-3_5-Lightning` reads the message, plans the read-only lookups and, in the second turn, reads the customer's answer.
   - `nvidia/Nemotron-3-Ultra-550b-a55b` re-reads only when code finds the first reading unsure.
   - `nvidia/nemotron-3-super-120b-a12b` writes the cited explanation and the reply.
   - Kept after the dev runs: reasoning off for the two readers (vision, intake), on (model default) for the writer.
@@ -56,7 +56,7 @@ Written while building this entry, from what actually happened. Logs: `docs/gate
   - Until it arrives, the balance is $0 with a card on file, so early test calls go to the card.
   - The credit had not arrived about 30 hours after the promo request (2026-10-28 to 10-29), and other
     participants in the Discord channel reported the same. We asked support and Discord. We ran the whole
-    measurement and recording on the card (about $0.7 in total).
+    measurement and recording on the card (about $0.9 in total, by our per-call ledger).
 - **Suggestion.** Apply hackathon codes directly in the billing console, or show "credit pending" so builders know
   whether a call will be charged to their card.
 
@@ -74,7 +74,7 @@ Written while building this entry, from what actually happened. Logs: `docs/gate
   `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B`.
 - **Suggestion.** Link the catalog from the quickstart and keep one id style.
 
-### 6. What we measured about the endpoint (2026-10-29, about 390 calls)
+### 6. What we measured about the endpoint (2026-10-29, about 570 calls)
 - Structured output (`json_schema`, strict) with an image: honoured on Super VL (every answer parsed against the schema).
 - Median and worst latency per call: Super VL 4.2 s / 55 s (the 55 s call ran to 4,000 tokens; the first dev run of
   the day averaged 27 s per photo, later runs 3-6 s); Lightning 2.0 s / 5.5 s; Ultra 2.5 s / 17 s; Super 6.9 s / 26 s.

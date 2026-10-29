@@ -1,6 +1,6 @@
 {
  "meta": {
-  "recorded_at": "2026-10-29T16:59:51+09:00",
+  "recorded_at": "2026-10-29T18:36:51+09:00",
   "provider": "Nebius Token Factory",
   "models": [
    "nvidia/Nemotron-3_5-Lightning",
@@ -10,8 +10,8 @@
    "intake": "nvidia/Nemotron-3_5-Lightning",
    "explain": "nvidia/nemotron-3-super-120b-a12b"
   },
-  "code_commit": "a2fe063",
-  "wall_ms": 8571,
+  "code_commit": "f25fdf8",
+  "wall_ms": 12173,
   "status": "ok"
  },
  "result": {
@@ -54,14 +54,28 @@
       "args": {
        "order_id": "ord_0901"
       },
-      "why": "Locate the order to check its status and payment details."
+      "why": "Locate the order referenced by the customer to check its status and details."
+     },
+     {
+      "tool": "find_payments",
+      "args": {
+       "email": "EMAIL_1"
+      },
+      "why": "Check the payment provider's ledger to see if a payment was made by this email address."
+     },
+     {
+      "tool": "order_for_payment",
+      "args": {
+       "payment_id": "FROM_PAYMENTS"
+      },
+      "why": "Retrieve the order behind the payment found, if any, to reconcile with ord_0901."
      },
      {
       "tool": "order_journey",
       "args": {
-       "order_id": "ord_0901"
+       "order_id": "BEST_ORDER"
       },
-      "why": "Get the full history of the order to see if credits were delivered or if there was a payment issue."
+      "why": "Get the full history of the order to understand what happened after payment and why credits may not have arrived."
      }
     ],
     "dropped": []
@@ -70,7 +84,7 @@
   "claims_vs_records": [
    {
     "claim": "what went wrong",
-    "says": "not received",
+    "says": "nothing arrived",
     "records": "Paid, but the order was never confirmed.",
     "result": "match",
     "refs": [],
@@ -91,10 +105,10 @@
     "requested_model": "nvidia/Nemotron-3_5-Lightning",
     "provider": "Nebius Token Factory",
     "ok": true,
-    "ms": 1790,
+    "ms": 4795,
     "prompt_tokens": 863,
-    "completion_tokens": 183,
-    "usd": 9.6e-05,
+    "completion_tokens": 299,
+    "usd": 0.000124,
     "finish": "stop",
     "thinking": false
    },
@@ -104,10 +118,10 @@
     "requested_model": "nvidia/nemotron-3-super-120b-a12b",
     "provider": "Nebius Token Factory",
     "ok": true,
-    "ms": 6536,
-    "prompt_tokens": 1376,
-    "completion_tokens": 1156,
-    "usd": 0.001453,
+    "ms": 7054,
+    "prompt_tokens": 1410,
+    "completion_tokens": 1309,
+    "usd": 0.001601,
     "finish": "stop",
     "thinking": null
    }
@@ -168,8 +182,8 @@
   "unverified": [
    "Whether the customer saw an error screen (no client-side telemetry in these sources)"
   ],
-  "explanation": "The payment provider recorded a PAID charge of 24900 KRW for order ord_0901 [payments:pay_0901], and our webhook logged the PAID status [server_logs:2026-10-13T12:00:41Z@/api/payments/webhook]. However, the order row remained marked as failed [orders:ord_0901], causing the confirm step to skip re‑checking the provider and return a 409 conflict [server_logs:2026-10-13T12:00:44Z@/api/payments/confirm], so credits were never granted.",
-  "customer_reply": "Your payment of 24900 KRW was successfully processed, but our system did not grant the credits because the order status stayed as failed. We are reviewing the issue and will correct it once approved, ensuring your credits are added. Thank you for your patience.",
+  "explanation": "The payment provider recorded a PAID charge of 24900 KRW for order ord_0901 [payments:pay_0901], but our order record stayed 'failed' after a retry, so the confirm step did not re‑check the provider and credits were never granted [orders:ord_0901][server_logs:2026-10-13T12:00:44Z@/api/payments/confirm].",
+  "customer_reply": "We see that your payment of 24900 KRW was successful, but our system still shows the order as failed, so the credits were not added. We will ask for the order to be corrected and the credits granted, pending approval.",
   "fix_action": "Re-check the payment provider for this payment id and mark the order paid, then grant credits (requires approval). Code fix: confirm must re-query the payment provider when the local status is failed; reconcile must include failed orders with a PAID webhook.",
   "rows": {
    "orders": [
@@ -231,32 +245,32 @@
    {
     "step": "intake",
     "detail": "read the message",
-    "ms": 1959
+    "ms": 5032
    },
    {
     "step": "plan",
-    "detail": "2 planned lookup(s), reached ord_0901",
-    "ms": 1966
+    "detail": "4 planned lookup(s), reached ord_0901",
+    "ms": 5038
    },
    {
     "step": "order_journey",
     "detail": "one query; 3 joined rows → 5 rows across 3 tables",
-    "ms": 1968
+    "ms": 5041
    },
    {
     "step": "verify_chain",
     "detail": "broken=order_created",
-    "ms": 1968
+    "ms": 5041
    },
    {
     "step": "llm_explain",
     "detail": "nvidia/nemotron-3-super-120b-a12b citations_ok=True",
-    "ms": 8508
+    "ms": 12099
    }
   ],
   "steps": [
    {
-    "thought": "Locate the order to check its status and payment details.",
+    "thought": "Locate the order referenced by the customer to check its status and details.",
     "tool": "find_orders",
     "args": {
      "order_id": "ord_0901"
@@ -268,10 +282,34 @@
     ]
    },
    {
-    "thought": "Get the full history of the order to see if credits were delivered or if there was a payment issue.",
+    "thought": "Check the payment provider's ledger to see if a payment was made by this email address.",
+    "tool": "find_payments",
+    "args": {
+     "email": "EMAIL_1"
+    },
+    "rows": 1,
+    "planned": true,
+    "sql": [
+     "SELECT * FROM payments WHERE lower(customer_email) = lower('hana.lee901@example.com') ORDER BY created_at DESC LIMIT 10"
+    ]
+   },
+   {
+    "thought": "Retrieve the order behind the payment found, if any, to reconcile with ord_0901.",
+    "tool": "order_for_payment",
+    "args": {
+     "payment_id": "FROM_PAYMENTS"
+    },
+    "rows": 1,
+    "planned": true,
+    "sql": [
+     "SELECT * FROM orders WHERE payment_id = 'pay_0901'"
+    ]
+   },
+   {
+    "thought": "Get the full history of the order to understand what happened after payment and why credits may not have arrived.",
     "tool": "order_journey",
     "args": {
-     "order_id": "ord_0901"
+     "order_id": "BEST_ORDER"
     },
     "rows": 5,
     "planned": true,
@@ -284,6 +322,18 @@
    {
     "tool": "find_orders",
     "sql": "SELECT * FROM orders WHERE order_id = 'ord_0901' ORDER BY created_at DESC LIMIT 10",
+    "rows": 1,
+    "backend": "duckdb-local"
+   },
+   {
+    "tool": "find_payments",
+    "sql": "SELECT * FROM payments WHERE lower(customer_email) = lower('hana.lee901@example.com') ORDER BY created_at DESC LIMIT 10",
+    "rows": 1,
+    "backend": "duckdb-local"
+   },
+   {
+    "tool": "order_for_payment",
+    "sql": "SELECT * FROM orders WHERE payment_id = 'pay_0901'",
     "rows": 1,
     "backend": "duckdb-local"
    },
@@ -314,29 +364,19 @@
    "unknown_refs": [],
    "claims": [
     {
-     "sentence": "The payment provider recorded a PAID charge of 24900 KRW for order ord_0901 [payments:pay_0901], and our webhook logged the PAID status [server_logs:2026-10-13T12:00:41Z@/api/payments/webhook].",
+     "sentence": "The payment provider recorded a PAID charge of 24900 KRW for order ord_0901 [payments:pay_0901], but our order record stayed 'failed' after a retry, so the confirm step did not re‑check the provider and credits were never granted [orders:ord_0901][server_logs:2026-10-13T12:00:44Z@/api/payments/confirm].",
      "refs": [
       "payments:pay_0901",
-      "server_logs:2026-10-13T12:00:41Z@/api/payments/webhook"
-     ],
-     "facts": [
-      "24900",
-      "ord_0901",
-      "paid"
-     ],
-     "unsupported": []
-    },
-    {
-     "sentence": "However, the order row remained marked as failed [orders:ord_0901], causing the confirm step to skip re‑checking the provider and return a 409 conflict [server_logs:2026-10-13T12:00:44Z@/api/payments/confirm], so credits were never granted.",
-     "refs": [
       "orders:ord_0901",
       "server_logs:2026-10-13T12:00:44Z@/api/payments/confirm"
      ],
      "facts": [
-      "409",
+      "24900",
+      "ord_0901",
+      "paid",
       "never granted",
       "failed",
-      "order row remained marked as failed"
+      "order record stayed 'failed"
      ],
      "unsupported": []
     }
@@ -345,6 +385,6 @@
   },
   "backend": "duckdb-local",
   "lang": "en",
-  "elapsed_ms": 8511
+  "elapsed_ms": 12103
  }
 }

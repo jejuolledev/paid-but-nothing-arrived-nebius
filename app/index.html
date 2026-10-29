@@ -71,6 +71,7 @@ header .sponsors,.lang button,.how-link,.how-label,.fix-chains .panel h3,.sql su
 .rows table,.calls td,.calls th,pre,.sql pre,.sqlbox,.masked,.timeline .tool,.fix-chains .mini .link{font-size:14px!important}
 .link{min-height:104px}.link b,.link strong{font-size:16px}
 [style*="font-size:12px"],[style*="font-size:12.5px"],[style*="font-size:13px"]{font-size:14px!important}
+.warnline{font-size:14.5px!important}.drop-zone .x{font-size:14px!important}
 .turn2{border-color:var(--acc);background:rgba(91,141,239,.08)}.turn2 .said{font-size:18px;margin:6px 0}.follow{border-style:dashed}.tour{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:10px}#tour-btn{background:#2e9e5b;font-weight:700}
 @media(max-width:640px){html,body{font-size:16px}h1{font-size:24px}.headline,.verdict{font-size:20px}main,header{padding-left:14px;padding-right:14px}}
 </style></head><body>
@@ -185,7 +186,7 @@ const I18N={
     dropText:'Payment screenshot (optional): drop, paste (Ctrl/⌘+V) or click to choose',
     photoExamples:'Or try a customer\'s screenshot',
     tourBtn:'See it in 30 seconds',
-    tourNote:'An edited payment screenshot, then the customer answers and the agent checks again. One click, played for you.',
+    tourNote:'A payment screenshot with the wrong date, then the customer answers and the agent checks again. One click, played for you.',
     followTitle:'The customer answers',
     followHint:'Paste the customer\'s answer to your reply (and a new screenshot if they sent one). The agent reads it, checks the ledger again and rewrites the reply.',
     followPh:'e.g. Sorry, it was the 19th, not the 20th. I took the screenshot in another app.',
@@ -199,6 +200,7 @@ const I18N={
     replyBefore:'Your first reply',replyNow:'Rewritten reply',
     proofTitle:'What the photo says vs what the ledger says',
     proofH:['','Photo','Ledger (payment provider)',''],
+    proofHF:['','Photo + customer\'s answer','Ledger (payment provider)',''],
     readBy:(rd,m)=>`Read by ${rd}${m?' · '+m:''}`,
     legend:{amount:'amount read',time:'time read',card_last4:'card',other:'other numbers (not used)'},
     boxesFrom:s=>`Boxes: ${s}.`,
@@ -209,7 +211,7 @@ const I18N={
     followHead:{ledger_match:'The payment the customer now describes is in the ledger.',no_matching_payment:'Still no payment like this in the ledger.',not_paid:'The payment was not completed.',unread:'Still not enough to check.'},
     proofHead:{ledger_match:'The payment on the screenshot is in the ledger.',no_matching_payment:'No payment like this in the ledger: same amount, but not at that time.',not_paid:'The screenshot itself shows the payment was not completed.',unread:'The screenshot could not be read well enough to check.'},
     ledgerWins:'The ledger decides, not the photo.',
-    proofRulesOnly:x=>`Without Nemotron, free on-device OCR + payment-word rules would read ${(x.amount||0).toLocaleString('en-US')}원${x.date?' · '+x.date:''}${x.time?' '+x.time:''}: a different line on the screen.`,
+    proofRulesOnly:x=>`Without Nemotron, free on-device OCR + payment-word rules would take ${(x.amount||0).toLocaleString('en-US')}원 as the payment: a different line on the screen.`,
     cost:'Cost',total:'Total',escalated:(why,used)=>`Escalated to the bigger model: ${why} (answer used: ${used}).`,
     readingPhoto:'Reading the screenshot…',
     recorded:(when,prov)=>`Recorded live run on ${prov}, ${when}. Same code; shown instantly so you don\'t wait.`,
@@ -227,8 +229,8 @@ const I18N={
     routedBy:(model,rid)=>'Routed by Meterless Nightshift → '+model+' · receipt '+rid,
     modelLabel:'model',
     howTitle:'How it works',
-    how1:'Paste the customer message',
-    how1d:'their email is enough',
+    how1:'Paste the customer message or screenshot',
+    how1d:'a phone photo of their banking app is enough',
     how2:'Nemotron reads it',
     how2d:'who is writing, what they claim, what to look up (on Nebius Token Factory; addresses masked)',
     how3:'Code checks the records',
@@ -306,7 +308,7 @@ const I18N={
     dropText:'결제 캡처(선택): 끌어 놓기, 붙여넣기(Ctrl/⌘+V), 또는 눌러서 고르기',
     photoExamples:'또는 고객이 보낸 캡처로 해 보기',
     tourBtn:'30초 만에 보기',
-    tourNote:'날짜를 고친 결제 캡처 → 손님의 대답 → 다시 확인. 자동으로 이어서 보여 줍니다.',
+    tourNote:'날짜가 틀린 결제 캡처 → 손님의 대답 → 다시 확인. 한 번 누르면 이어서 보여 줍니다.',
     followTitle:'손님의 답장',
     followHint:'보낸 답장에 손님이 한 대답을 붙여 넣으세요(새 캡처가 있으면 함께). 에이전트가 읽고 장부를 다시 확인한 뒤 답장을 고칩니다.',
     followPh:'예: 죄송해요, 20일이 아니라 19일이었어요. 캡처는 다른 앱에서 했어요.',
@@ -314,12 +316,13 @@ const I18N={
     followBusy:'대답을 읽고 장부를 다시 확인하는 중…',
     turn2:'두 번째 턴: 손님이 답했습니다',
     customerSaid:'손님',
-    readInAnswer:(m)=>m+'가 대답에서 읽은 것',
+    readInAnswer:(m)=>'대답에서 읽은 것 ('+m+')',
     fromAnswer:'이제 찾는 값',
     verdictWas:'이전',verdictNow:'지금',
     replyBefore:'처음 답장',replyNow:'고친 답장',
     proofTitle:'사진이 말하는 것 vs 장부가 말하는 것',
     proofH:['','사진','장부(결제대행사)',''],
+    proofHF:['','사진 + 손님 대답','장부(결제대행사)',''],
     readBy:(rd,m)=>`읽은 쪽: ${rd}${m?' · '+m:''}`,
     legend:{amount:'읽은 금액',time:'읽은 시각',card_last4:'카드',other:'쓰지 않은 숫자'},
     boxesFrom:s=>`표시 상자: ${s}.`,
@@ -330,7 +333,7 @@ const I18N={
     followHead:{ledger_match:'손님이 다시 말한 결제가 장부에 있습니다.',no_matching_payment:'여전히 장부에 그런 결제가 없습니다.',not_paid:'결제가 끝나지 않았습니다.',unread:'아직 확인할 만큼 정보가 없습니다.'},
     proofHead:{ledger_match:'캡처의 결제가 장부에 있습니다.',no_matching_payment:'장부에 이런 결제가 없습니다: 금액은 같지만 그 시각이 아닙니다.',not_paid:'캡처 자체가 결제 미완료를 보여 줍니다.',unread:'캡처를 확인할 만큼 읽지 못했습니다.'},
     ledgerWins:'판정은 사진이 아니라 장부가 합니다.',
-    proofRulesOnly:x=>`Nemotron 없이 무료 기기 OCR + 결제 단어 규칙으로 읽으면 ${(x.amount||0).toLocaleString('ko-KR')}원${x.date?' · '+x.date:''}${x.time?' '+x.time:''}: 화면의 다른 줄입니다.`,
+    proofRulesOnly:x=>`Nemotron 없이 무료 기기 OCR + 결제 단어 규칙만 쓰면 ${(x.amount||0).toLocaleString('ko-KR')}원을 결제로 잡습니다: 화면의 다른 줄입니다.`,
     cost:'비용',total:'합계',escalated:(why,used)=>`큰 모델로 다시 읽음: ${why} (쓴 답: ${used}).`,
     readingPhoto:'캡처 읽는 중…',
     recorded:(when,prov)=>`${prov}에서 실제로 돌린 결과를 녹화해 둔 것(${when}). 코드는 같고, 기다리지 않도록 바로 보여 줍니다.`,
@@ -348,8 +351,8 @@ const I18N={
     routedBy:(model,rid)=>'Meterless Nightshift 경유 → '+model+' · receipt '+rid,
     modelLabel:'모델',
     howTitle:'작동 방식',
-    how1:'고객 메시지를 붙여 넣기',
-    how1d:'이메일만 있어도 됩니다',
+    how1:'고객 메시지나 캡처를 붙여 넣기',
+    how1d:'은행 앱 캡처 한 장이면 됩니다',
     how2:'Nemotron이 읽습니다',
     how2d:'누가 썼는지, 무엇을 주장하는지, 무엇을 조회할지 (Nebius Token Factory, 주소는 가림)',
     how3:'코드가 기록을 확인합니다',
@@ -403,7 +406,7 @@ function trHeadline(h){
   if(lang!=='ko')return h;
   return HEADLINE_KO[h]||h;
 }
-const TOOL_EN={find_orders:'Orders by',find_payments:'Payments made by',order_for_payment:'Order behind payment',related_orders:'Other orders by',order_journey:'Full history of order'};
+const TOOL_EN={find_orders:'Orders by',find_payments:'Payments made by',order_for_payment:'Order behind',related_orders:'Other orders by',order_journey:'Full history of'};
 function trTool(name){
   if(!name)return name;
   return (lang==='ko'?TOOL_KO:TOOL_EN)[name]||name;
@@ -411,7 +414,7 @@ function trTool(name){
 function trArgs(a){   // {"email":"EMAIL_2"} -> EMAIL_2 ; {"payment_id":"FROM_PAYMENTS"} -> the payment found above
   if(a==null)return'';if(typeof a==='string')return a;
   const v=Object.values(a).map(x=>({FROM_PAYMENTS:lang==='ko'?'위에서 찾은 결제':'the payment found above',BEST_ORDER:lang==='ko'?'찾은 주문':'the order found'}[x]||x));
-  return v.join(', ');
+  return lang==='ko'?'('+v.join(', ')+')':v.join(', ');
 }
 
 function dedupeCitations(text){
@@ -621,7 +624,7 @@ async function runProof(live){
   }finally{$('#go').disabled=false;}
 }
 
-const TOUR_FOLLOW='아 죄송해요, 19일 새벽이었어요. 캡처는 다른 앱에서 했어요.';
+const TOUR_FOLLOW='아 죄송해요, 19일 새벽이었어요. 날짜를 잘못 말했네요.';
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 async function tour(){
   const e=photoExamples.find(x=>x.id==='d05');if(!e)return;
@@ -730,7 +733,7 @@ function renderCalls(r){
   const usd=v=>v==null?'—':('$'+Number(v).toFixed(5));
   const tot=c.reduce((a,x)=>({ms:a.ms+(x.ms||0),pt:a.pt+(x.prompt_tokens||0),ct:a.ct+(x.completion_tokens||0),usd:a.usd+(x.usd||0)}),{ms:0,pt:0,ct:0,usd:0});
   const rt=(r.intake||{}).routing;
-  const rtNote=rt&&rt.escalated?`<p class="hint">${esc(i.escalated(rt.reason,rt.used))}</p>`:'';
+  const rtNote=rt&&rt.escalated?`<p class="hint">${esc(i.escalated(rt.reason,({intake:lang==='ko'?'처음 읽은 모델':'the first reader',escalate:'Ultra'})[rt.used]||rt.used))}</p>`:'';
   return `<div class="card"><h2>${esc(i.callsTitle)}</h2><div class="rows"><table class="calls"><tr>${i.callsH.map(h=>`<th>${esc(h)}</th>`).join('')}</tr>${c.map(x=>`<tr><td>${esc(i.roles[x.role]||x.role)}</td><td>${esc(x.model||'')}</td><td>${esc(x.provider||'')}</td><td>${x.ok?esc(x.ms+' '+i.ms):'<span class="res-differs">failed '+esc(x.error||'')+'</span>'}</td><td>${esc((x.prompt_tokens??'—')+' / '+(x.completion_tokens??'—'))}</td><td>${esc(usd(x.usd))}</td></tr>`).join('')}<tr><th>${esc(i.total)}</th><td></td><td></td><td>${esc(tot.ms+' '+i.ms)}</td><td>${esc(tot.pt+' / '+tot.ct)}</td><td>${esc(usd(tot.usd))}</td></tr></table></div>${rtNote}${cfg.limits?`<p class="hint">${esc(i.sandbox(cfg.limits.sandbox_minutes))}</p>`:''}</div>`;
 }
 
@@ -749,7 +752,7 @@ function renderProof(r){
   return `<div class="card"><h2>${esc(i.proofTitle)}</h2><div class="proof">
     <div><div class="shot"><img src="${esc(p.image_data_url||'')}" alt="screenshot">${boxes}</div>${legend}${p.highlight_source?`<p class="mut" style="font-size:12px">${esc(i.boxesFrom(p.highlight_source))}</p>`:''}</div>
     <div><p class="verdict ${cls}">${esc(((r.followup?i.followHead:i.proofHead)||{})[p.verdict]||p.headline)}</p><p class="mut" style="margin:0 0 8px">${esc(i.ledgerWins)}</p>
-      <div class="rows"><table class="calls"><tr>${i.proofH.map(h=>`<th>${esc(h)}</th>`).join('')}</tr>${rows}</table></div>
+      <div class="rows"><table class="calls"><tr>${(r.followup?i.proofHF:i.proofH).map(h=>`<th>${esc(h)}</th>`).join('')}</tr>${rows}</table></div>
       ${p.rules_only&&!p.rules_only.same_as_model&&p.rules_only.amount!=null?`<div class="warnline">${esc(i.proofRulesOnly(p.rules_only))}</div>`:''}${ign}${drop}${notes}
       <p class="mut" style="font-size:12px;margin-top:8px">${esc(i.readBy(({'vision model':'the vision model','followup model':'the answer reader'}[rd.reader]||rd.reader||'—'),rd.model?prettyModel(rd.model):''))}${rd.ok===false&&rd.error?' · '+esc(rd.error):''}<br>${esc(i.sentNote(img.redaction||'',img.redacted))}</p></div>
   </div></div>`;

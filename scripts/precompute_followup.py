@@ -16,7 +16,7 @@ os.environ.setdefault("AGENT_LOOP", "0")
 from agent.followup import investigate_followup
 from agent import sql_backend
 
-TEXT = "아 죄송해요, 19일 새벽이었어요. 캡처는 다른 앱에서 했어요."
+TEXT = "아 죄송해요, 19일 새벽이었어요. 날짜를 잘못 말했네요."
 first = json.loads((ROOT / "data/precomputed/proof_d05.json").read_text())["result"]
 ex = next(e for e in json.loads((ROOT / "app/proof_examples/examples.json").read_text()) if e["id"] == "d05")
 prev = {"message": ex["message"], "fields": first["proof"]["fields"], "verdict": first["proof"]["verdict"],
