@@ -1,0 +1,704 @@
+{
+ "summary": {
+  "when": "2026-10-29 16:03",
+  "set": "fallback_heldout",
+  "n": 22,
+  "mode": "model nvidia/Nemotron-3_5-Lightning (Ultra re-read when unsure: nvidia/Nemotron-3-Ultra-550b-a55b)",
+  "sender": "20/22",
+  "orders": "22/22",
+  "amount": "21/22",
+  "complaint": "16/22",
+  "end_to_end": "20/22",
+  "plan_hit": "12/22",
+  "dropped_values": 7,
+  "failed_calls": 0,
+  "avg_model_ms": 15540,
+  "tokens": 113794,
+  "escalated": 16,
+  "usd": 0.10871,
+  "wall_s": 343.3
+ },
+ "rows": [
+  {
+   "id": "t09",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": true,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "liam.patel906@example.com",
+    "order_ids": [],
+    "amount": 24900,
+    "complaint": "not_received"
+   },
+   "found": [
+    "ord_0906",
+    "account_mismatch"
+   ],
+   "calls": 3,
+   "ms": 14276,
+   "tokens": 5412,
+   "failed_calls": 0,
+   "escalated": true,
+   "usd": 0.004483,
+   "models": [
+    "escalate=nvidia/Nemotron-3-Ultra-550b-a55b",
+    "explain=nvidia/nemotron-3-super-120b-a12b",
+    "intake=nvidia/Nemotron-3_5-Lightning"
+   ]
+  },
+  {
+   "id": "t10",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": false,
+   "end_to_end": true,
+   "plan_hit": true,
+   "dropped": 0,
+   "got": {
+    "sender_email": "sora.kim903@example.com",
+    "order_ids": [
+     "ord_0903"
+    ],
+    "amount": 44900,
+    "complaint": "not_received"
+   },
+   "found": [
+    "ord_0903",
+    "credit_granted"
+   ],
+   "calls": 2,
+   "ms": 12064,
+   "tokens": 4694,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0.001799,
+   "models": [
+    "explain=nvidia/nemotron-3-super-120b-a12b",
+    "intake=nvidia/Nemotron-3_5-Lightning"
+   ]
+  },
+  {
+   "id": "t11",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": false,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "leo.patel028@example.com",
+    "order_ids": [
+     "ord_0903"
+    ],
+    "amount": 44900,
+    "complaint": "not_sure_paid"
+   },
+   "found": [
+    "ord_0028",
+    null
+   ],
+   "calls": 2,
+   "ms": 11710,
+   "tokens": 3685,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0.001424,
+   "models": [
+    "explain=nvidia/nemotron-3-super-120b-a12b",
+    "intake=nvidia/Nemotron-3_5-Lightning"
+   ]
+  },
+  {
+   "id": "t12",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": true,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 1,
+   "got": {
+    "sender_email": "jun.park902@example.com",
+    "order_ids": [],
+    "amount": 9900,
+    "complaint": "not_received"
+   },
+   "found": [
+    "ord_0902",
+    "order_created"
+   ],
+   "calls": 2,
+   "ms": 9610,
+   "tokens": 3257,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0.001289,
+   "models": [
+    "explain=nvidia/nemotron-3-super-120b-a12b",
+    "intake=nvidia/Nemotron-3_5-Lightning"
+   ]
+  },
+  {
+   "id": "t13",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": true,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "noah.smith004@example.com",
+    "order_ids": [],
+    "amount": 44900,
+    "complaint": "other"
+   },
+   "found": [
+    "ord_0004",
+    null
+   ],
+   "calls": 3,
+   "ms": 12694,
+   "tokens": 5884,
+   "failed_calls": 0,
+   "escalated": true,
+   "usd": 0.006804,
+   "models": [
+    "escalate=nvidia/Nemotron-3-Ultra-550b-a55b",
+    "explain=nvidia/nemotron-3-super-120b-a12b",
+    "intake=nvidia/Nemotron-3_5-Lightning"
+   ]
+  },
+  {
+   "id": "t14",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": true,
+   "end_to_end": true,
+   "plan_hit": true,
+   "dropped": 0,
+   "got": {
+    "sender_email": "yuna.kim205@example.com",
+    "order_ids": [],
+    "amount": 44900,
+    "complaint": "not_received"
+   },
+   "found": [
+    "ord_0205",
+    null
+   ],
+   "calls": 2,
+   "ms": 11483,
+   "tokens": 3194,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0.001398,
+   "models": [
+    "explain=nvidia/nemotron-3-super-120b-a12b",
+    "intake=nvidia/Nemotron-3_5-Lightning"
+   ]
+  },
+  {
+   "id": "t15",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": true,
+   "end_to_end": true,
+   "plan_hit": true,
+   "dropped": 0,
+   "got": {
+    "sender_email": "noah.chen904@example.com",
+    "order_ids": [],
+    "amount": 9900,
+    "complaint": "no_email"
+   },
+   "found": [
+    "ord_0904",
+    "mail_delivered"
+   ],
+   "calls": 3,
+   "ms": 21039,
+   "tokens": 8054,
+   "failed_calls": 0,
+   "escalated": true,
+   "usd": 0.012129000000000001,
+   "models": [
+    "escalate=nvidia/Nemotron-3-Ultra-550b-a55b",
+    "explain=nvidia/nemotron-3-super-120b-a12b",
+    "intake=nvidia/Nemotron-3_5-Lightning"
+   ]
+  },
+  {
+   "id": "t16",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": false,
+   "end_to_end": false,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "jun.chen018@example.com",
+    "order_ids": [],
+    "amount": 9900,
+    "complaint": "other"
+   },
+   "found": [
+    "ord_0018",
+    null
+   ],
+   "calls": 3,
+   "ms": 15138,
+   "tokens": 5509,
+   "failed_calls": 0,
+   "escalated": true,
+   "usd": 0.005223,
+   "models": [
+    "escalate=nvidia/Nemotron-3-Ultra-550b-a55b",
+    "explain=nvidia/nemotron-3-super-120b-a12b",
+    "intake=nvidia/Nemotron-3_5-Lightning"
+   ]
+  },
+  {
+   "id": "t17",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": true,
+   "end_to_end": true,
+   "plan_hit": true,
+   "dropped": 0,
+   "got": {
+    "sender_email": "hana.lee901@example.com",
+    "order_ids": [],
+    "amount": 24900,
+    "complaint": "not_received"
+   },
+   "found": [
+    "ord_0901",
+    "order_created"
+   ],
+   "calls": 3,
+   "ms": 12431,
+   "tokens": 6330,
+   "failed_calls": 0,
+   "escalated": true,
+   "usd": 0.006613,
+   "models": [
+    "escalate=nvidia/Nemotron-3-Ultra-550b-a55b",
+    "explain=nvidia/nemotron-3-super-120b-a12b",
+    "intake=nvidia/Nemotron-3_5-Lightning"
+   ]
+  },
+  {
+   "id": "t18",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": true,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "emma.song905@example.com",
+    "order_ids": [],
+    "amount": 24900,
+    "complaint": "not_sure_paid"
+   },
+   "found": [
+    "ord_0905",
+    null
+   ],
+   "calls": 3,
+   "ms": 9437,
+   "tokens": 4217,
+   "failed_calls": 0,
+   "escalated": true,
+   "usd": 0.00405,
+   "models": [
+    "escalate=nvidia/Nemotron-3-Ultra-550b-a55b",
+    "explain=nvidia/nemotron-3-super-120b-a12b",
+    "intake=nvidia/Nemotron-3_5-Lightning"
+   ]
+  },
+  {
+   "id": "t19",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": true,
+   "end_to_end": true,
+   "plan_hit": true,
+   "dropped": 0,
+   "got": {
+    "sender_email": "kai.chen011@example.com",
+    "order_ids": [],
+    "amount": null,
+    "complaint": "other"
+   },
+   "found": [
+    "ord_0011",
+    null
+   ],
+   "calls": 3,
+   "ms": 12104,
+   "tokens": 5915,
+   "failed_calls": 0,
+   "escalated": true,
+   "usd": 0.006574,
+   "models": [
+    "escalate=nvidia/Nemotron-3-Ultra-550b-a55b",
+    "explain=nvidia/nemotron-3-super-120b-a12b",
+    "intake=nvidia/Nemotron-3_5-Lightning"
+   ]
+  },
+  {
+   "id": "t20",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": true,
+   "end_to_end": true,
+   "plan_hit": true,
+   "dropped": 0,
+   "got": {
+    "sender_email": "hana.park022@example.com",
+    "order_ids": [],
+    "amount": 24900,
+    "complaint": "other"
+   },
+   "found": [
+    "ord_0022",
+    null
+   ],
+   "calls": 3,
+   "ms": 13521,
+   "tokens": 5574,
+   "failed_calls": 0,
+   "escalated": true,
+   "usd": 0.005048,
+   "models": [
+    "escalate=nvidia/Nemotron-3-Ultra-550b-a55b",
+    "explain=nvidia/nemotron-3-super-120b-a12b",
+    "intake=nvidia/Nemotron-3_5-Lightning"
+   ]
+  },
+  {
+   "id": "t21",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": true,
+   "end_to_end": true,
+   "plan_hit": true,
+   "dropped": 0,
+   "got": {
+    "sender_email": "liam.patel906@example.com",
+    "order_ids": [],
+    "amount": 24900,
+    "complaint": "not_received"
+   },
+   "found": [
+    "ord_0906",
+    "account_mismatch"
+   ],
+   "calls": 3,
+   "ms": 25424,
+   "tokens": 6379,
+   "failed_calls": 0,
+   "escalated": true,
+   "usd": 0.006144,
+   "models": [
+    "escalate=nvidia/Nemotron-3-Ultra-550b-a55b",
+    "explain=nvidia/nemotron-3-super-120b-a12b",
+    "intake=nvidia/Nemotron-3_5-Lightning"
+   ]
+  },
+  {
+   "id": "t22",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": true,
+   "end_to_end": true,
+   "plan_hit": true,
+   "dropped": 0,
+   "got": {
+    "sender_email": "dohyun.park204@example.com",
+    "order_ids": [],
+    "amount": 44900,
+    "complaint": "not_sure_paid"
+   },
+   "found": [
+    "ord_0204",
+    null
+   ],
+   "calls": 3,
+   "ms": 17160,
+   "tokens": 4045,
+   "failed_calls": 0,
+   "escalated": true,
+   "usd": 0.0035470000000000002,
+   "models": [
+    "escalate=nvidia/Nemotron-3-Ultra-550b-a55b",
+    "explain=nvidia/nemotron-3-super-120b-a12b",
+    "intake=nvidia/Nemotron-3_5-Lightning"
+   ]
+  },
+  {
+   "id": "t23",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": true,
+   "end_to_end": true,
+   "plan_hit": true,
+   "dropped": 0,
+   "got": {
+    "sender_email": "jun.park902@example.com",
+    "order_ids": [],
+    "amount": 9900,
+    "complaint": "not_received"
+   },
+   "found": [
+    "ord_0902",
+    "order_created"
+   ],
+   "calls": 2,
+   "ms": 14747,
+   "tokens": 3649,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0.001696,
+   "models": [
+    "explain=nvidia/nemotron-3-super-120b-a12b",
+    "intake=nvidia/Nemotron-3_5-Lightning"
+   ]
+  },
+  {
+   "id": "t24",
+   "sender": true,
+   "orders": true,
+   "amount": false,
+   "complaint": false,
+   "end_to_end": true,
+   "plan_hit": true,
+   "dropped": 1,
+   "got": {
+    "sender_email": "sora.kim903@example.com",
+    "order_ids": [],
+    "amount": null,
+    "complaint": "charged_twice"
+   },
+   "found": [
+    "ord_0903",
+    "credit_granted"
+   ],
+   "calls": 3,
+   "ms": 26444,
+   "tokens": 6294,
+   "failed_calls": 0,
+   "escalated": true,
+   "usd": 0.006572000000000001,
+   "models": [
+    "escalate=nvidia/Nemotron-3-Ultra-550b-a55b",
+    "explain=nvidia/nemotron-3-super-120b-a12b",
+    "intake=nvidia/Nemotron-3_5-Lightning"
+   ]
+  },
+  {
+   "id": "t25",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": true,
+   "end_to_end": true,
+   "plan_hit": true,
+   "dropped": 0,
+   "got": {
+    "sender_email": "aria.cho027@example.com",
+    "order_ids": [],
+    "amount": 44900,
+    "complaint": "other"
+   },
+   "found": [
+    "ord_0027",
+    null
+   ],
+   "calls": 3,
+   "ms": 17693,
+   "tokens": 5626,
+   "failed_calls": 0,
+   "escalated": true,
+   "usd": 0.005612000000000001,
+   "models": [
+    "escalate=nvidia/Nemotron-3-Ultra-550b-a55b",
+    "explain=nvidia/nemotron-3-super-120b-a12b",
+    "intake=nvidia/Nemotron-3_5-Lightning"
+   ]
+  },
+  {
+   "id": "t26",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": true,
+   "end_to_end": true,
+   "plan_hit": true,
+   "dropped": 0,
+   "got": {
+    "sender_email": "hana.lee901@example.com",
+    "order_ids": [],
+    "amount": 24900,
+    "complaint": "not_received"
+   },
+   "found": [
+    "ord_0901",
+    "order_created"
+   ],
+   "calls": 3,
+   "ms": 13609,
+   "tokens": 5421,
+   "failed_calls": 0,
+   "escalated": true,
+   "usd": 0.004692,
+   "models": [
+    "escalate=nvidia/Nemotron-3-Ultra-550b-a55b",
+    "explain=nvidia/nemotron-3-super-120b-a12b",
+    "intake=nvidia/Nemotron-3_5-Lightning"
+   ]
+  },
+  {
+   "id": "t27",
+   "sender": false,
+   "orders": true,
+   "amount": true,
+   "complaint": false,
+   "end_to_end": false,
+   "plan_hit": false,
+   "dropped": 2,
+   "got": {
+    "sender_email": null,
+    "order_ids": [],
+    "amount": null,
+    "complaint": "not_sure_paid"
+   },
+   "found": [
+    null,
+    null
+   ],
+   "calls": 2,
+   "ms": 4672,
+   "tokens": 2766,
+   "failed_calls": 0,
+   "escalated": true,
+   "usd": 0.002824,
+   "models": [
+    "escalate=nvidia/Nemotron-3-Ultra-550b-a55b",
+    "intake=nvidia/Nemotron-3_5-Lightning"
+   ]
+  },
+  {
+   "id": "t28",
+   "sender": false,
+   "orders": true,
+   "amount": true,
+   "complaint": true,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 2,
+   "got": {
+    "sender_email": null,
+    "order_ids": [
+     "ord_0906"
+    ],
+    "amount": null,
+    "complaint": "not_received"
+   },
+   "found": [
+    "ord_0906",
+    "account_mismatch"
+   ],
+   "calls": 3,
+   "ms": 41292,
+   "tokens": 9397,
+   "failed_calls": 0,
+   "escalated": true,
+   "usd": 0.014879,
+   "models": [
+    "escalate=nvidia/Nemotron-3-Ultra-550b-a55b",
+    "explain=nvidia/nemotron-3-super-120b-a12b",
+    "intake=nvidia/Nemotron-3_5-Lightning"
+   ]
+  },
+  {
+   "id": "t29",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": true,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "olivia.nguyen013@example.com",
+    "order_ids": [],
+    "amount": 44900,
+    "complaint": "other"
+   },
+   "found": [
+    "ord_0013",
+    null
+   ],
+   "calls": 3,
+   "ms": 14901,
+   "tokens": 5201,
+   "failed_calls": 0,
+   "escalated": true,
+   "usd": 0.004763,
+   "models": [
+    "escalate=nvidia/Nemotron-3-Ultra-550b-a55b",
+    "explain=nvidia/nemotron-3-super-120b-a12b",
+    "intake=nvidia/Nemotron-3_5-Lightning"
+   ]
+  },
+  {
+   "id": "t30",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": false,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 1,
+   "got": {
+    "sender_email": "noah.chen904@example.com",
+    "order_ids": [],
+    "amount": 9900,
+    "complaint": "not_received"
+   },
+   "found": [
+    "ord_0904",
+    "mail_delivered"
+   ],
+   "calls": 2,
+   "ms": 10446,
+   "tokens": 3291,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0.0011459999999999999,
+   "models": [
+    "explain=nvidia/nemotron-3-super-120b-a12b",
+    "intake=nvidia/Nemotron-3_5-Lightning"
+   ]
+  }
+ ]
+}

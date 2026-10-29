@@ -32,6 +32,9 @@ ROUTES = {
     "explain": DEFAULT_MODEL,
     "reply": DEFAULT_MODEL,
 }
+# Reasoning off by default for the two readers (measured 2026-10-29: with it on, Super VL spent the whole token budget
+# reasoning and returned no answer, and Lightning hit its limit on every intake call). The writers keep the model default.
+THINKING_DEFAULT = {"vision": "off", "intake": "off"}
 # USD per 1M tokens (input, output), same catalog. Used only to show cost per case; the bill is Token Factory's.
 PRICES = {
     "nvidia/nvidia-nemotron-3-nano-30b-a3b": (0.06, 0.24),
@@ -126,7 +129,7 @@ class TracedClient:
             kw["extra_body"] = {**json.loads(extra), **kw.get("extra_body", {})}
         # Nemotron reasons before answering; the reasoning counts against max_tokens. LLM_THINKING_<ROLE> / LLM_THINKING
         # = off sends chat_template_kwargs.enable_thinking=false for that job (on = true; unset = the model's default).
-        think = os.getenv(f"LLM_THINKING_{_role.upper()}") or os.getenv("LLM_THINKING")
+        think = os.getenv(f"LLM_THINKING_{_role.upper()}") or os.getenv("LLM_THINKING") or THINKING_DEFAULT.get(_role)
         if think in ("on", "off"):
             eb = dict(kw.get("extra_body") or {})
             eb["chat_template_kwargs"] = {**eb.get("chat_template_kwargs", {}), "enable_thinking": think == "on"}
