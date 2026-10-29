@@ -26,4 +26,10 @@ Note (2026-10-29 17:30): after these runs, QA found that without a reader (no ke
 call) the agent still took the first of several addresses. Commit fe93495 makes that path read nobody's records
 instead. The rules rows above are the old regex baseline and are reproduced with `first_address_rule=True`
 (re-run after the change: same 38/40, 16/22 · 21/22, 6/8 · 6/8, 10/12 · 11/12). The model rows were not re-run.
+### Turn-by-turn mode (the model picks each lookup; `AGENT_MODE=loop`), added 2026-10-29 evening
+A second configuration, measured once on the same held-out set after the plan-mode run above. The message reader's prompt is unchanged since that run; other code changed in between (the no-guess sender rule, reply wording; see git log).
+
+| when | set | reader | sender | order nos. | amount | complaint | right order + link | plan reached it | dropped values | failed calls | avg model ms/msg | tokens |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | 2026-10-29 19:15 | fallback_dev (8) | model nvidia/Nemotron-3_5-Lightning (Ultra re-read when unsure: nvidia/Nemotron-3-Ultra-550b-a55b) + turn-by-turn lookups (agent_loop, the model picks each lookup) | 7/8 | 8/8 | 7/8 | 5/8 | 6/8 | 5/8 | 3 | 0 | 15915 | 67372 |
+| 2026-10-29 19:35 | fallback_heldout (22) | model nvidia/Nemotron-3_5-Lightning (Ultra re-read when unsure: nvidia/Nemotron-3-Ultra-550b-a55b) + turn-by-turn lookups (agent_loop, the model picks each lookup) | 21/22 | 22/22 | 20/22 | 16/22 | 21/22 | 21/22 | 4 | 0 | 17505 | 205120 |

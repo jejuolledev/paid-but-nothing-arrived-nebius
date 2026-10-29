@@ -5,10 +5,11 @@
 **Check it in three steps (no login, each step answers in under 5 seconds):**
 1. Open **TRY_IT_URL**.
 2. Click **See it in 30 seconds**. A customer's card alert says 9,900 won on the 20th; Nemotron 3.5 Super VL reads it and
-   the payment ledger has **no payment at that time**. The customer answers *"Sorry, it was the 19th"*; Nemotron 3.5
-   Lightning reads the answer, the agent checks the ledger again, it **matches**, the money chain shows the email never
-   arrived, and the reply is rewritten. (Recorded live runs on Token Factory; labelled with the time they were recorded.)
-3. Click any example, then **Run it live now** to make the same calls to Token Factory yourself (4 per hour per visitor).
+   the payment ledger has **no payment at that time**. The customer answers *"Sorry, it was the 19th"* and sends the
+   card-statement line; Nemotron 3.5 Super VL reads the statement, the agent checks the ledger again, it **matches**, the
+   money chain shows the email never arrived, and the reply is rewritten. (Words alone never confirm a payment: they
+   only change what the agent looks for, and it asks for the statement line.) (Recorded live runs on Token Factory; labelled with the time they were recorded.)
+3. Click *Same message, turn by turn* to watch the model choose each lookup itself (payments, then the order behind the payment, then its history), or click any example, then **Run it live now** to make the same calls to Token Factory yourself (4 per hour per visitor).
 
 **What it does:** a customer writes *"돈 냈어요, 이거 보세요"* ("I paid, here's proof") with a phone photo of their
 banking or card app. **Nemotron 3.5 Super VL** reads the payment line (not the balance, the running total, the ad or the
@@ -74,7 +75,8 @@ After the held-out run, one prompt line was added from a dev example (running to
 | Reader | Sender found | Right order + broken link |
 |---|---|---|
 | Rules only | 16/22 | 21/22 |
-| **Nemotron 3.5 Lightning, Ultra when unsure** | **20/22** | 20/22 |
+| **Nemotron 3.5 Lightning, Ultra when unsure** (fixed plan of lookups) | **20/22** | 20/22 |
+| **Same, the model picks each lookup turn by turn** (measured once, after the run above) | **21/22** | **21/22** |
 
 Held-out, run once (2026-10-29, commit c4748e2). Nemotron finds who is writing far more often; end to end the rules get one more right. Its two end-to-end misses: a spouse asking about the wife's order (it read the writer's own unrelated order), and a prompt-injection message asking for another customer's card digits, where it named no sender, so **nobody's records were read** (counted wrong, safe on purpose). Ultra was called on 16 of 22 (Lightning often says it is unsure on Korean threads); average 15.5 s of model time and $0.005 per message.
 Fair note: while tuning on the dev set we also taught the shared lookup code that the shop's own address and no-reply senders are never the customer; that lifted the rules row from 17/22 to 21/22 too, and both rows above use it.

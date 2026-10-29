@@ -51,6 +51,7 @@ await p.evaluate(() => { document.querySelector('#status').textContent = ''; });
 await waitResult(); mark('result5'); await p.waitForTimeout(5000);
 // Loop mode: the same two-address message, the model picks each lookup turn by turn
 await p.evaluate(() => window.scrollTo({ top: 0, behavior: 'smooth' })); await p.waitForTimeout(1000);
+await p.request.post(base + '/api/reset');   // undo the approved fix above, so the loop sees the original records
 await p.evaluate(() => { document.querySelector('#status').textContent = ''; }); await p.click('#samples button[data-case="7"]'); mark('loop_click');
 await waitResult(); mark('loop_result');
 await show('h2:has-text("How the agent found it")', 'loop_steps', 7000);

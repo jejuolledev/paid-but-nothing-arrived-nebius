@@ -19,5 +19,7 @@
  "avg_ms": "15540",
  "model_id": "nvidia/Nemotron-3_5-Lightning (Ultra when unsure)",
  "en40_model": "40/40",
- "en40_rules": "38/40"
+ "en40_rules": "38/40",
+ "loop_sender": "21/22",
+ "loop_end_to_end": "21/22"
 }

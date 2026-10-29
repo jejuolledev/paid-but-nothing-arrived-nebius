@@ -1,0 +1,504 @@
+{
+ "summary": {
+  "when": "2026-10-29 19:20",
+  "set": "dev",
+  "variant": "photo",
+  "n": 6,
+  "reader": "nvidia/Nemotron-3.5-Super-VL on Token Factory",
+  "amount": "5/6",
+  "time": "6/6",
+  "last4": "5/5",
+  "status": "6/6",
+  "verdict": "5/6",
+  "verdict_true": "2/3",
+  "verdict_doctored": "2/2",
+  "verdict_unpaid": "1/1",
+  "verdict_strict": "5/6",
+  "failed_calls": 0,
+  "avg_ms": 3568,
+  "usd": 0.00491,
+  "wall_s": 21.6
+ },
+ "rows": [
+  {
+   "id": "d01",
+   "kind": "true",
+   "lang": "ko",
+   "style": "D_sms_approval",
+   "difficulty": "medium",
+   "amount": false,
+   "time": true,
+   "last4": true,
+   "status": true,
+   "verdict": false,
+   "verdict_strict": false,
+   "got": {
+    "amount": 1367600,
+    "date": "2026-10-16",
+    "time": "05:00",
+    "card_last4": "4444",
+    "status": "approved"
+   },
+   "gold": {
+    "amount": 9900,
+    "currency": "KRW",
+    "paid_at_local": "2026-10-16 05:00",
+    "shown_as": "10/16 05:00 (no year on screen)",
+    "utc_offset": "+09:00",
+    "card_last4": "4444",
+    "status": "approved",
+    "merchant": "MOAHUB"
+   },
+   "verdict_got": "no_matching_payment",
+   "expected": "ledger_match",
+   "ok": true,
+   "error": null,
+   "json_mode": "json_schema",
+   "model": "nvidia/Nemotron-3.5-Super-VL",
+   "ms": 5939,
+   "tokens": 2171,
+   "usd": 0.000779,
+   "raw": {
+    "payment_found": true,
+    "merchant": "MOAHUB",
+    "amount": 1367600,
+    "currency": "KRW",
+    "amount_text": "1,367,600원",
+    "date": "2026-10-16",
+    "time": "05:00",
+    "datetime_text": "10/16 05:00",
+    "card_last4": "4444",
+    "status": "approved",
+    "status_text": "승인",
+    "screen_language": "ko",
+    "ignored_numbers": [
+     {
+      "text": "9,300원",
+      "what": "other_transaction"
+     },
+     {
+      "text": "1,348,400원",
+      "what": "other_transaction"
+     },
+     {
+      "text": "30,000원",
+      "what": "other_transaction"
+     }
+    ],
+    "legibility": "clear"
+   }
+  },
+  {
+   "id": "d02",
+   "kind": "true",
+   "lang": "ja",
+   "style": "F_jp_pay_history",
+   "difficulty": "easy",
+   "amount": true,
+   "time": true,
+   "last4": true,
+   "status": true,
+   "verdict": true,
+   "verdict_strict": true,
+   "got": {
+    "amount": 44900,
+    "date": "10-17",
+    "time": "10:00",
+    "card_last4": "0005",
+    "status": "paid"
+   },
+   "gold": {
+    "amount": 44900,
+    "currency": "KRW",
+    "paid_at_local": "2026-10-17 10:00",
+    "shown_as": "10月17日 header + 10:00 (no year on screen)",
+    "utc_offset": "+09:00",
+    "card_last4": "0005",
+    "status": "approved",
+    "merchant": "MOAHUB"
+   },
+   "verdict_got": "ledger_match",
+   "expected": "ledger_match",
+   "ok": true,
+   "error": null,
+   "json_mode": "json_schema",
+   "model": "nvidia/Nemotron-3.5-Super-VL",
+   "ms": 3569,
+   "tokens": 2231,
+   "usd": 0.000833,
+   "raw": {
+    "payment_found": true,
+    "merchant": "MOAHUB (韓国)",
+    "amount": 44900,
+    "currency": "KRW",
+    "amount_text": "44,900 KRW",
+    "date": "10-17",
+    "time": "10:00",
+    "datetime_text": "10月17日 (土) 10:00",
+    "card_last4": "0005",
+    "status": "paid",
+    "status_text": "支払い完了",
+    "screen_language": "ja",
+    "ignored_numbers": [
+     {
+      "text": "1,030円",
+      "what": "balance"
+     },
+     {
+      "text": "-1,310円",
+      "what": "other_transaction"
+     },
+     {
+      "text": "-4,903円",
+      "what": "conversion"
+     },
+     {
+      "text": "+3,000円",
+      "what": "other_transaction"
+     },
+     {
+      "text": "-8,570円",
+      "what": "other_transaction"
+     },
+     {
+      "text": "+62 pt",
+      "what": "points"
+     },
+     {
+      "text": "304 pt",
+      "what": "points"
+     }
+    ],
+    "legibility": "clear"
+   }
+  },
+  {
+   "id": "d03",
+   "kind": "true",
+   "lang": "ko",
+   "style": "A_bank_detail",
+   "difficulty": "medium",
+   "amount": true,
+   "time": true,
+   "last4": true,
+   "status": true,
+   "verdict": true,
+   "verdict_strict": true,
+   "got": {
+    "amount": 24900,
+    "date": "2026-10-21",
+    "time": "02:00",
+    "card_last4": "5556",
+    "status": "paid"
+   },
+   "gold": {
+    "amount": 24900,
+    "currency": "KRW",
+    "paid_at_local": "2026-10-21 02:00:20",
+    "shown_as": "2026.10.21 02:00:20",
+    "utc_offset": "+09:00",
+    "card_last4": "5556",
+    "status": "approved",
+    "merchant": "MOAHUB"
+   },
+   "verdict_got": "ledger_match",
+   "expected": "ledger_match",
+   "ok": true,
+   "error": null,
+   "json_mode": "json_schema",
+   "model": "nvidia/Nemotron-3.5-Super-VL",
+   "ms": 3525,
+   "tokens": 2248,
+   "usd": 0.000848,
+   "raw": {
+    "payment_found": true,
+    "merchant": "MOAHUB",
+    "amount": 24900,
+    "currency": "KRW",
+    "amount_text": "-24,900원",
+    "date": "2026-10-21",
+    "time": "02:00:20",
+    "datetime_text": "2026.10.21 02:00:20",
+    "card_last4": "5556",
+    "status": "paid",
+    "status_text": "출금",
+    "screen_language": "ko",
+    "ignored_numbers": [
+     {
+      "text": "24,000원",
+      "what": "balance"
+     },
+     {
+      "text": "+124 P",
+      "what": "points"
+     },
+     {
+      "text": "300,000원",
+      "what": "ad"
+     },
+     {
+      "text": "1,000,000원",
+      "what": "ad"
+     },
+     {
+      "text": "-50,400원",
+      "what": "other_transaction"
+     },
+     {
+      "text": "-67,000원",
+      "what": "other_transaction"
+     },
+     {
+      "text": "-49,700원",
+      "what": "other_transaction"
+     }
+    ],
+    "legibility": "clear"
+   }
+  },
+  {
+   "id": "d04",
+   "kind": "unpaid",
+   "lang": "ja",
+   "style": "F_jp_pay_history",
+   "difficulty": "easy",
+   "amount": true,
+   "time": true,
+   "last4": null,
+   "status": true,
+   "verdict": true,
+   "verdict_strict": true,
+   "got": {
+    "amount": 24900,
+    "date": "10-20",
+    "time": "14:00",
+    "card_last4": null,
+    "status": "pending"
+   },
+   "gold": {
+    "amount": 24900,
+    "currency": "KRW",
+    "paid_at_local": "2026-10-20 14:00",
+    "shown_as": "10月20日 header + 14:00 (no year on screen)",
+    "utc_offset": "+09:00",
+    "card_last4": null,
+    "status": "pending",
+    "merchant": "MOAHUB"
+   },
+   "verdict_got": "not_paid",
+   "expected": "not_paid",
+   "ok": true,
+   "error": null,
+   "json_mode": "json_schema",
+   "model": "nvidia/Nemotron-3.5-Super-VL",
+   "ms": 2585,
+   "tokens": 2204,
+   "usd": 0.000809,
+   "raw": {
+    "payment_found": true,
+    "merchant": "MOAHUB (韓国)",
+    "amount": 24900,
+    "currency": "KRW",
+    "amount_text": "24,900 KRW",
+    "date": "10-20",
+    "time": "14:00",
+    "datetime_text": "10月20日 (火) 14:00",
+    "card_last4": null,
+    "status": "pending",
+    "status_text": "未完了",
+    "screen_language": "ja",
+    "ignored_numbers": [
+     {
+      "text": "1,530円",
+      "what": "balance"
+     },
+     {
+      "text": "-900円",
+      "what": "other_transaction"
+     },
+     {
+      "text": "+5,000円",
+      "what": "other_transaction"
+     },
+     {
+      "text": "-4,390円",
+      "what": "other_transaction"
+     },
+     {
+      "text": "+58 pt",
+      "what": "points"
+     },
+     {
+      "text": "126 pt",
+      "what": "points"
+     }
+    ],
+    "legibility": "clear"
+   }
+  },
+  {
+   "id": "d05",
+   "kind": "doctored",
+   "lang": "ko",
+   "style": "B_card_push_list",
+   "difficulty": "medium",
+   "amount": true,
+   "time": true,
+   "last4": true,
+   "status": true,
+   "verdict": true,
+   "verdict_strict": true,
+   "got": {
+    "amount": 9900,
+    "date": "10-20",
+    "time": "03:00",
+    "card_last4": "1117",
+    "status": "approved"
+   },
+   "gold": {
+    "amount": 9900,
+    "currency": "KRW",
+    "paid_at_local": "2026-10-20 03:00",
+    "shown_as": "10/20 03:00 (no year on screen)",
+    "utc_offset": "+09:00",
+    "card_last4": "1117",
+    "status": "approved",
+    "merchant": "MOAHUB"
+   },
+   "verdict_got": "no_matching_payment",
+   "expected": "no_matching_payment",
+   "ok": true,
+   "error": null,
+   "json_mode": "json_schema",
+   "model": "nvidia/Nemotron-3.5-Super-VL",
+   "ms": 3236,
+   "tokens": 2269,
+   "usd": 0.000867,
+   "raw": {
+    "payment_found": true,
+    "merchant": "MOAHUB",
+    "amount": 9900,
+    "currency": "KRW",
+    "amount_text": "9,900원",
+    "date": "10-20",
+    "time": "03:00",
+    "datetime_text": "10/20 03:00",
+    "card_last4": "1117",
+    "status": "approved",
+    "status_text": "승인",
+    "screen_language": "ko",
+    "ignored_numbers": [
+     {
+      "text": "3,300원",
+      "what": "other_transaction"
+     },
+     {
+      "text": "10/19 09:25",
+      "what": "other_transaction"
+     },
+     {
+      "text": "20,000원",
+      "what": "other_transaction"
+     },
+     {
+      "text": "129,000원",
+      "what": "other_transaction"
+     },
+     {
+      "text": "10/18 17:27",
+      "what": "other_transaction"
+     },
+     {
+      "text": "288,300원",
+      "what": "other_transaction"
+     },
+     {
+      "text": "10/25",
+      "what": "other_transaction"
+     },
+     {
+      "text": "2747P",
+      "what": "other_transaction"
+     }
+    ],
+    "legibility": "clear"
+   }
+  },
+  {
+   "id": "d06",
+   "kind": "doctored",
+   "lang": "ja",
+   "style": "E_jp_card_detail",
+   "difficulty": "medium",
+   "amount": true,
+   "time": true,
+   "last4": true,
+   "status": true,
+   "verdict": true,
+   "verdict_strict": true,
+   "got": {
+    "amount": 24900,
+    "date": "2026-10-13",
+    "time": "22:00",
+    "card_last4": "4242",
+    "status": "approved"
+   },
+   "gold": {
+    "amount": 24900,
+    "currency": "KRW",
+    "paid_at_local": "2026-10-13 22:00",
+    "shown_as": "2026/10/13 22:00",
+    "utc_offset": "+09:00",
+    "card_last4": "4242",
+    "status": "approved",
+    "merchant": "MOAHUB"
+   },
+   "verdict_got": "no_matching_payment",
+   "expected": "no_matching_payment",
+   "ok": true,
+   "error": null,
+   "json_mode": "json_schema",
+   "model": "nvidia/Nemotron-3.5-Super-VL",
+   "ms": 2554,
+   "tokens": 2064,
+   "usd": 0.000773,
+   "raw": {
+    "payment_found": true,
+    "merchant": "MOAHUB (韓国)",
+    "amount": 24900,
+    "currency": "KRW",
+    "amount_text": "24,900 KRW",
+    "date": "2026-10-13",
+    "time": "22:00",
+    "datetime_text": "2026/10/13 22:00",
+    "card_last4": "4242",
+    "status": "approved",
+    "status_text": "確定",
+    "screen_language": "ja",
+    "ignored_numbers": [
+     {
+      "text": "2,719円",
+      "what": "conversion"
+     },
+     {
+      "text": "2,931 pt",
+      "what": "points"
+     },
+     {
+      "text": "295,000円",
+      "what": "other"
+     },
+     {
+      "text": "66,571円",
+      "what": "other"
+     },
+     {
+      "text": "1,000 pt",
+      "what": "other"
+     }
+    ],
+    "legibility": "clear"
+   }
+  }
+ ]
+}

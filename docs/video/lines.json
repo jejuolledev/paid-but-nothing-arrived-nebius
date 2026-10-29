@@ -14,7 +14,7 @@
   {
    "id": "P02",
    "shot": "intro:follow_turn2..follow_chain-1.3",
-   "text": "The reply asks politely, and the customer answers: “Sorry, it was the 19th.” Nemotron 3.5 Lightning reads the answer and the agent checks again. A real payment from this customer exists on the 19th, so now it matches."
+   "text": "The reply asks for the card statement line. The customer answers and sends it. Nemotron 3.5 Super VL reads the statement, and the ledger matches a real payment on the 19th. Words alone would not have been enough."
   },
   {
    "id": "P03",
@@ -44,7 +44,7 @@
   {
    "id": "N09",
    "shot": "take:calls",
-   "text": "Every call is on screen: which Nemotron did which job, the time, the tokens and the cost. Ultra re-reads when the first reading is unsure, which on Korean threads was most of the time."
+   "text": "Every call is on screen: which Nemotron did which job, the time, the tokens and the cost."
   },
   {
    "id": "N10",
@@ -57,9 +57,14 @@
    "text": "Ask for someone else's order number, and it is not read. And when nothing was charged, it says so. Nothing is broken. You were never charged."
   },
   {
+   "id": "N11b",
+   "shot": "take:loop_steps",
+   "text": "Or let the agent pick each lookup itself: payments first, then the order behind that payment, then its whole history, and then it stops."
+  },
+  {
    "id": "N12",
    "shot": "card:measured",
-   "text": "On twenty-two Korean-heavy messages, Nemotron found who was writing in twenty; rules alone, sixteen. When it could not tell, as in an attack, nobody's records were read. The README lists every miss."
+   "text": "On twenty-two Korean-heavy messages, letting Nemotron pick each lookup found the right sender in twenty-one; rules alone, sixteen. End to end, it ties the rules. The README lists every miss."
   },
   {
    "id": "N13",
