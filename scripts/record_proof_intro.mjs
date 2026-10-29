@@ -12,6 +12,7 @@ const [base = 'http://127.0.0.1:8765', out = 'docs/video/intro1', imgTrue, imgDo
 const ex = JSON.parse(fs.readFileSync('app/proof_examples/examples.json', 'utf8'));
 const pick = k => ex.find(e => e.kind === k);
 const T = imgTrue ? { file: imgTrue, message: pick('true').message } : { file: `app/proof_examples/${pick('true').id}.jpg`, message: pick('true').message };
+const FOLLOW = '아 죄송해요, 19일 새벽이었어요. 캡처는 다른 앱에서 했어요.';
 const D = imgDoc ? { file: imgDoc, message: pick('doctored').message } : { file: `app/proof_examples/${pick('doctored').id}.jpg`, message: pick('doctored').message };
 fs.mkdirSync(out, { recursive: true });
 const b = await chromium.launch();
@@ -36,6 +37,20 @@ for (const [k, shot] of [['true', T], ['doctored', D]]) {
   await p.waitForTimeout(1600); mark(`${k}_highlight`);   // boxes fade in (0.6 s + stagger)
   await p.waitForTimeout(3500); mark(`${k}_table`);
   if (k === 'true') { const ch = await p.$('#out .chain'); if (ch) { await p.evaluate(e => e.scrollIntoView({ behavior: 'smooth', block: 'center' }), ch); await p.waitForTimeout(3000); mark('true_chain'); } }
+  if (k === 'doctored') {   // turn 2: the customer answers; the agent checks again and rewrites its reply
+    const box = await p.$('#follow-text');
+    if (box) {
+      await p.evaluate(e => e.scrollIntoView({ behavior: 'smooth', block: 'center' }), box); await p.waitForTimeout(900); mark('follow_box');
+      await p.type('#follow-text', FOLLOW, { delay: 22 }); await p.waitForTimeout(500); mark('follow_typed');
+      await p.click('#follow-btn'); mark('follow_click');
+      await p.waitForFunction(() => document.querySelector('.turn2'), null, { timeout: 300000 }); mark('follow_result');
+      await p.evaluate(() => document.querySelector('.turn2').scrollIntoView({ behavior: 'smooth', block: 'start' })); await p.waitForTimeout(1200); mark('follow_turn2');
+      await p.waitForTimeout(3500);
+      const ch = await p.$('#out .chain'); if (ch) { await p.evaluate(e => e.scrollIntoView({ behavior: 'smooth', block: 'start' }), ch); await p.waitForTimeout(1200); mark('follow_chain'); await p.waitForTimeout(4000); }
+      const rp = await p.$('#reply-text'); if (rp) { await p.evaluate(e => e.scrollIntoView({ behavior: 'smooth', block: 'center' }), rp); await p.waitForTimeout(1000); mark('follow_reply'); await p.waitForTimeout(3500); }
+      { const fw = await failed(); if (fw) console.log('WARNING (follow-up):', fw); }
+    } else console.log('missing #follow-text');
+  }
   await p.evaluate(() => window.scrollTo({ top: 0, behavior: 'smooth' })); await p.waitForTimeout(800);
   await p.click('#photo-x');
 }

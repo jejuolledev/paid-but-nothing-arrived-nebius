@@ -12,7 +12,7 @@ Two ways to run it:
                     - the Token Factory key stays on the server; the agent loop is off so a live run is two model calls.
 """
 from __future__ import annotations
-import json, os, secrets, threading, time
+import json, os, re, secrets, threading, time
 from collections import OrderedDict, deque
 from pathlib import Path
 from fastapi import FastAPI, Request
@@ -57,6 +57,15 @@ class ProofAsk(BaseModel):
     lang: str = Field(default="", max_length=4)
     example: str = Field(default="", max_length=40)          # one of the example photos (may be answered from a recorded run)
     live: bool = False
+
+
+class FollowupAsk(BaseModel):
+    text: str = Field(max_length=2000)                         # the customer's answer to the shop's reply
+    prev: dict = Field(default_factory=dict)                   # first turn: message, fields, verdict, reply (from the page)
+    image: str = Field(default="", max_length=12_000_000)      # optional new screenshot
+    email: str = Field(default="", max_length=200)
+    lang: str = Field(default="", max_length=4)
+    example: str = Field(default="", max_length=40)            # a recorded example follow-up (public mode)
 
 
 class ApproveBody(BaseModel):
@@ -235,6 +244,48 @@ def api_proof(ask: ProofAsk, request: Request):
             use_model, limited = False, "too many live runs at this moment"
     try:
         r = investigate_proof(data, message, ask.email, backend=_backend(sid), use_model=use_model, lang=ask.lang)
+    finally:
+        if PUBLIC and use_model:
+            LIMITER.slots.release()
+    if limited:
+        r["limited"] = limited
+        r["llm"] = "limited"
+    return _out(JSONResponse(r), sid, request)
+
+
+@app.post("/api/followup")
+def api_followup(ask: FollowupAsk, request: Request):
+    """Second turn: the customer answered; the agent reads the answer, checks the ledger again and rewrites its reply."""
+    import base64, binascii
+    from agent.followup import investigate_followup
+    sid = _sid(request)
+    if ask.example and PUBLIC and SANDBOXES.get(sid) is None:
+        rec = PRECOMPUTED / f"followup_{re.sub(r'[^a-z0-9_]', '', ask.example)}.json"
+        if rec.exists():
+            d = json.loads(rec.read_text())
+            if d["meta"].get("text", "").strip() == ask.text.strip():   # only the recorded answer, word for word
+                return _out(JSONResponse({**d["result"], "recorded": d["meta"]}), sid, request)
+    prev = {k: ask.prev.get(k) for k in ("message", "fields", "verdict", "reply", "image_data_url")}
+    if not isinstance(prev.get("fields"), dict):
+        prev["fields"] = {}
+    prev["message"] = str(prev.get("message") or "")[:2000]
+    prev["image_data_url"] = str(prev.get("image_data_url") or "")[:12_000_000]
+    data = None
+    if ask.image:
+        raw = ask.image.split(",", 1)[1] if ask.image.startswith("data:") else ask.image
+        try:
+            data = base64.b64decode(raw, validate=True)
+        except (binascii.Error, ValueError):
+            return PlainTextResponse("The image could not be decoded.", status_code=400)
+    use_model, limited = True, None
+    if PUBLIC:
+        limited = LIMITER.allow(_ip(request))
+        if limited:
+            use_model = False
+        elif not LIMITER.slots.acquire(timeout=20):
+            use_model, limited = False, "too many live runs at this moment"
+    try:
+        r = investigate_followup(prev, ask.text, ask.email, image=data, backend=_backend(sid), use_model=use_model, lang=ask.lang)
     finally:
         if PUBLIC and use_model:
             LIMITER.slots.release()

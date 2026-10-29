@@ -29,12 +29,13 @@ ROUTES = {
     "vision": "nvidia/Nemotron-3.5-Super-VL",
     "intake": "nvidia/Nemotron-3_5-Lightning",
     "escalate": "nvidia/Nemotron-3-Ultra-550b-a55b",
+    "followup": "nvidia/Nemotron-3_5-Lightning",   # reads the customer's answer in the second turn
     "explain": DEFAULT_MODEL,
     "reply": DEFAULT_MODEL,
 }
 # Reasoning off by default for the two readers (measured 2026-10-29: with it on, Super VL spent the whole token budget
 # reasoning and returned no answer, and Lightning hit its limit on every intake call). The writers keep the model default.
-THINKING_DEFAULT = {"vision": "off", "intake": "off"}
+THINKING_DEFAULT = {"vision": "off", "intake": "off", "followup": "off"}
 # USD per 1M tokens (input, output), same catalog. Used only to show cost per case; the bill is Token Factory's.
 PRICES = {
     "nvidia/nvidia-nemotron-3-nano-30b-a3b": (0.06, 0.24),

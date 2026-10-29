@@ -63,6 +63,15 @@ details{margin-top:14px}details>summary{cursor:pointer;font-size:18px;font-weigh
 .verdict{font-size:22px;font-weight:700;margin:0 0 6px}.verdict.bad{color:var(--bad)}.verdict.ok{color:var(--ok)}.verdict.warn{color:#f3c969}
 .legend span{display:inline-block;margin-right:10px;font-size:12px}.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:middle}
 .fix-chains .mini .link{min-height:64px;padding:6px;font-size:12px;cursor:default}.reply-note{font-size:12px;color:var(--mut);margin:0 0 6px}
+/* readability (2026-10-29): larger base text and no text under 14px, also on phones */
+html,body{font-size:17px}h1{font-size:30px}h2{font-size:20px}.headline{font-size:24px}.verdict{font-size:24px}
+.hint,.samples .label,.samples button,.link small,.how-step span,.how-step b,.fix-meta,.reply-note,.legend span,.drop-zone,.tag,
+header .sponsors,.lang button,.how-link,.how-label,.fix-chains .panel h3,.sql summary,#receipt-line{font-size:14.5px!important}
+.rows table,.calls td,.calls th,pre,.sql pre,.sqlbox,.masked,.timeline .tool,.fix-chains .mini .link{font-size:14px!important}
+.link{min-height:104px}.link b,.link strong{font-size:16px}
+[style*="font-size:12px"],[style*="font-size:12.5px"],[style*="font-size:13px"]{font-size:14px!important}
+.turn2{border-color:var(--acc);background:rgba(91,141,239,.08)}.turn2 .said{font-size:18px;margin:6px 0}.follow{border-style:dashed}.tour{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:10px}#tour-btn{background:#2e9e5b;font-weight:700}
+@media(max-width:640px){html,body{font-size:16px}h1{font-size:24px}.headline,.verdict{font-size:20px}main,header{padding-left:14px;padding-right:14px}}
 </style></head><body>
 <header>
   <div class="top"><h1 id="title"></h1><div class="lang" id="lang"></div></div>
@@ -73,6 +82,7 @@ details{margin-top:14px}details>summary{cursor:pointer;font-size:18px;font-weigh
 </header>
 <main>
 <div class="card">
+  <div class="tour"><button type="button" id="tour-btn"></button><span class="mut" id="tour-note"></span></div>
   <textarea id="msg" rows="3"></textarea>
   <label class="drop-zone" id="drop"><input type="file" id="photo" accept="image/png,image/jpeg,image/webp" hidden><span id="drop-text"></span><img id="photo-prev" alt="" hidden><button type="button" class="x" id="photo-x" hidden>×</button></label>
   <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="go"></button><span class="mut" id="status"></span></div>
@@ -170,9 +180,22 @@ const I18N={
     res:{match:'matches',differs:'differs',unchecked:'not checkable'},
     callsTitle:'Model calls',
     callsH:['Step','Model','Provider','Time','Tokens in / out','Cost (USD)'],
-    roles:{vision:'read the screenshot',intake:'read message + plan',escalate:'re-read (reader unsure)',explain:'explain + reply draft',reply:'reply draft',loop:'pick next lookup'},
+    roles:{vision:'read the screenshot',intake:'read message + plan',escalate:'re-read (reader unsure)',explain:'explain + reply draft',reply:'reply draft',followup:'read the customer\'s answer',loop:'pick next lookup'},
     dropText:'Payment screenshot (optional): drop, paste (Ctrl/⌘+V) or click to choose',
     photoExamples:'Or try a customer\'s screenshot',
+    tourBtn:'See it in 30 seconds',
+    tourNote:'An edited payment screenshot, then the customer answers and the agent checks again. One click, played for you.',
+    followTitle:'The customer answers',
+    followHint:'Paste the customer\'s answer to your reply (and a new screenshot if they sent one). The agent reads it, checks the ledger again and rewrites the reply.',
+    followPh:'e.g. Sorry, it was the 19th, not the 20th. I took the screenshot in another app.',
+    followBtn:'Check again with this answer',
+    followBusy:'Reading the answer and checking the ledger again…',
+    turn2:'Turn 2: the customer answered',
+    customerSaid:'Customer',
+    readInAnswer:(m)=>'What '+m+' read in the answer',
+    fromAnswer:'now looked for',
+    verdictWas:'Before',verdictNow:'Now',
+    replyBefore:'Your first reply',replyNow:'Rewritten reply',
     proofTitle:'What the photo says vs what the ledger says',
     proofH:['','Photo','Ledger (payment provider)',''],
     readBy:(rd,m)=>`Read by ${rd}${m?' · '+m:''}`,
@@ -181,7 +204,8 @@ const I18N={
     ignored:'Numbers the reader did not take as the payment',
     sentNote:(r,red)=>`Sent to the model: ${r}${red&&red.length?' ('+red.length+' line(s) blurred)':''}.`,
     recordsTitle:'This customer\'s records',
-    proofHead:{ledger_match:'The payment on the screenshot is in the ledger.',no_matching_payment:'The screenshot shows a payment the ledger has never seen.',not_paid:'The screenshot itself shows the payment was not completed.',unread:'The screenshot could not be read well enough to check.'},
+    followHead:{ledger_match:'The payment the customer now describes is in the ledger.',no_matching_payment:'Still no payment like this in the ledger.',not_paid:'The payment was not completed.',unread:'Still not enough to check.'},
+    proofHead:{ledger_match:'The payment on the screenshot is in the ledger.',no_matching_payment:'No payment like this in the ledger: same amount, but not at that time.',not_paid:'The screenshot itself shows the payment was not completed.',unread:'The screenshot could not be read well enough to check.'},
     ledgerWins:'The ledger decides, not the photo.',
     cost:'Cost',total:'Total',escalated:(why,used)=>`Escalated to the bigger model: ${why} (answer used: ${used}).`,
     readingPhoto:'Reading the screenshot…',
@@ -275,9 +299,22 @@ const I18N={
     res:{match:'일치',differs:'다름',unchecked:'확인 불가'},
     callsTitle:'모델 호출',
     callsH:['단계','모델','제공처','시간','토큰 입력 / 출력','비용(USD)'],
-    roles:{vision:'캡처 읽기',intake:'메시지 읽기 + 계획',escalate:'다시 읽기(판단 불확실)',explain:'설명 + 답장 초안',reply:'답장 초안',loop:'다음 조회 고르기'},
+    roles:{vision:'캡처 읽기',intake:'메시지 읽기 + 계획',escalate:'다시 읽기(판단 불확실)',explain:'설명 + 답장 초안',reply:'답장 초안',followup:'손님 대답 읽기',loop:'다음 조회 고르기'},
     dropText:'결제 캡처(선택): 끌어 놓기, 붙여넣기(Ctrl/⌘+V), 또는 눌러서 고르기',
     photoExamples:'또는 고객이 보낸 캡처로 해 보기',
+    tourBtn:'30초 만에 보기',
+    tourNote:'날짜를 고친 결제 캡처 → 손님의 대답 → 다시 확인. 자동으로 이어서 보여 줍니다.',
+    followTitle:'손님의 답장',
+    followHint:'보낸 답장에 손님이 한 대답을 붙여 넣으세요(새 캡처가 있으면 함께). 에이전트가 읽고 장부를 다시 확인한 뒤 답장을 고칩니다.',
+    followPh:'예: 죄송해요, 20일이 아니라 19일이었어요. 캡처는 다른 앱에서 했어요.',
+    followBtn:'이 대답으로 다시 확인',
+    followBusy:'대답을 읽고 장부를 다시 확인하는 중…',
+    turn2:'두 번째 턴: 손님이 답했습니다',
+    customerSaid:'손님',
+    readInAnswer:(m)=>m+'가 대답에서 읽은 것',
+    fromAnswer:'이제 찾는 값',
+    verdictWas:'이전',verdictNow:'지금',
+    replyBefore:'처음 답장',replyNow:'고친 답장',
     proofTitle:'사진이 말하는 것 vs 장부가 말하는 것',
     proofH:['','사진','장부(결제대행사)',''],
     readBy:(rd,m)=>`읽은 쪽: ${rd}${m?' · '+m:''}`,
@@ -286,7 +323,8 @@ const I18N={
     ignored:'결제로 보지 않은 숫자',
     sentNote:(r,red)=>`모델에 보낸 사진: ${r}${red&&red.length?' ('+red.length+'줄 흐림 처리)':''}.`,
     recordsTitle:'이 고객의 기록',
-    proofHead:{ledger_match:'캡처의 결제가 장부에 있습니다.',no_matching_payment:'캡처에 나온 결제는 장부에 없습니다.',not_paid:'캡처 자체가 결제 미완료를 보여 줍니다.',unread:'캡처를 확인할 만큼 읽지 못했습니다.'},
+    followHead:{ledger_match:'손님이 다시 말한 결제가 장부에 있습니다.',no_matching_payment:'여전히 장부에 그런 결제가 없습니다.',not_paid:'결제가 끝나지 않았습니다.',unread:'아직 확인할 만큼 정보가 없습니다.'},
+    proofHead:{ledger_match:'캡처의 결제가 장부에 있습니다.',no_matching_payment:'장부에 이런 결제가 없습니다: 금액은 같지만 그 시각이 아닙니다.',not_paid:'캡처 자체가 결제 미완료를 보여 줍니다.',unread:'캡처를 확인할 만큼 읽지 못했습니다.'},
     ledgerWins:'판정은 사진이 아니라 장부가 합니다.',
     cost:'비용',total:'합계',escalated:(why,used)=>`큰 모델로 다시 읽음: ${why} (쓴 답: ${used}).`,
     readingPhoto:'캡처 읽는 중…',
@@ -335,7 +373,7 @@ const EXAMPLES={
   6:{label:'Two addresses: “my wife\'s is k.smith@…, I paid with liam.patel906@…”',send:'Hi, my wife\'s email is k.smith@example.org and she set up the account, but I paid 24,900 won with liam.patel906@example.com yesterday and the credits never came.'},
 };
 
-let lang='en', lastResult=null, lastFix=null, casesCache=[], cfg={}, lastCase=null, photo=null, photoExample=null, photoExamples=[];
+let lang='en', firstTurn=null, lastResult=null, lastFix=null, casesCache=[], cfg={}, lastCase=null, photo=null, photoExample=null, photoExamples=[];
 let howOpen=true, howSeenResult=false;
 
 function t(){return I18N[lang]||I18N.en;}
@@ -395,6 +433,7 @@ function applyChrome(){
   $('#sponsors').textContent=i.sponsors;
   $('#msg').placeholder=i.placeholder;
   $('#go').textContent=i.go;
+  $('#tour-btn').textContent=i.tourBtn;$('#tour-note').textContent=i.tourNote;
   $('#drop-text').textContent=i.dropText;
   $('#lang').innerHTML=`<button type="button" class="ghost${lang==='en'?' on':''}" data-lang="en">EN</button><button type="button" class="ghost${lang==='ko'?' on':''}" data-lang="ko">한국어</button>`;
   document.querySelectorAll('#lang button').forEach(b=>b.onclick=()=>{lang=b.dataset.lang;saveLang();applyChrome();renderSamples();if(lastResult)render(lastResult,{scroll:false});});
@@ -452,7 +491,7 @@ function statusLine(r){
   else if(r.llm==='failed')parts.push(i.failedExplain);
   else if(r.llm==='unreachable')parts.push(i.unreachableExplain);
   else if(r.llm==='none'||!r.llm)parts.push(i.templateExplain);
-  else parts.push(i.answeredBy([...new Set((r.model_calls||[]).filter(c=>c.ok!==false).map(c=>String(c.model||'').replace(/^nvidia\//,'')))].join(', ')||r.llm));
+  else parts.push(i.answeredBy([...new Set((r.model_calls||[]).filter(c=>c.ok!==false).map(c=>prettyModel(c.model)))].join(', ')||r.llm));
   if(data)parts.push(data);
   if(r.elapsed_ms!=null)parts.push(r.elapsed_ms+' '+i.ms);
   return parts.join(' · ');
@@ -561,12 +600,44 @@ async function runProof(live){
       const txt=await res.text();lastResult=null;hideHowAfterResult();
       $('#out').innerHTML=`<div class="card"><div class="headline">${esc(txt.slice(0,200)||i.errHttp)}</div></div>`;$('#status').textContent='';return;
     }
-    const r=await res.json();lastResult=r;
+    const r=await res.json();lastResult=r;firstTurn={message,example:photoExample,r};
     $('#status').textContent=statusLine(r);showReceipt(r);render(r);
   }catch(_){
     lastResult=null;hideHowAfterResult();
     $('#out').innerHTML=`<div class="card"><div class="headline">${esc(i.errNetwork)}</div></div>`;$('#status').textContent='';
   }finally{$('#go').disabled=false;}
+}
+
+const TOUR_FOLLOW='아 죄송해요, 19일 새벽이었어요. 캡처는 다른 앱에서 했어요.';
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+async function tour(){
+  const e=photoExamples.find(x=>x.id==='d05');if(!e)return;
+  $('#tour-btn').disabled=true;
+  try{
+    $('#msg').value=e.message||'';
+    const blob=await (await fetch('/proof-examples/'+e.id+'.jpg')).blob();
+    const url=await new Promise(res=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.readAsDataURL(blob);});
+    setPhoto(url,e.id);await runProof(false);
+    await sleep(3500);
+    const box=$('#follow-text');if(!box)return;
+    box.scrollIntoView({behavior:'smooth',block:'center'});box.value=TOUR_FOLLOW;await sleep(1200);
+    await runFollowup();
+  }finally{$('#tour-btn').disabled=false;}
+}
+
+async function runFollowup(){
+  const i=t();if(!firstTurn)return;
+  const text=($('#follow-text')||{}).value||'';if(!text.trim())return;
+  const r0=firstTurn.r,p0=r0.proof||{};
+  const btn=$('#follow-btn');if(btn)btn.disabled=true;$('#status').textContent=i.followBusy;
+  try{
+    const body={text,lang,example:firstTurn.example&&!firstTurn.live?firstTurn.example+'_1':'',prev:{message:firstTurn.message,fields:p0.fields||{},verdict:p0.verdict,reply:r0.customer_reply,image_data_url:p0.image_data_url||''}};
+    const res=await fetch('/api/followup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(!res.ok){$('#status').textContent=(await res.text()).slice(0,200);return;}
+    const r=await res.json();lastResult=r;
+    $('#status').textContent=statusLine(r);showReceipt(r);render(r);
+  }catch(_){$('#status').textContent=i.errNetwork;}
+  finally{const b=$('#follow-btn');if(b)b.disabled=false;}
 }
 
 function renderChain(chain, clickable){
@@ -664,11 +735,33 @@ function renderProof(r){
   const img=p.image||{};
   return `<div class="card"><h2>${esc(i.proofTitle)}</h2><div class="proof">
     <div><div class="shot"><img src="${esc(p.image_data_url||'')}" alt="screenshot">${boxes}</div>${legend}${p.highlight_source?`<p class="mut" style="font-size:12px">${esc(i.boxesFrom(p.highlight_source))}</p>`:''}</div>
-    <div><p class="verdict ${cls}">${esc((i.proofHead||{})[p.verdict]||p.headline)}</p><p class="mut" style="margin:0 0 8px">${esc(i.ledgerWins)}</p>
+    <div><p class="verdict ${cls}">${esc(((r.followup?i.followHead:i.proofHead)||{})[p.verdict]||p.headline)}</p><p class="mut" style="margin:0 0 8px">${esc(i.ledgerWins)}</p>
       <div class="rows"><table class="calls"><tr>${i.proofH.map(h=>`<th>${esc(h)}</th>`).join('')}</tr>${rows}</table></div>
       ${ign}${drop}${notes}
-      <p class="mut" style="font-size:12px;margin-top:8px">${esc(i.readBy(rd.reader||'—',rd.model||''))}${rd.json_mode?' · JSON: '+esc(rd.json_mode):''}${rd.ok===false&&rd.error?' · '+esc(rd.error):''}<br>${esc(i.sentNote(img.redaction||'',img.redacted))}</p></div>
+      <p class="mut" style="font-size:12px;margin-top:8px">${esc(i.readBy(({'vision model':'the vision model','followup model':'the answer reader'}[rd.reader]||rd.reader||'—'),rd.model?prettyModel(rd.model):''))}${rd.json_mode?' · JSON: '+esc(rd.json_mode):''}${rd.ok===false&&rd.error?' · '+esc(rd.error):''}<br>${esc(i.sentNote(img.redaction||'',img.redacted))}</p></div>
   </div></div>`;
+}
+
+function renderFollowCard(r){
+  const i=t();if(!r.proof||r.followup||!firstTurn)return'';
+  return `<div class="card follow"><h2>${esc(i.followTitle)}</h2><p class="hint" style="margin-top:0">${esc(i.followHint)}</p>
+    <textarea id="follow-text" rows="2" placeholder="${esc(i.followPh)}"></textarea>
+    <div style="margin-top:8px"><button type="button" id="follow-btn">${esc(i.followBtn)}</button></div></div>`;
+}
+
+function prettyModel(m){m=String(m||'').replace(/^nvidia\//i,'');const k={'nemotron-3.5-super-vl':'Nemotron 3.5 Super VL','nemotron-3_5-lightning':'Nemotron 3.5 Lightning','nemotron-3-ultra-550b-a55b':'Nemotron 3 Ultra','nemotron-3-super-120b-a12b':'Nemotron 3 Super','nvidia-nemotron-3-nano-30b-a3b':'Nemotron 3 Nano'}[m.toLowerCase()];return k||m;}
+
+function renderTurn2(r){
+  const i=t(),f=r.followup;if(!f)return'';
+  const rd=(r.proof||{}).reader||{};
+  const ch=(f.changed||[]).map(c=>`<li>${esc(c.field)}: <s>${esc(c.photo??'—')}</s> → <b>${esc(c.now)}</b> <span class="mut">(${esc(i.fromAnswer)})</span></li>`).join('');
+  const head=(v,after)=>esc((((after?i.followHead:i.proofHead)||{})[v])||v||'—');
+  return `<div class="card turn2"><h2>${esc(i.turn2)}</h2>
+    <p class="said"><b>${esc(i.customerSaid)}:</b> ${esc(f.text)}</p>
+    ${f.kind==='message'?`<p class="mut" style="margin:6px 0 2px">${esc(i.readInAnswer(rd.model?prettyModel(rd.model):(rd.reader||'—')))}</p><ul>${ch||'<li class="mut">—</li>'}</ul>`:''}
+    <div class="two" style="margin-top:8px"><div><p class="mut" style="margin:0">${esc(i.verdictWas)}</p><p class="verdict bad" style="font-size:18px">${head(f.before.verdict)}</p></div>
+      <div><p class="mut" style="margin:0">${esc(i.verdictNow)}</p><p class="verdict ${f.after.verdict==='ledger_match'?'ok':'bad'}" style="font-size:18px">${head(f.after.verdict,true)}</p></div></div>
+    <details><summary style="font-size:15px">${esc(i.replyBefore)}</summary><div class="prose mut">${esc(f.before.reply||'')}</div></details></div>`;
 }
 
 function renderFixCard(){
@@ -691,7 +784,7 @@ function render(r, opts){
   const afterFix=!!(opts&&opts.afterFix)||!!lastFix;
   hideHowAfterResult();
   if(!r.ok){
-    $('#out').innerHTML=`${renderBanner(r)}${renderProof(r)}${renderFixCard()}<div class="card"><div class="headline">${esc(trHeadline(r.headline))}</div><p class="hint">${esc(i.noOrderHint)}</p></div>${renderCalls(r)}`;
+    $('#out').innerHTML=`${renderBanner(r)}${renderTurn2(r)}${renderProof(r)}${renderFixCard()}<div class="card"><div class="headline">${esc(trHeadline(r.headline))}</div><p class="hint">${esc(i.noOrderHint)}</p></div>${renderCalls(r)}`;
     if(scroll)$('#out').scrollIntoView({behavior:'smooth',block:'start'});
     return;
   }
@@ -709,17 +802,18 @@ function render(r, opts){
   const replyNote=tplNote+(afterFix?`<p class="reply-note">${esc(i.sendAfterFix)}</p>`:(needsFix?`<p class="reply-note">${esc(i.sendAfterApprove)}</p>`:''));
 
   $('#out').innerHTML=`
-  ${renderBanner(r)}${renderProof(r)}${renderFixCard()}
+  ${renderBanner(r)}${renderTurn2(r)}${renderProof(r)}${renderFixCard()}
   <div class="card">${r.proof?`<h2>${esc(i.recordsTitle)}</h2>`:''}<div class="headline">${esc(trHeadline(r.headline))}</div><div class="mut">order ${esc(r.order_id)} · ${esc(r.email)}</div>${r.ignored_order?`<div class="warnline">${esc(i.ignoredOrder(r.ignored_order))}</div>`:''}${r.sender_unverified?`<div class="warnline">${esc(i.senderUnverified)}</div>`:''}
     <div class="chain">${chain}</div></div>
   <div class="two">
-    <div class="card"><div class="card-head"><h2>${esc(i.reply)}</h2><button type="button" class="ghost" id="copy-reply">${esc(i.copy)}</button></div>
+    <div class="card"><div class="card-head"><h2>${esc(r.followup?i.replyNow:i.reply)}</h2><button type="button" class="ghost" id="copy-reply">${esc(i.copy)}</button></div>
       ${replyNote}<div class="prose" id="reply-text">${esc(r.customer_reply)}</div>
       <div style="margin-top:10px"><button type="button" class="ghost" id="evidence-btn">${esc(i.evidenceBtn)}</button></div></div>
     <div class="card"><div class="card-head"><h2>${esc(i.fix)} ${fixTag}</h2></div><div class="prose">${esc(r.fix_action)}</div>
       ${needsFix?`<div style="margin-top:10px"><button type="button" id="approve-btn">${esc(i.approveFix)}</button></div>`:''}
       <p id="approve-msg" class="hint" style="margin:8px 0 0" hidden></p></div>
   </div>
+  ${renderFollowCard(r)}
   ${renderClaims(r)}
   ${renderIntake(r)}
   ${renderSteps(r.steps)}
@@ -735,6 +829,7 @@ function render(r, opts){
   if(copyBtn)copyBtn.onclick=async()=>{
     try{await navigator.clipboard.writeText(r.customer_reply);copyBtn.textContent=t().copied;setTimeout(()=>copyBtn.textContent=t().copy,1500);}catch(_){}
   };
+  const fb=$('#follow-btn');if(fb)fb.onclick=()=>runFollowup();
   const evBtn=$('#evidence-btn');
   if(evBtn)evBtn.onclick=()=>evidence();
   const lv=$('#run-live');
@@ -827,6 +922,7 @@ async function evidence(){
 }
 
 $('#go').onclick=()=>run(false);
+$('#tour-btn').onclick=()=>tour();
 $('#how-link').onclick=()=>{howOpen=!howOpen;renderHow();};
 $('#msg').addEventListener('keydown',e=>{
   if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();run(false);}
