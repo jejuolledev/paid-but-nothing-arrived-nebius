@@ -1,7 +1,7 @@
 # Devpost submission — Nebius × NVIDIA Global AI Hackathon
 
 Deadline: **Fri Oct 30, 2026 10:00 PDT = Sat Oct 31 02:00 KST**. Submit a few hours early.
-Before pasting: replace `TRY_IT_URL` / `VIDEO_URL` / `REPO_URL` (owner steps) (HANDOFF.md step 9 checks this).
+Before pasting: replace `TRY_IT_URL` / `VIDEO_URL` / `REPO_URL` (owner steps).
 The exact hackathon-specific questions are only visible after "Enter a submission"; the usual Devpost fields are
 below, plus the ones the rules require (track, feedback, what changed during the period, repo, demo URL, video).
 

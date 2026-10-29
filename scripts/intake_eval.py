@@ -50,7 +50,7 @@ def main():
     rows, t0 = [], time.time()
     items = load(a.set)[: a.limit or None]
     if a.mode == "model" and not (os.getenv("NEBIUS_API_KEY") or os.getenv("LLM_FAKE") == "1"):
-        sys.exit("No NEBIUS_API_KEY: put it in .env.local (see HANDOFF.md).")
+        sys.exit("No NEBIUS_API_KEY: put it in .env.local (see README, Run it yourself).")
     for it in items:
         g = it["gold"]
         sql_backend._CACHE.clear()  # fresh synthetic data per message (no approvals carry over)

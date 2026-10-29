@@ -65,7 +65,7 @@ def main():
     if a.mode.startswith("model"):
         client, why = token_factory_client(CallLog(), timeout=float(os.getenv("LLM_TIMEOUT", "120")))
         if client is None:
-            sys.exit(f"No vision model client ({why}). Put NEBIUS_API_KEY in .env.local (HANDOFF.md).")
+            sys.exit(f"No vision model client ({why}). Put NEBIUS_API_KEY in .env.local (README, Run it yourself).")
     cache = json.loads(CACHE.read_text()) if CACHE.exists() else {}
     tools = Tools(DuckDBBackend())
     rows, t0 = [], time.time()
