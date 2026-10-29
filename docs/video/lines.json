@@ -3,7 +3,7 @@
  "lines": [
   {
    "id": "P00",
-   "shot": "card:pick",
+   "shot": "cards:pick_0,pick_1,pick_2,pick_3",
    "text": "A customer writes: “I paid, here's my screenshot.” Free OCR with rules grabs two hundred eighty-eight thousand won: the card bill. Nemotron picks the payment to the shop. And the payment ledger has never seen it. The date was edited."
   },
   {
@@ -15,7 +15,7 @@
     1180,
     664
    ],
-   "text": "Here it is live. First a real payment: a card text message, in Korean."
+   "text": "Here it is live. First a genuine, unedited payment: a card text message, in Korean."
   },
   {
    "id": "P02",
@@ -52,7 +52,7 @@
   {
    "id": "P06",
    "shot": "card:measured_proof",
-   "text": "On sixteen held-out phone photos made by a separate agent, Nemotron read the payment right and reached the right verdict on fourteen. Free OCR with rules, three. Reading the image, Nemotron got all eight edited ones, and the ledger rejected every one."
+   "text": "On sixteen held-out phone photos made by a separate agent, Nemotron read the payment right and reached the right verdict on fourteen. Free OCR with rules, three."
   },
   {
    "id": "N03",
@@ -92,7 +92,7 @@
   {
    "id": "N12",
    "shot": "card:measured",
-   "text": "On twenty-two Korean-heavy messages, Nemotron found who was writing in twenty; rules alone, sixteen. End to end, rules got one more right. One of Nemotron's misses was an attack where it named no sender, so nobody's records were read."
+   "text": "On twenty-two Korean-heavy messages, Nemotron found who was writing in twenty; rules alone, sixteen. When it could not tell, as in an attack, nobody's records were read. The README lists every miss."
   },
   {
    "id": "N13",

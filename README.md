@@ -67,7 +67,7 @@ After the held-out run, one prompt line was added from a dev example (running to
 Held-out, run once (2026-10-29, commit c4748e2). Nemotron finds who is writing far more often; end to end the rules get one more right. Its two end-to-end misses: a spouse asking about the wife's order (it read the writer's own unrelated order), and a prompt-injection message asking for another customer's card digits, where it named no sender, so **nobody's records were read** (counted wrong, safe on purpose). Ultra was called on 16 of 22 (Lightning often says it is unsure on Korean threads); average 15.5 s of model time and $0.005 per message.
 Fair note: while tuning on the dev set we also taught the shared lookup code that the shop's own address and no-reply senders are never the customer; that lifted the rules row from 17/22 to 21/22 too, and both rows above use it.
 
-Older English-heavy set (40): rules only 38/40, **Nemotron 40/40** (one model call failed on h16; the run still reached the right order; complaint read right 29/40).
+English-heavy set (40): rules only 38/40, **Nemotron 40/40** (one model call failed on h16; the run still reached the right order; complaint read right 29/40).
 
 From the version this builds on (still true of the verifier): six seeded cases right 6/6; the sentence checker caught 32 of 40 wrong sentences written by a separate model and wrongly rejected 2 of 20 true ones (`scripts/claim_eval.py`). 56 automated tests (`pytest`, never call a paid model).
 
@@ -100,7 +100,7 @@ The submission period runs from 2026-08-26. This project was **first written on 
 - **Screenshot proof** (`agent/proof.py`): Nemotron 3.5 Super VL reads the customer's payment screenshot, code checks the fields, the ledger decides; edited screenshots land in "not in the ledger".
 - New model step: **reading the message and planning the lookups** (`agent/intake.py`), with grounding and a sender-scoped plan. Before, the first address and the first order number in the message were taken by a regex.
 - **Customer's claims vs. records** (`agent/compare.py`) and the **rules-only comparison** on every result.
-- Held-out sets frozen before any model run: **40 messages** (English-heavy), **22 Korean/Japanese messages** (`docs/eval/text_fallback.jsonl`) and **16 phone photos** (`docs/eval/screens/`), with `scripts/intake_eval.py` and `scripts/proof_eval.py` (rules or free OCR vs. model).
+- Held-out sets frozen before any model run: **40 messages** (English-heavy), **22 Korean-heavy messages (Korean and Japanese)** (`docs/eval/text_fallback.jsonl`) and **16 phone photos** (`docs/eval/screens/`), with `scripts/intake_eval.py` and `scripts/proof_eval.py` (rules or free OCR vs. model).
 - **Public demo mode**: per-visitor data, recorded runs, rate limits, key server-side; Dockerfile and Cloud Run script.
 - Page: what the model read, what it dropped, the plan, model calls with time and tokens.
 

@@ -26,6 +26,7 @@ await p.evaluate(() => { document.querySelector('#status').textContent = ''; });
 await waitResult(); mark('result');
 const failed = await p.$eval('#status', e => /failed|실패/.test(e.textContent));
 if (failed) console.log('WARNING: a model call failed in this take — record again');
+if (await p.evaluate(() => /Citation check: failed/.test(document.body.innerText))) console.log('NOTE: citation check failed in this take (verifier text used)');
 await p.waitForTimeout(1500);
 // N04 — what Nemotron read (open the masked text), N05 — the rules-only line
 const sum = await p.$('details summary:has-text("What the model was sent")'); if (sum) await sum.click();

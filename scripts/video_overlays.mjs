@@ -38,8 +38,8 @@ await shot(card(`<div style="font-size:30px;color:#9aa3b2;letter-spacing:.08em;t
 
 const stat = (n, t) => `<div style="flex:1;border:2px solid #2a2f3a;border-radius:18px;padding:30px 34px"><div style="font-size:84px;font-weight:800;color:#7ee2a8">${esc(n)}</div><div style="font-size:30px;color:#c3c9d4;margin-top:8px">${t}</div></div>`;
 await shot(card(`<div style="font-size:30px;color:#9aa3b2;letter-spacing:.08em;text-transform:uppercase">Measured · held-out, run once</div>
-<div style="font-size:54px;font-weight:800;margin:14px 0 46px">${M.held_out_n} Korean and Japanese messages written by a separate agent</div>
-<div style="display:flex;gap:34px">${stat(M.model_sender + ' vs ' + M.rules_sender, 'who is writing · Nemotron vs rules alone')}${stat(M.model_end_to_end + ' vs ' + M.rules_end_to_end, 'right order and broken link · Nemotron vs rules alone')}</div>
+<div style="font-size:54px;font-weight:800;margin:14px 0 46px">${M.held_out_n} Korean-heavy messages (Korean and Japanese) written by a separate agent</div>
+<div style="display:flex;gap:34px">${stat(M.model_sender + ' vs ' + M.rules_sender, 'who is writing · Nemotron vs rules alone')}${stat(M.model_end_to_end + ' vs ' + M.rules_end_to_end, 'right order and broken link · Nemotron vs rules alone (rules: one more)')}</div>
 <div style="font-size:26px;color:#9aa3b2;margin-top:40px">${esc(M.model_id)} on Nebius Token Factory · 40 English-heavy messages: ${esc(M.en40_model)} vs ${esc(M.en40_rules)} · all data synthetic</div>`), 'card_measured', false);
 
 // Cold open: the two recorded results side by side (frames of the screenshot take, docs/video/parts/cold_*.png).
@@ -53,19 +53,21 @@ await shot(card(`<div style="margin-top:-40px;font-size:56px;font-weight:800;lin
 // what Nemotron took (data/precomputed/proof_d05.json), and what the ledger said. Values checked 2026-10-29.
 const pick = (who, val, note, color) => `<div style="border:2px solid ${color};border-radius:18px;padding:22px 28px;background:#151922;margin-bottom:22px"><div style="font-size:26px;color:#9aa3b2">${who}</div><div style="font-size:50px;font-weight:800;color:${color};margin-top:4px">${val}</div><div style="font-size:26px;color:#c3c9d4;margin-top:6px">${note}</div></div>`;
 const d05 = 'data:image/jpeg;base64,' + fs.readFileSync('app/proof_examples/d05.jpg').toString('base64');
-await shot(card(`<div style="margin-top:-110px;display:flex;gap:60px;align-items:flex-start">
+const picks = [pick('Free on-device OCR + payment-word rules', '288,300원', 'the card bill due on 10/25: the wrong line', '#ff8a8c'),
+  pick('Nemotron 3.5 Super VL · Nebius Token Factory', '9,900원 · 10/20 03:00', 'the payment to MOAHUB', '#7ee2a8'),
+  pick('The payment provider’s ledger', 'never saw it', 'the real payment was on 10/19: the date was edited', '#f5c46b')];
+for (let k = 0; k <= 3; k++)   // card_pick_0 … _3: the answers appear one by one (the video cuts between them)
+  await shot(card(`<div style="margin-top:-110px;display:flex;gap:60px;align-items:flex-start">
 <img src="${d05}" style="height:900px;border-radius:18px">
-<div style="flex:1;padding-top:10px"><div style="font-size:52px;font-weight:800;line-height:1.15;margin-bottom:30px">A list of card alerts. Which number do you check?</div>
-${pick('Free on-device OCR + payment-word rules', '288,300원', 'the card bill due on 10/25: the wrong line', '#ff8a8c')}
-${pick('Nemotron 3.5 Super VL · Nebius Token Factory', '9,900원 · 10/20 03:00', 'the payment to MOAHUB', '#7ee2a8')}
-${pick('The payment provider’s ledger', 'never saw it', 'the real payment was on 10/19: the date was edited', '#f5c46b')}
-</div></div>`), 'card_pick', false);
+<div style="flex:1;padding-top:10px"><div style="font-size:52px;font-weight:800;line-height:1.15;margin-bottom:30px">“I paid, here’s my screenshot.” Which number do you check?</div>
+${picks.map((x, i) => i < k ? x : `<div style="visibility:hidden">${x}</div>`).join('')}
+</div></div>`), `card_pick_${k}`, false);
 
 const P = M.proof;
 await shot(card(`<div style="font-size:30px;color:#9aa3b2;letter-spacing:.08em;text-transform:uppercase">Measured · held-out, run once</div>
 <div style="font-size:54px;font-weight:800;margin:14px 0 46px">${esc(P.n)} phone photos of payment screens, made by a separate agent</div>
 <div style="display:flex;gap:34px">${stat(P.model_strict, 'payment read right and verdict right · Nemotron 3.5 Super VL')}${stat(P.ocr_strict, 'the same · free on-device OCR + payment-word rules')}${stat(P.ocrtext_strict, 'the same · Nemotron given only the OCR text, no image')}</div>
-<div style="font-size:26px;color:#9aa3b2;margin-top:40px">Edited screenshots: ${esc(P.doctored)} ended as “not in the ledger” with Nemotron reading the image (the ledger rejects them, not the reader) · avg ${esc(P.avg_s)} s and $${esc(P.usd_per_photo)} per photo on Nebius Token Factory · synthetic screens, Korean and Japanese</div>`), 'card_measured_proof', false);
+<div style="font-size:26px;color:#9aa3b2;margin-top:40px">Edited screenshots: ${esc(P.doctored)} ended as “not in the ledger” with Nemotron reading the image; the rules also reached 8/8, by misreading the numbers (the ledger rejects an edit, not the reader) · avg ${esc(P.avg_s)} s and $${esc(P.usd_per_photo)} per photo on Nebius Token Factory · synthetic screens, Korean and Japanese</div>`), 'card_measured_proof', false);
 
 await shot(card(`<div style="height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center">
 <div style="font-size:96px;font-weight:800">Paid, but nothing arrived?</div><div style="font-size:52px;color:#7ee2a8;margin-top:18px">Where the money stopped, with the rows that prove it.</div>

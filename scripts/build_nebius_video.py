@@ -77,6 +77,10 @@ for l in LINES:
     kind, _, arg = shot.partition(":")
     if kind == "card":
         out = TMP / f"{k}.mp4"; still(PARTS / f"card_{arg}.png", slot[k], out); segs.append(out)
+    elif kind == "cards":   # several stills, the line's time split evenly (a reveal)
+        names = arg.split(",")
+        for j, nm in enumerate(names):
+            out = TMP / f"{k}_{j}.mp4"; still(PARTS / f"card_{nm}.png", slot[k] / len(names), out, zoom=(1.0, 1.02)); segs.append(out)
     elif kind == "comic":
         panels = arg.split(",")
         for j, pn in enumerate(panels):

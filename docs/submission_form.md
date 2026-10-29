@@ -12,7 +12,7 @@ Paid, but nothing arrived
 
 ## Elevator pitch (≤200 characters)
 ```
-"I paid, here's my screenshot." Nemotron VL reads the banking-app photo, the payment ledger checks it, and the money chain shows where it got stuck. Edit the amount or time: the ledger never saw it.
+"I paid, here's my screenshot." Nemotron VL reads the banking or card app photo, the payment ledger checks it, and the money chain shows where it got stuck. Edit the amount or time: the ledger never saw it.
 ```
 
 ## Track
@@ -47,15 +47,16 @@ Drop in the customer's screenshot and message. Nemotron 3.5 Super VL on Nebius T
 Edit the amount, date or time on a screenshot and the ledger has never seen that payment: the page says so and the reply politely asks for the card-statement line. The model does not detect the edit; the ledger does. And sometimes the honest answer is "Nothing is broken. You were never charged."
 
 ## How we built it
-- A different Nemotron per job, all on Token Factory through its OpenAI-compatible API: Super VL reads the photo; Lightning reads the message and plans read-only lookups; Ultra re-reads only when code finds the first reading unsure; Super writes the cited explanation and reply. Each call's model, time, tokens and cost are on the page.
+- A different Nemotron per job, all on Token Factory through its OpenAI-compatible API: Super VL reads the photo; Lightning reads the message and plans read-only lookups; Ultra re-reads only when code finds the first reading unsure (on Korean threads that was 16 of 22); Super writes the cited explanation and reply. Each call's model, time, tokens and cost are on the page.
 - Before anything leaves the app: photo metadata removed and resized (on a Mac, e-mail addresses and long numbers blurred with on-device OCR); addresses in the message become EMAIL_1, EMAIL_2; card digits removed.
 - Code checks everything the models return: a value not supported by the photo or message is dropped and shown; every explanation sentence is checked against the rows it cites; the verdict and the fix never come from a model.
 - Public demo: per-visitor copy of the synthetic data, recorded live runs for the examples ("Run it live now" for a real call), rate limits, the key only on the server.
 
 ## Measured (held-out sets built by a separate agent before any model run)
-- 16 phone photos (Korean, Japanese; 8 edited), run once: payment read right and verdict right — Nemotron 3.5 Super VL 14/16; free on-device OCR + payment-word rules 3/16. Given only the OCR text, the same Nemotron gets 13/16, so most of the gain is choosing the right line on a crowded screen. Edited screenshots: 8/8 "not in the ledger" with Nemotron reading the image; the ledger, not the reader, rejects them.
+- 16 phone photos (Korean, Japanese; 8 edited), run once: payment read right and verdict right — Nemotron 3.5 Super VL 14/16; free on-device OCR + payment-word rules 3/16. Given only the OCR text, the same Nemotron gets 13/16, so most of the gain is choosing the right line on a crowded screen. Edited screenshots: 8/8 "not in the ledger" with Nemotron reading the image; the rules also reached 8/8, by misreading the numbers. The ledger, not the reader, rejects an edit.
 - 22 Korean-heavy messages, run once: who is writing — Nemotron 20/22, rules 16/22; right order and broken link — Nemotron 20/22, rules 21/22. One of Nemotron's two misses is a prompt-injection message where it named no sender, so nobody's records were read.
-- 40 English-heavy messages: Nemotron 40/40, rules 38/40.
+- 40 English-heavy messages: Nemotron 40/40 (one model call failed and the run still reached the right order; complaint read right 29/40), rules 38/40.
+- One prompt line (running totals are not the payment) was added after the held-out photo run, from a dev example; the held-out set was not run again.
 - Cost and time: about 5.5 s and $0.0008 per photo read; a full photo case (read, plan, explain, reply) took 10-16 s in our recorded runs.
 
 ## Limitations
@@ -67,7 +68,7 @@ Edit the amount, date or time on a screenshot and the ledger has never seen that
 Nemotron 3.5 Super VL spent its whole token budget reasoning on the first gate run (the reasoning had read the screen correctly; the answer was empty). Turning reasoning off for the two reader jobs (chat_template_kwargs.enable_thinking=false, accepted on Super VL and Lightning) fixed it: answers in about 5 s, no empty replies.
 
 ## What's next
-Connect it read-only to a real payment provider's API and a shop database; English and more banking-app layouts.
+Connect it read-only to a real payment provider's API and a shop database; more banking and card app layouts, and real customer photos.
 ```
 
 ## How was the project significantly updated during the Submission Period? (required for existing projects)
@@ -77,7 +78,7 @@ First written on Oct 22-25, 2026 (inside this hackathon's submission period) for
 
 ## Which NVIDIA models and where did Token Factory help?
 ```
-nvidia/Nemotron-3.5-Super-VL reads the customer's payment screenshot; nvidia/Nemotron-3_5-Lightning reads the message and plans the lookups; nvidia/Nemotron-3-Ultra-550b-a55b re-reads only when the first reading is unsure; nvidia/nemotron-3-super-120b-a12b writes the cited explanation and the reply. Token Factory serves all four behind one OpenAI-compatible endpoint, so routing each job to a different model is one environment variable per job; the page shows the model, time, tokens and cost of each call. Measured: about $0.0008 and 5.5 s per photo read; a full case costs well under one cent.
+nvidia/Nemotron-3.5-Super-VL reads the customer's payment screenshot; nvidia/Nemotron-3_5-Lightning reads the message and plans the lookups; nvidia/Nemotron-3-Ultra-550b-a55b re-reads only when the first reading is unsure; nvidia/nemotron-3-super-120b-a12b writes the cited explanation and the reply. Token Factory serves all four behind one OpenAI-compatible endpoint, so routing each job to a different model is one environment variable per job; the page shows the model, time, tokens and cost of each call. Measured: about $0.0008 and 5.5 s per photo read; a Korean message case averaged $0.005 of model cost (Ultra re-read on 16 of 22).
 ```
 
 ## Feedback on Nebius Token Factory, AI Cloud and NVIDIA tools (required)
