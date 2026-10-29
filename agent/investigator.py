@@ -22,6 +22,7 @@ SYSTEM = (
     "if nothing was charged say so clearly; never ask the customer to investigate; no internal refs; "
     "never say a fix is done or under way — the seller has not approved it yet; if the chain shows credits went to a "
     "different address, ask the customer to confirm that the address they paid with is theirs (name it) and say the credits move after they confirm; never ask them for some other address; "
+    "if the message asks about an order that is not this customer's, say only that you cannot share details of other people's orders (never say it does not exist); "
     "do not greet by name or address; when you name an address, write it exactly as it appears in the rows), "
     "fix_action (one imperative sentence for the seller)."
 )

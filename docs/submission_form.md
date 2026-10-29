@@ -57,7 +57,7 @@ Edit the amount, date or time on a screenshot and the ledger has never seen that
 - 22 Korean-heavy messages, run once: who is writing — Nemotron 20/22, rules 16/22; right order and broken link — Nemotron 20/22, rules 21/22. One of Nemotron's two misses is a prompt-injection message where it named no sender, so nobody's records were read.
 - 40 English-heavy messages: Nemotron 40/40 (one model call failed and the run still reached the right order; complaint read right 29/40), rules 38/40.
 - One prompt line (running totals are not the payment) was added after the held-out photo run, from a dev example; the held-out set was not run again.
-- Cost and time: about 5.5 s and $0.0008 per photo read; a full photo case (read, plan, explain, reply) took 10-16 s in our recorded runs.
+- Cost and time: about 5.5 s and $0.0008 per photo read; a full photo case (read, plan, explain, reply) took 10-16 s in our recorded runs; a message case with an Ultra re-read can take up to about 30 s.
 
 ## Limitations
 - The photo set is synthetic (rendered app screens, photographed-looking distortions); not yet measured on real customer photos.

@@ -55,7 +55,7 @@ const pick = (who, val, note, color) => `<div style="border:2px solid ${color};b
 const d05 = 'data:image/jpeg;base64,' + fs.readFileSync('app/proof_examples/d05.jpg').toString('base64');
 const picks = [pick('Free on-device OCR + payment-word rules', '288,300원', 'the card bill due on 10/25: the wrong line', '#ff8a8c'),
   pick('Nemotron 3.5 Super VL · Nebius Token Factory', '9,900원 · 10/20 03:00', 'the payment to MOAHUB', '#7ee2a8'),
-  pick('The payment provider’s ledger', 'no payment at that time', '9,900원 was paid on 10/19, not 10/20: the date was edited', '#f5c46b')];
+  pick('The payment provider’s ledger', 'no payment at that time', 'its 9,900원 payment was on 10/19, not 10/20', '#f5c46b')];
 for (let k = 0; k <= 3; k++)   // card_pick_0 … _3: the answers appear one by one (the video cuts between them)
   await shot(card(`<div style="margin-top:-110px;display:flex;gap:60px;align-items:flex-start">
 <img src="${d05}" style="height:900px;border-radius:18px">

@@ -1,6 +1,6 @@
 {
  "meta": {
-  "recorded_at": "2026-10-29T16:59:20+09:00",
+  "recorded_at": "2026-10-29T17:10:11+09:00",
   "provider": "Nebius Token Factory",
   "models": [
    "nvidia/Nemotron-3-Ultra-550b-a55b",
@@ -11,8 +11,8 @@
    "intake": "nvidia/Nemotron-3_5-Lightning",
    "explain": "nvidia/nemotron-3-super-120b-a12b"
   },
-  "code_commit": "a2fe063",
-  "wall_ms": 9326,
+  "code_commit": "75bb119",
+  "wall_ms": 11561,
   "status": "ok"
  },
  "result": {
@@ -103,10 +103,10 @@
     "requested_model": "nvidia/Nemotron-3_5-Lightning",
     "provider": "Nebius Token Factory",
     "ok": true,
-    "ms": 2122,
+    "ms": 2030,
     "prompt_tokens": 864,
-    "completion_tokens": 286,
-    "usd": 0.00012,
+    "completion_tokens": 266,
+    "usd": 0.000116,
     "finish": "stop",
     "thinking": false
    },
@@ -116,7 +116,7 @@
     "requested_model": "nvidia/Nemotron-3-Ultra-550b-a55b",
     "provider": "Nebius Token Factory",
     "ok": true,
-    "ms": 2983,
+    "ms": 2945,
     "prompt_tokens": 864,
     "completion_tokens": 883,
     "usd": 0.003513,
@@ -129,10 +129,10 @@
     "requested_model": "nvidia/nemotron-3-super-120b-a12b",
     "provider": "Nebius Token Factory",
     "ok": true,
-    "ms": 4186,
-    "prompt_tokens": 826,
-    "completion_tokens": 643,
-    "usd": 0.000826,
+    "ms": 6315,
+    "prompt_tokens": 860,
+    "completion_tokens": 735,
+    "usd": 0.000919,
     "finish": "stop",
     "thinking": null
    }
@@ -184,8 +184,8 @@
   "unverified": [
    "Customer's card statement (not provided) — could confirm nothing was charged on their side"
   ],
-  "explanation": "The order ord_0905 is pending with no payment recorded and a credited amount of zero [orders:ord_0905]. Server logs show only the checkout start endpoint was accessed, with no further payment steps [server_logs:2026-10-20T05:00:00Z@/api/checkout/start], indicating the customer was never charged.",
-  "customer_reply": "We checked your order ord_0905 and see that no payment was processed, so you were not charged. To complete the purchase, please use the checkout link we will send you shortly. Let us know if you need any help.",
+  "explanation": "The order ord_0905 exists with status pending and no payment_id, indicating no charge was made. Server logs show only a checkout start event, and the payment provider has no record of a transaction for this order. Therefore nothing was charged to the customer’s card. [orders:ord_0905] [server_logs:2026-10-20T05:00:00Z@/api/checkout/start]",
+  "customer_reply": "Your order ord_0905 was created but no payment was processed, so nothing was charged. We can resend a checkout link for you to complete the purchase when you're ready.",
   "fix_action": "No fix needed. Reply with reassurance and a fresh checkout link.",
   "rows": {
    "orders": [
@@ -220,27 +220,27 @@
    {
     "step": "intake",
     "detail": "read the message",
-    "ms": 5109
+    "ms": 5176
    },
    {
     "step": "plan",
     "detail": "3 planned lookup(s), reached ord_0905",
-    "ms": 5112
+    "ms": 5181
    },
    {
     "step": "order_journey",
     "detail": "one query; 1 joined rows → 2 rows across 2 tables",
-    "ms": 5114
+    "ms": 5182
    },
    {
     "step": "verify_chain",
     "detail": "broken=None",
-    "ms": 5114
+    "ms": 5182
    },
    {
     "step": "llm_explain",
     "detail": "nvidia/nemotron-3-super-120b-a12b citations_ok=True",
-    "ms": 9301
+    "ms": 11502
    }
   ],
   "steps": [
@@ -321,25 +321,44 @@
    "unknown_refs": [],
    "claims": [
     {
-     "sentence": "The order ord_0905 is pending with no payment recorded and a credited amount of zero [orders:ord_0905].",
+     "sentence": "The order ord_0905 exists with status pending and no payment_id, indicating no charge was made.",
      "refs": [
-      "orders:ord_0905"
+      "orders:ord_0905",
+      "server_logs:2026-10-20T05:00:00Z@/api/checkout/start"
      ],
      "facts": [
       "ord_0905",
-      "no payment recorded and a credited",
-      "order ord_0905 is pending"
+      "no charge"
      ],
      "unsupported": []
     },
     {
-     "sentence": "Server logs show only the checkout start endpoint was accessed, with no further payment steps [server_logs:2026-10-20T05:00:00Z@/api/checkout/start], indicating the customer was never charged.",
+     "sentence": "Server logs show only a checkout start event, and the payment provider has no record of a transaction for this order.",
      "refs": [
+      "orders:ord_0905",
+      "server_logs:2026-10-20T05:00:00Z@/api/checkout/start"
+     ],
+     "facts": [],
+     "unsupported": []
+    },
+    {
+     "sentence": "Therefore nothing was charged to the customer’s card.",
+     "refs": [
+      "orders:ord_0905",
       "server_logs:2026-10-20T05:00:00Z@/api/checkout/start"
      ],
      "facts": [
-      "never charged"
+      "nothing was charged"
      ],
+     "unsupported": []
+    },
+    {
+     "sentence": "[orders:ord_0905] [server_logs:2026-10-20T05:00:00Z@/api/checkout/start]",
+     "refs": [
+      "orders:ord_0905",
+      "server_logs:2026-10-20T05:00:00Z@/api/checkout/start"
+     ],
+     "facts": [],
      "unsupported": []
     }
    ],
@@ -347,6 +366,6 @@
   },
   "backend": "duckdb-local",
   "lang": "en",
-  "elapsed_ms": 9304
+  "elapsed_ms": 11505
  }
 }
