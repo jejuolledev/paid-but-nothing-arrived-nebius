@@ -47,7 +47,7 @@ Drop in the customer's screenshot and message. Nemotron 3.5 Super VL on Nebius T
 Edit the date on a screenshot and the ledger has no payment at that time: the page says so and the reply politely asks for the card-statement line. The model does not detect the edit; the ledger does. When the customer answers ("sorry, it was the 19th"), Nemotron 3.5 Lightning reads the answer, the agent checks the ledger again and rewrites the reply: a second turn of the same case. And sometimes the honest answer is "Nothing is broken. You were never charged."
 
 ## How we built it
-- A different Nemotron per job, all on Token Factory through its OpenAI-compatible API: Super VL reads the photo; Lightning reads the message and plans read-only lookups; Ultra re-reads only when code finds the first reading unsure (on Korean threads that was 16 of 22); Super writes the cited explanation and reply. Each call's model, time, tokens and cost are on the page.
+- A different Nemotron per job, all on Token Factory through its OpenAI-compatible API: Super VL reads the photo; Lightning reads the message, plans read-only lookups and reads the customer's answer in the second turn; Ultra re-reads only when code finds the first reading unsure (on Korean threads that was 16 of 22); Super writes the cited explanation and reply. Each call's model, time, tokens and cost are on the page.
 - Before anything leaves the app: photo metadata removed and resized (on a Mac, e-mail addresses and long numbers blurred with on-device OCR); addresses in the message become EMAIL_1, EMAIL_2; card digits removed.
 - Code checks everything the models return: a value not supported by the photo or message is dropped and shown; every explanation sentence is checked against the rows it cites; the verdict and the fix never come from a model.
 - Public demo: per-visitor copy of the synthetic data, recorded live runs for the examples ("Run it live now" for a real call), rate limits, the key only on the server.
@@ -78,7 +78,7 @@ First written on Oct 22-25, 2026 (inside this hackathon's submission period) for
 
 ## Which NVIDIA models and where did Token Factory help?
 ```
-nvidia/Nemotron-3.5-Super-VL reads the customer's payment screenshot; nvidia/Nemotron-3_5-Lightning reads the message and plans the lookups; nvidia/Nemotron-3-Ultra-550b-a55b re-reads only when the first reading is unsure; nvidia/nemotron-3-super-120b-a12b writes the cited explanation and the reply. Token Factory serves all four behind one OpenAI-compatible endpoint, so routing each job to a different model is one environment variable per job; the page shows the model, time, tokens and cost of each call. Measured: about $0.0008 and 5.5 s per photo read; a Korean message case averaged $0.005 of model cost (Ultra re-read on 16 of 22).
+nvidia/Nemotron-3.5-Super-VL reads the customer's payment screenshot; nvidia/Nemotron-3_5-Lightning reads the message, plans the lookups and reads the customer's answer in the second turn; nvidia/Nemotron-3-Ultra-550b-a55b re-reads only when the first reading is unsure; nvidia/nemotron-3-super-120b-a12b writes the cited explanation and the reply. Token Factory serves all four behind one OpenAI-compatible endpoint, so routing each job to a different model is one environment variable per job; the page shows the model, time, tokens and cost of each call. Measured: about $0.0008 and 5.5 s per photo read; a Korean message case averaged $0.005 of model cost (Ultra re-read on 16 of 22).
 ```
 
 ## Feedback on Nebius Token Factory, AI Cloud and NVIDIA tools (required)
