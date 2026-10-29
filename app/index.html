@@ -419,7 +419,7 @@ function trTool(name){
 }
 function trArgs(a){   // {"email":"EMAIL_2"} -> EMAIL_2 ; {"payment_id":"FROM_PAYMENTS"} -> the payment found above
   if(a==null)return'';if(typeof a==='string')return a;
-  const v=Object.values(a).map(x=>({FROM_PAYMENTS:lang==='ko'?'위에서 찾은 결제':'the payment found above',BEST_ORDER:lang==='ko'?'찾은 주문':'the order found'}[x]||x));
+  const v=Object.values(a).map(x=>({CUSTOMER:lang==='ko'?'고객 주소':'the customer\'s address',FROM_PAYMENTS:lang==='ko'?'위에서 찾은 결제':'the payment found above',BEST_ORDER:lang==='ko'?'찾은 주문':'the order found'}[x]||x));
   return lang==='ko'?'('+v.join(', ')+')':v.join(', ');
 }
 
@@ -698,7 +698,7 @@ function renderSteps(steps){
   const i=t();
   if(!Array.isArray(steps)||!steps.length)return'';
   const items=steps.map(s=>{
-    const bits=[`<div>${esc(s.thought||'')}</div>`];
+    const bits=[`<div>${esc(String(s.thought||'').replace(/\bCUSTOMER\b/g,lang==='ko'?'고객':'the customer'))}</div>`];
     if(s.tool){
       const args=trArgs(s.args);
       bits.push(`<div class="tool">${esc(trTool(s.tool))}${args?` ${esc(args)}`:''}${s.rows!=null?` · ${esc(rowsLabel(s.rows))}`:''}${s.refused?` · ${esc(i.refused)}`:(s.error?' · error':'')}</div>`);

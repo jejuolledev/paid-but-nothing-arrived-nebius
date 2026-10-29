@@ -53,7 +53,7 @@
   },
   {
    "id": "N11",
-   "shot": "take:result5..end",
+   "shot": "take:result5..loop_click-1.5",
    "text": "Ask for someone else's order number, and it is not read. And when nothing was charged, it says so. Nothing is broken. You were never charged."
   },
   {

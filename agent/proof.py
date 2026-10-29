@@ -235,6 +235,9 @@ def check_fields(raw: dict, ocr: dict | None = None) -> dict:
         dropped.append({"field": "card_last4", "value": l4, "why": "not four digits"}); l4 = None
     f["card_last4"] = str(l4) if l4 is not None else None
     f["ignored_numbers"] = [x for x in (raw.get("ignored_numbers") or []) if isinstance(x, dict)][:8]
+    for x in f["ignored_numbers"]:   # an amount in won or yen is never the phone's clock
+        if x.get("what") == "clock" and re.search(r"[원円]|KRW|JPY|,\d{3}", str(x.get("text", ""))):
+            x["what"] = "other"
     f["legibility"] = raw.get("legibility") if raw.get("legibility") in ("clear", "partly_unreadable", "unreadable") else None
     f["screen_language"] = raw.get("screen_language")
     f["dropped"] = dropped

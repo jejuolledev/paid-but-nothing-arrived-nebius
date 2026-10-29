@@ -22,7 +22,7 @@ You were never charged."*
 
 Models per job, all on Token Factory: **Nemotron 3.5 Super VL** reads the screenshot · **Nemotron 3.5 Lightning**
 reads the message, plans the lookups and reads the customer's answer · **Nemotron 3 Ultra** re-reads when the first
-reading is unsure · **Nemotron 3 Super** writes the cited explanation and the reply. The page shows each call's model,
+reading is unsure · **Nemotron 3 Super** writes the cited explanation and the reply, and in turn-by-turn mode picks each lookup. The page shows each call's model,
 time, tokens and cost.
 
 **All data is synthetic** (an invented shop, `@example.com` customers, public test card numbers, rendered phone screens).
@@ -83,13 +83,13 @@ Fair note: while tuning on the dev set we also taught the shared lookup code tha
 
 English-heavy set (40): rules only 38/40, **Nemotron 40/40** (one model call failed on h16; the run still reached the right order; complaint read right 29/40).
 
-From the version this builds on (still true of the verifier): six seeded cases right 6/6; the sentence checker caught 32 of 40 wrong sentences written by a separate model and wrongly rejected 2 of 20 true ones (`scripts/claim_eval.py`). 65 automated tests (`pytest`, never call a paid model).
+From the version this builds on (still true of the verifier): six seeded cases right 6/6; the sentence checker caught 32 of 40 wrong sentences written by a separate model and wrongly rejected 2 of 20 true ones (`scripts/claim_eval.py`). 67 automated tests (`pytest`, never call a paid model).
 
 ## Run it yourself
 ```bash
 git clone https://github.com/jejuolledev/paid-but-nothing-arrived-nebius && cd paid-but-nothing-arrived-nebius
 uv venv --python 3.12 .venv && uv pip install --python .venv/bin/python -r requirements.txt
-.venv/bin/python data/gen_synthetic.py && .venv/bin/python -m pytest -q        # 65 tests, no key needed
+.venv/bin/python data/gen_synthetic.py && .venv/bin/python -m pytest -q        # 67 tests, no key needed
 cp .env.example .env.local    # put your Token Factory key in NEBIUS_API_KEY
 .venv/bin/uvicorn app.main:app --port 8765                                     # open http://127.0.0.1:8765
 ```
@@ -102,7 +102,7 @@ Public demo mode (what the hosted link runs): `DEMO_PUBLIC=1` — per-visitor da
 ## How it is built
 - `agent/llm.py` — Token Factory client (OpenAI-compatible), per-call log of model, time and tokens.
 - `agent/intake.py` — placeholders, the reading/planning prompt, `ground()`, plan execution.
-- `agent/agent_loop.py` — `Scope`: the sender's own trail; an optional turn-by-turn loop (off in the public demo).
+- `agent/agent_loop.py` — `Scope`: the sender's own trail; the turn-by-turn loop (Nemotron 3 Super picks each lookup; on in the public demo only for the "turn by turn" example).
 - `agent/chain.py` — the verifier. `agent/investigator.py` — the pipeline and the sentence checker. `agent/compare.py` — claims vs records.
 - `agent/actions.py` — human-approved fixes with an audit log. `app/` — FastAPI + one page.
 

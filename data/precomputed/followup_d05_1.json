@@ -1,6 +1,6 @@
 {
  "meta": {
-  "recorded_at": "2026-10-29T19:21:51+09:00",
+  "recorded_at": "2026-10-29T19:57:11+09:00",
   "provider": "Nebius Token Factory",
   "models": [
    "nvidia/Nemotron-3-Ultra-550b-a55b",
@@ -9,8 +9,8 @@
    "nvidia/nemotron-3-super-120b-a12b"
   ],
   "text": "아 죄송해요, 19일 새벽이었어요. 카드 이용내역 캡처 보내요.",
-  "code_commit": "35df947",
-  "wall_ms": 14385,
+  "code_commit": "602d21f",
+  "wall_ms": 24047,
   "status": "ok"
  },
  "result": {
@@ -102,7 +102,7 @@
     "requested_model": "nvidia/Nemotron-3.5-Super-VL",
     "provider": "Nebius Token Factory",
     "ok": true,
-    "ms": 4448,
+    "ms": 3998,
     "prompt_tokens": 1808,
     "completion_tokens": 280,
     "usd": 0.000794,
@@ -115,10 +115,10 @@
     "requested_model": "nvidia/Nemotron-3_5-Lightning",
     "provider": "Nebius Token Factory",
     "ok": true,
-    "ms": 1994,
+    "ms": 2006,
     "prompt_tokens": 885,
-    "completion_tokens": 205,
-    "usd": 0.000102,
+    "completion_tokens": 226,
+    "usd": 0.000107,
     "finish": "stop",
     "thinking": false
    },
@@ -128,7 +128,7 @@
     "requested_model": "nvidia/Nemotron-3-Ultra-550b-a55b",
     "provider": "Nebius Token Factory",
     "ok": true,
-    "ms": 2101,
+    "ms": 1965,
     "prompt_tokens": 885,
     "completion_tokens": 560,
     "usd": 0.002565,
@@ -141,10 +141,10 @@
     "requested_model": "nvidia/nemotron-3-super-120b-a12b",
     "provider": "Nebius Token Factory",
     "ok": true,
-    "ms": 5259,
+    "ms": 15390,
     "prompt_tokens": 1502,
-    "completion_tokens": 1045,
-    "usd": 0.001391,
+    "completion_tokens": 1468,
+    "usd": 0.001772,
     "finish": "stop",
     "thinking": null
    }
@@ -209,8 +209,8 @@
   "unverified": [
    "Customer's spam folder"
   ],
-  "explanation": "The payment of 9900 KRW was successful (payments:pay_0904) and the order is marked paid (orders:ord_0904). Ten credits were granted to the customer email CUSTOMER (grants:g_ord_0904). However, the subsequent email notification failed because the mail provider reported a missing API key (server_logs:2026-10-18T18:00:09Z@/api/mail/send), so the customer did not receive the credit notice.",
-  "customer_reply": "결제가 정상적으로 처리되어 10크레딧이 계정에 적립되었습니다. 다만 알림 메일이 전송되지 않아 확인하지 못하셨을 수 있습니다. 판매자 승인 후 메일을 다시 보내드리겠습니다.",
+  "explanation": "The mail send failed at the provider (mail provider error: missing API key), so the customer has the credits but no notice. [server_logs:2026-10-18T18:00:09Z@/api/mail/send]",
+  "customer_reply": "고객님의 결제는 정상적으로 처리되어 9,900원 청구가 완료되었고, 이에 따라 10크레딧이 계정에 적립되었습니다. 다만 알림 메일을 보내는 과정에서 메일 제공업체의 API 키 오류로 전송에 실패하여 고객님께 알림이 가지 않았습니다. 확인 후 알림 메일을 다시 보내드리겠습니다.",
   "fix_action": "Resend the credit mail (requires approval). Code fix: alert on mail/send errors and retry with backoff.",
   "rows": {
    "orders": [
@@ -283,27 +283,27 @@
    {
     "step": "intake",
     "detail": "read the message",
-    "ms": 4100
+    "ms": 3974
    },
    {
     "step": "plan",
     "detail": "2 planned lookup(s), reached ord_0904",
-    "ms": 4103
+    "ms": 3977
    },
    {
     "step": "order_journey",
     "detail": "one query; 3 joined rows → 6 rows across 4 tables",
-    "ms": 4105
+    "ms": 3979
    },
    {
     "step": "verify_chain",
     "detail": "broken=mail_delivered",
-    "ms": 4105
+    "ms": 3979
    },
    {
     "step": "llm_explain",
-    "detail": "nvidia/nemotron-3-super-120b-a12b citations_ok=True",
-    "ms": 9368
+    "detail": "nvidia/nemotron-3-super-120b-a12b citations_ok=False",
+    "ms": 19374
    }
   ],
   "steps": [
@@ -362,50 +362,66 @@
   "llm": "nvidia/nemotron-3-super-120b-a12b",
   "citation_check": {
    "checked": true,
-   "ok": true,
+   "ok": false,
    "unknown_refs": [],
    "claims": [
     {
-     "sentence": "The payment of 9900 KRW was successful (payments:pay_0904) and the order is marked paid (orders:ord_0904).",
+     "sentence": "The customer’s payment of 9,900 KRW was authorized and marked PAID by the payment provider [payments:pay_0904], and our order record shows status paid [orders:ord_0904].",
      "refs": [
       "payments:pay_0904",
       "orders:ord_0904"
      ],
      "facts": [
       "9900",
-      "paid",
-      "successful"
+      "paid"
      ],
      "unsupported": []
     },
     {
-     "sentence": "Ten credits were granted to the customer email CUSTOMER (grants:g_ord_0904).",
+     "sentence": "A grant of 10 credits was created for the same email [grants:g_ord_0904].",
      "refs": [
       "grants:g_ord_0904"
      ],
      "facts": [
-      "10 credits",
-      "granted"
+      "10",
+      "10 credits"
      ],
      "unsupported": []
     },
     {
-     "sentence": "However, the subsequent email notification failed because the mail provider reported a missing API key (server_logs:2026-10-18T18:00:09Z@/api/mail/send), so the customer did not receive the credit notice.",
+     "sentence": "However, the subsequent mail send attempt failed with a missing API key error [server_logs:2026-10-18T18:00:09Z@/api/mail/send], so the customer received the credits but no notification.",
      "refs": [
       "server_logs:2026-10-18T18:00:09Z@/api/mail/send"
      ],
      "facts": [
       "api key",
+      "received the credits",
       "failed"
      ],
      "unsupported": []
+    },
+    {
+     "sentence": "The verified facts confirm the charge, order, and grant; the unverified item is the customer’s spam folder.",
+     "refs": [
+      "payments:pay_0904",
+      "orders:ord_0904",
+      "grants:g_ord_0904",
+      "server_logs:2026-10-18T18:00:09Z@/api/mail/send"
+     ],
+     "facts": [
+      "spam"
+     ],
+     "unsupported": [
+      "spam"
+     ]
     }
    ],
-   "claims_ok": true
+   "claims_ok": false,
+   "replaced_with_verifier_text": true
   },
   "backend": "duckdb-local",
   "lang": "ko",
-  "elapsed_ms": 9371,
+  "elapsed_ms": 19377,
   "proof": {
    "fields": {
     "payment_found": true,
@@ -423,7 +439,7 @@
     "ignored_numbers": [
      {
       "text": "1,845,900원",
-      "what": "clock"
+      "what": "other"
      },
      {
       "text": "3,300원",
@@ -617,14 +633,14 @@
       0.7353,
       0.4715,
       0.9314,
-      0.5009
+      0.5008
      ]
     },
     {
      "role": "other",
      "text": "2,100원",
      "box": [
-      0.7854,
+      0.7823,
       0.5514,
       0.9315,
       0.578
@@ -634,10 +650,10 @@
      "role": "other",
      "text": "36,300원",
      "box": [
-      0.7577,
-      0.6627,
-      0.9376,
-      0.6871
+      0.7576,
+      0.6625,
+      0.9377,
+      0.6873
      ]
     }
    ],
@@ -652,7 +668,7 @@
     "same_as_model": false
    }
   },
-  "proof_elapsed_ms": 14363,
+  "proof_elapsed_ms": 24025,
   "followup": {
    "turn": 2,
    "text": "아 죄송해요, 19일 새벽이었어요. 카드 이용내역 캡처 보내요.",
@@ -663,7 +679,7 @@
    },
    "after": {
     "verdict": "ledger_match",
-    "reply": "결제가 정상적으로 처리되어 10크레딧이 계정에 적립되었습니다. 다만 알림 메일이 전송되지 않아 확인하지 못하셨을 수 있습니다. 판매자 승인 후 메일을 다시 보내드리겠습니다."
+    "reply": "고객님의 결제는 정상적으로 처리되어 9,900원 청구가 완료되었고, 이에 따라 10크레딧이 계정에 적립되었습니다. 다만 알림 메일을 보내는 과정에서 메일 제공업체의 API 키 오류로 전송에 실패하여 고객님께 알림이 가지 않았습니다. 확인 후 알림 메일을 다시 보내드리겠습니다."
    }
   }
  }

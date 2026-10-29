@@ -56,7 +56,7 @@ Written while building this entry, from what actually happened. Logs: `docs/gate
   - Until it arrives, the balance is $0 with a card on file, so early test calls go to the card.
   - The credit had not arrived about 30 hours after the promo request (2026-10-28 to 10-29), and other
     participants in the Discord channel reported the same. We asked support and Discord. We ran the whole
-    measurement and recording on the card (about $0.9 in total, by our per-call ledger).
+    measurement and recording on the card (about $1.2 in total, by our per-call ledger).
 - **Suggestion.** Apply hackathon codes directly in the billing console, or show "credit pending" so builders know
   whether a call will be charged to their card.
 
@@ -74,7 +74,7 @@ Written while building this entry, from what actually happened. Logs: `docs/gate
   `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B`.
 - **Suggestion.** Link the catalog from the quickstart and keep one id style.
 
-### 6. What we measured about the endpoint (2026-10-29, about 570 calls)
+### 6. What we measured about the endpoint (2026-10-29, about 920 calls)
 - Structured output (`json_schema`, strict) with an image: honoured on Super VL (every answer parsed against the schema).
 - Median and worst latency per call: Super VL 4.2 s / 55 s (the 55 s call ran to 4,000 tokens; the first dev run of
   the day averaged 27 s per photo, later runs 3-6 s); Lightning 2.0 s / 5.5 s; Ultra 2.5 s / 17 s; Super 6.9 s / 26 s.
