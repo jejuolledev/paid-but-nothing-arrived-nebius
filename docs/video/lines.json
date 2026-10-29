@@ -3,56 +3,33 @@
  "lines": [
   {
    "id": "P00",
-   "shot": "cards:pick_0,pick_1,pick_2,pick_3",
-   "text": "A customer writes: “I paid, here's my screenshot.” Free OCR with rules grabs two hundred eighty-eight thousand three hundred won: the card bill. Nemotron picks the payment to the shop. And the payment ledger has no payment at that time."
+   "shot": "intro:doctored_result..doctored_table",
+   "text": "A customer writes: “I paid on the 20th, here's my screenshot.” Nemotron 3.5 Super VL, on Nebius Token Factory, reads the photo. The payment ledger has no payment at that time."
   },
   {
    "id": "P01",
-   "shot": "intro:true_typed..true_click",
-   "crop": [
-    130,
-    236,
-    1180,
-    664
-   ],
-   "text": "Here it is live. First a genuine, unedited payment: a card text message, in Korean."
+   "shot": "intro:follow_typed..follow_turn2",
+   "text": "The reply asks politely. The customer answers: “Sorry, it was the 19th.” Nemotron 3.5 Lightning reads the answer, and the agent checks the ledger again. Now it matches."
   },
   {
    "id": "P02",
-   "shot": "intro:true_result..true_highlight",
-   "crop": [
-    140,
-    0,
-    1180,
-    664
-   ],
-   "text": "Nemotron 3.5 Super VL, on Nebius Token Factory, reads the photo: the payment, not the running total, not the ad, not the phone's clock."
+   "shot": "intro:follow_chain..follow_reply",
+   "text": "The money chain shows where it really stopped: the credits arrived, the email never did. The reply is rewritten, and the fix waits for the seller to approve."
   },
   {
    "id": "P03",
-   "shot": "intro:true_table..true_chain",
-   "text": "The ledger confirms it: same amount, within ten minutes. The money chain shows the one link where the money got stuck."
+   "shot": "cards:pick_0,pick_1,pick_2,pick_3",
+   "text": "Why a model at all? On this card alert, free OCR with rules grabs two hundred eighty-eight thousand three hundred won: the card bill. Nemotron picks the payment to the shop."
   },
   {
    "id": "P04",
-   "shot": "intro:doctored_typed..doctored_result",
-   "crop": [
-    130,
-    236,
-    1180,
-    664
-   ],
-   "text": "Now the edited alert."
+   "shot": "card:measured_proof",
+   "text": "On sixteen held-out phone photos made by a separate agent, Nemotron read the payment right and reached the right verdict on fourteen. Free OCR with rules, three."
   },
   {
    "id": "P05",
-   "shot": "intro:doctored_highlight..doctored_table",
-   "text": "Nemotron can't spot an edit. It finds which number to check, and the ledger proves it: no payment at that time. The reply politely asks for the card statement."
-  },
-  {
-   "id": "P06",
-   "shot": "card:measured_proof",
-   "text": "On sixteen held-out phone photos made by a separate agent, Nemotron read the payment right and reached the right verdict on fourteen. Free OCR with rules, three."
+   "shot": "intro:true_table..true_chain",
+   "text": "A genuine payment goes straight through: same amount, within ten minutes."
   },
   {
    "id": "N03",
@@ -97,7 +74,7 @@
   {
    "id": "N13",
    "shot": "card:title",
-   "text": "Banks already warn sellers not to trust payment screenshots. Paid, but nothing arrived? Now you can show the customer where the money stopped. NVIDIA Nemotron, on Nebius Token Factory."
+   "text": "Everything you saw runs on synthetic data, and we have not yet measured real customer photos. Banks already warn sellers not to trust payment screenshots. Paid, but nothing arrived? Now you can show the customer where the money stopped. NVIDIA Nemotron, on Nebius Token Factory."
   }
  ]
 }

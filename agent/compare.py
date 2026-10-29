@@ -16,7 +16,19 @@ def _date_from(words: str) -> str | None:
     m = re.search(r"\b(" + "|".join(months) + r")[a-z]*\.?\s+(\d{1,2})\b", w)
     if m:
         return f"-{months.index(m.group(1)) + 1:02d}-{int(m.group(2)):02d}"
+    m = re.search(r"(?<!\d)(\d{1,2})\s*(?:일|日)", w)   # day only ("20일에 결제했어요"): compared with the day of the month
+    if m and 1 <= int(m.group(1)) <= 31:
+        return f"-{int(m.group(1)):02d}"
     return None
+
+
+def _local_date(iso) -> str:
+    """The ledger stores UTC; customers say the local (KST/JST) date."""
+    try:
+        from .proof import _local
+        return _local(str(iso)).strftime("%Y-%m-%d")
+    except Exception:
+        return str(iso or "")[:10]
 
 
 def compare_claims(intake: dict | None, journey: dict, verdict) -> list[dict]:
@@ -44,11 +56,12 @@ def compare_claims(intake: dict | None, journey: dict, verdict) -> list[dict]:
     if when and pays:
         d = _date_from(when)
         p = pays[-1]
+        loc = _local_date(p.get("created_at", ""))
         if d:
-            same = d in str(p.get("created_at", ""))
-            out.append({"claim": "paid on", "says": when, "records": str(p.get("created_at", ""))[:10], "result": "match" if same else "differs", "refs": [p["ref"]], "note": ""})
+            same = loc.endswith(d)
+            out.append({"claim": "paid on", "says": when, "records": loc, "result": "match" if same else "differs", "refs": [p["ref"]], "note": ""})
         else:
-            out.append({"claim": "paid on", "says": when, "records": str(p.get("created_at", ""))[:10], "result": "unchecked", "refs": [p["ref"]],
+            out.append({"claim": "paid on", "says": when, "records": loc, "result": "unchecked", "refs": [p["ref"]],
                         "note": "Relative date; the message date is not known here."})
     pack = intake.get("pack")
     if pack and orders:

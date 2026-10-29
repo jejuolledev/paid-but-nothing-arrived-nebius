@@ -2,19 +2,30 @@
 
 > Your customer already has proof they paid. This agent finds yours.
 
-**In ten seconds:** a customer writes *"돈 냈어요, 이거 보세요"* ("I paid, here's proof") and drops a phone photo of their
-banking app. **Nemotron 3.5 Super VL on Nebius Token Factory** reads the photo — the payment line, not the balance,
-the points or the phone's clock — and the payment provider's ledger checks it: same amount, within ten minutes. Then the
-money chain shows the one link where the money got stuck (**card → payment provider → order → credits → mail**), with
-the rows that prove it, a reply in the customer's language (Korean, Japanese, English), and a fix that runs only
-after the seller clicks Approve. Edit the amount, date or time on the screenshot and the ledger has never seen that payment. And
-sometimes the honest answer is: *"Nothing is broken. You were never charged."*
+**Check it in three steps (no login, each step answers in under 5 seconds):**
+1. Open **TRY_IT_URL**.
+2. Click **See it in 30 seconds**. A customer's card alert says 9,900 won on the 20th; Nemotron 3.5 Super VL reads it and
+   the payment ledger has **no payment at that time**. The customer answers *"Sorry, it was the 19th"*; Nemotron 3.5
+   Lightning reads the answer, the agent checks the ledger again, it **matches**, the money chain shows the email never
+   arrived, and the reply is rewritten. (Recorded live runs on Token Factory; labelled with the time they were recorded.)
+3. Click any example, then **Run it live now** to make the same calls to Token Factory yourself (4 per hour per visitor).
+
+**What it does:** a customer writes *"돈 냈어요, 이거 보세요"* ("I paid, here's proof") with a phone photo of their
+banking or card app. **Nemotron 3.5 Super VL** reads the payment line (not the balance, the running total, the ad or the
+phone's clock); the **payment provider's ledger** checks it: same amount, within ten minutes. The money chain shows the one
+link where the money stopped (**card → payment provider → order → credits → mail**) with the rows that prove it, a reply
+in the customer's language (Korean, Japanese, English), and a fix that runs only after the seller clicks Approve. When the
+customer answers, the agent reads the answer and checks again (a second turn, not a new case). The model cannot spot an
+edited screenshot; the ledger can, because it has no such payment. And sometimes the honest answer is *"Nothing is broken.
+You were never charged."*
 
 Models per job, all on Token Factory: **Nemotron 3.5 Super VL** reads the screenshot · **Nemotron 3.5 Lightning**
-reads the message and plans the lookups · **Nemotron 3 Ultra** re-reads only when that first reading is unsure ·
-**Nemotron 3 Super** writes the cited explanation and the reply. The page shows each call's model, time, tokens and cost.
+reads the message, plans the lookups and reads the customer's answer · **Nemotron 3 Ultra** re-reads when the first
+reading is unsure · **Nemotron 3 Super** writes the cited explanation and the reply. The page shows each call's model,
+time, tokens and cost.
 
-**Try it:** TRY_IT_URL — no login, no key. The example buttons (four screenshots, six messages) answer at once from a recorded live run; **Run it live now** calls Token Factory for real. Your Approve and Reset change only your own copy of the synthetic data.
+**All data is synthetic** (an invented shop, `@example.com` customers, public test card numbers, rendered phone screens).
+We have not measured real customer photos yet.
 
 **Watch (under 3 min):** VIDEO_URL
 
@@ -32,6 +43,7 @@ I run a small online shop. The message I dread most is "I paid but nothing arriv
 | 0. Read the screenshot | `nvidia/Nemotron-3.5-Super-VL` (`LLM_VISION_MODEL`) | Finds the one payment to the shop on a phone photo of a banking / card / pay app (Korean, Japanese, English), not the balance, points, instalment count, the phone's clock, ads, other rows or the yen conversion. Returns amount, date, time, card last-4, status and the exact text it read, as strict JSON. | The photo's metadata is removed and it is resized; on a Mac, e-mail addresses and long account/card numbers found by on-device OCR are blurred before sending. The amount must equal its own on-screen quote; malformed values are dropped and shown. **The payment provider's ledger decides**: same amount, within ±10 minutes, and the same last-4 when both show one. A photo the ledger has never seen stays "not in the ledger", whatever it shows. |
 | 1. Read + plan | `nvidia/Nemotron-3_5-Lightning` (`LLM_MODEL_INTAKE`) | Finds the sender among the addresses in the message (a spouse's address, a CC, a forwarded header and the shop's own address are not the sender); pulls out the claims (amount, when, which pack, what went wrong, someone else's order number they ask for); writes a plan of up to five read-only lookups. | Addresses become `EMAIL_1`, `EMAIL_2` (first letter + domain) and card digits are removed before the model sees the message. Every value must be stated in the message (digits, 만/천 units or Korean number words); anything else is **dropped and shown**. The plan runs only on the sender's own trail. |
 | 1b. Re-read when unsure | `nvidia/Nemotron-3-Ultra-550b-a55b` (`LLM_MODEL_ESCALATE`) | Called only when code finds the first reading unsure (no JSON, no sender although there are addresses, unsupported values, or the reader says so). | Same checks; its answer is used only if it is itself clean (or if the first reader returned nothing usable). The page says why it was called. |
+| 1c. Read the customer's answer | `nvidia/Nemotron-3_5-Lightning` (`LLM_MODEL_FOLLOWUP`) | Second turn: the date, time or amount the customer now gives ("it was the 19th"), as strict JSON. | A value is kept only if the answer itself writes it (a month the customer did not write is not taken). The answer can only change what is looked for; the ledger decides again. A new screenshot runs the screenshot step again. |
 | 2. Explain + reply | `nvidia/nemotron-3-super-120b-a12b` (`LLM_MODEL_EXPLAIN`, `LLM_MODEL_REPLY`) | The explanation, citing rows, and the reply in the customer's language (Korean, Japanese, English). | Every sentence is checked against the rows it cites. A reply that promises money, moves credits before the customer confirms, or suggests a screenshot is fake → the standard reply is used. |
 
 Each call's model, time, tokens and estimated cost (catalog prices) are on the page, with a total per case.
@@ -105,6 +117,7 @@ The submission period runs from 2026-08-26. This project was **first written on 
 - Page: what the model read, what it dropped, the plan, model calls with time and tokens.
 
 ## Limitations (published on purpose)
+- The second turn reads dates, times and amounts only; anything else the customer says is shown to the seller but not used to look anything up. Not measured on a held-out set (the dev example and tests only).
 - The verifier knows five kinds of break; a new kind lands in "not verified" instead of being guessed.
 - Relative dates ("yesterday") are not checked against the ledger, because the message date is unknown.
 - The intake can still pick the wrong sender when the message itself is ambiguous; the seller sees the sender and the dropped values on the page before sending anything.
