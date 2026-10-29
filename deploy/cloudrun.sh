@@ -23,11 +23,15 @@ grep -q '"status": "ok"' data/precomputed/case1.json || { echo "data/precomputed
 ENVF="$(mktemp)"; trap 'rm -f "$ENVF"' EXIT
 {
   echo "NEBIUS_API_KEY: \"$KEY\""
-  for k in LLM_MODEL LLM_MODEL_INTAKE LLM_MODEL_EXPLAIN LLM_EXTRA_BODY LLM_BASE_URL; do
+  for k in LLM_MODEL LLM_MODEL_INTAKE LLM_MODEL_EXPLAIN LLM_EXTRA_BODY LLM_BASE_URL LLM_VISION_MODEL LLM_VISION_JSON LLM_THINKING_VISION LLM_THINKING_INTAKE; do
     v="$(grep -E "^$k=" .env.local | head -1 | cut -d= -f2- || true)"
     [ -n "$v" ] && printf '%s: %s\n' "$k" "$(python3 -c 'import json,sys;print(json.dumps(sys.argv[1]))' "$v")"
   done
   echo "DEMO_PUBLIC: \"1\""
+  # Spending guard for the judging period (the owner's card pays): few live runs per day and per visitor.
+  # These counters live in memory, so they reset when Cloud Run starts a new instance; check Token Factory usage weekly.
+  echo "DEMO_LIVE_PER_DAY: \"${DEMO_LIVE_PER_DAY:-10}\""
+  echo "DEMO_LIVE_PER_IP_HOUR: \"${DEMO_LIVE_PER_IP_HOUR:-4}\""
 } > "$ENVF"
 
 gcloud run deploy "$SERVICE" --source . --project "$PROJECT" --region "$REGION" \
