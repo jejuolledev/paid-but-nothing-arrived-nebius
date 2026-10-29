@@ -6,7 +6,7 @@ is a hand-typed timestamp.
   python3 scripts/build_nebius_video.py docs/video/take1 [docs/video/intro1]  ->  docs/video/final_nebius.mp4 (1920x1080, under 3 min)
 "intro:a..b" shots come from the screenshot take (scripts/record_proof_intro.mjs), "take:a..b" from the main take.
 """
-import json, subprocess, sys
+import json, re, subprocess, sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -21,6 +21,7 @@ INTRO_VIDEO = next(INTRO.glob("*.webm"), None) if INTRO.exists() else None
 INTRO_MARKS = json.loads((INTRO / "marks.json").read_text()) if INTRO_VIDEO else {}
 LINES = json.loads((V / "lines.json").read_text())["lines"]
 W, H, FPS, LEAD, GAP = 1920, 1080, 30, 0.25, 0.45
+SCREEN_H = 900   # screen recordings fill the top 900 px; the subtitle band below never covers the UI
 BG = "0x0b0d12"
 ENC = ["-c:v", "libx264", "-pix_fmt", "yuv420p", "-r", str(FPS), "-crf", "18", "-preset", "medium", "-an"]
 
@@ -46,11 +47,11 @@ def clip(a, b, secs, out, video=None, crop=None):
     """Recorded screen from a to b, scaled to 1080p; holds the last frame if the narration is longer,
     speeds up (at most 2x) if the beat is longer than the narration."""
     span = max(0.1, b - a)
-    speed = min(2.0, max(1.0, span / secs))
+    speed = min(4.0, max(1.0, span / secs))   # waits for a model play up to 4x
     hold = max(0.0, secs - span / speed)
     # crop = [x, y, w, h] in the recording's pixels (1440x900): zoom into the part the narration is about
     zoom = (f"crop={crop[2]}:{crop[3]}:{crop[0]}:{crop[1]}," if crop else "")
-    vf = (f"setpts=PTS/{speed:.3f},fps={FPS},{zoom}scale=-2:{H}:flags=lanczos,pad={W}:{H}:(ow-iw)/2:0:color={BG},setsar=1,"
+    vf = (f"setpts=PTS/{speed:.3f},fps={FPS},{zoom}scale=-2:{SCREEN_H}:flags=lanczos,pad={W}:{H}:(ow-iw)/2:0:color={BG},setsar=1,"
           f"tpad=stop_mode=clone:stop_duration={hold:.3f}")
     run(["-ss", f"{a:.3f}", "-t", f"{span:.3f}", "-i", str(video or VIDEO), "-vf", vf, "-t", f"{secs:.3f}", *ENC, str(out)])
 
@@ -61,7 +62,10 @@ def beat(spec, secs, marks=None):
     a, _, b = spec.partition("..")
     ta = marks[a]
     later = sorted(v for v in marks.values() if v > ta)
-    tb = marks[b] if b else (later[0] if later else ta + secs)
+    off = 0.0
+    if b and re.search(r"-\d", b):   # "a..b-1.5": end 1.5 s before mark b (e.g. before a scroll starts)
+        b, off = b.rsplit("-", 1)[0], float(b.rsplit("-", 1)[1])
+    tb = (marks[b] - off) if b else (later[0] if later else ta + secs)
     return ta, tb
 
 
@@ -111,7 +115,8 @@ for k, s, d in timeline:
         e = a + speak * len(txt) / total
         inputs += ["-i", str(PARTS / f"sub_{k}_{j}.png")]
         idx = len(inputs) // 2 - 1
-        filt.append(f"[{last}][{idx}:v]overlay=0:0:enable='between(t,{a:.3f},{e + 0.25:.3f})'[v{n}]"); last = f"v{n}"; n += 1
+        tail = 0.25 if j == len(pieces) - 1 else -0.02   # pieces of one line never overlap
+        filt.append(f"[{last}][{idx}:v]overlay=0:0:enable='between(t,{a:.3f},{e + tail:.3f})'[v{n}]"); last = f"v{n}"; n += 1
         a = e
 a_in = []
 for k, s, _ in timeline:

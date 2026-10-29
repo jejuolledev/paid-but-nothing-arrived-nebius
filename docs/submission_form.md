@@ -12,7 +12,7 @@ Paid, but nothing arrived
 
 ## Elevator pitch (≤200 characters)
 ```
-"I paid, here's my screenshot." Nemotron VL reads the banking or card app photo, the payment ledger checks it, and the money chain shows where it got stuck. Edit the amount or time: the ledger never saw it.
+"I paid, here's my screenshot." Nemotron reads it, the payment ledger checks it. Wrong date? The customer answers, the agent checks again and shows where the money stopped.
 ```
 
 ## Track
@@ -44,7 +44,7 @@ I run a small online shop in Korea. The message I dread most is "I paid 24,900 w
 ## What it does
 Drop in the customer's screenshot and message. Nemotron 3.5 Super VL on Nebius Token Factory reads the photo (the payment line, not the balance, points, the phone's clock or the yen conversion) and, where on-device OCR can locate them, the numbers it read light up on the photo. The payment provider's ledger checks them: same amount, within ten minutes, same card when the screen shows one. Then a five-link money chain (card, payment provider, order, credits, e-mail) shows the one link where the money got stuck, citing the rows. Nemotron writes the reply in the customer's language (Korean, Japanese, English); the fix runs only after the seller clicks Approve.
 
-Edit the amount, date or time on a screenshot and the ledger has never seen that payment: the page says so and the reply politely asks for the card-statement line. The model does not detect the edit; the ledger does. And sometimes the honest answer is "Nothing is broken. You were never charged."
+Edit the date on a screenshot and the ledger has no payment at that time: the page says so and the reply politely asks for the card-statement line. The model does not detect the edit; the ledger does. When the customer answers ("sorry, it was the 19th"), Nemotron 3.5 Lightning reads the answer, the agent checks the ledger again and rewrites the reply: a second turn of the same case. And sometimes the honest answer is "Nothing is broken. You were never charged."
 
 ## How we built it
 - A different Nemotron per job, all on Token Factory through its OpenAI-compatible API: Super VL reads the photo; Lightning reads the message and plans read-only lookups; Ultra re-reads only when code finds the first reading unsure (on Korean threads that was 16 of 22); Super writes the cited explanation and reply. Each call's model, time, tokens and cost are on the page.
@@ -86,5 +86,5 @@ Paste docs/feedback.md (after filling it), as plain text.
 
 ## Testing instructions (for judges)
 ```
-Open TRY_IT_URL. No login. Best first click: "Or try a customer's screenshot" -> "Korean card SMS, 9,900 won": the photo, the numbers Nemotron read, photo vs ledger, then the money chain. Then "Card alert with its date edited": the ledger has never seen that payment. Examples answer at once from a recorded live run on Token Factory (labelled, with the time); "Run it live now" calls Nemotron for real (about 10-16 seconds). You can also drop or paste (Ctrl/Cmd+V) your own screenshot; it is not stored. Message examples are below the box; Approve a fix and the chain turns green, in your own copy of the data only. Live runs are limited to 4 per hour per visitor and 10 per day in total; after that the ledger and verifier still answer and the page says no model was used. All data is synthetic.
+Open TRY_IT_URL. No login. Click "See it in 30 seconds" (each step answers in under 5 seconds from recorded live runs on Token Factory, labelled with the time): an edited card alert -> "no payment like this in the ledger" (with the line free OCR + rules would have read instead) -> the customer's answer "it was the 19th" -> Nemotron 3.5 Lightning reads it, the ledger matches, the money chain shows the email never went out, and the reply is rewritten. Then click any example and "Run it live now" to call Nemotron on Token Factory yourself (about 10-20 seconds; 4 live runs per hour per visitor, 10 per day in total; past that, the ledger and verifier still answer and the page says no model was used). You can also drop or paste your own screenshot; it is not stored. All data is synthetic.
 ```

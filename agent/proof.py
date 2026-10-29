@@ -493,6 +493,12 @@ def investigate_proof(image: bytes, message: str = "", email: str = "", backend=
              "matched": d["matched"], "highlights": highlights(fields or {}, ocr),
              "highlight_source": "on-device OCR (macOS Vision) locates the lines the reader used" if ocr else None,
              "image_data_url": "data:image/jpeg;base64," + base64.b64encode(jpeg).decode()}
+    if ocr is not None and reader.get("reader") == "vision model":
+        # what free on-device OCR + payment-word rules would have read on the same photo (no model; shown, never used)
+        from .screen_rules import rules_keyword
+        ro = check_fields(rules_keyword(ocr), None)
+        proof["rules_only"] = {k: ro.get(k) for k in ("amount", "date", "time", "amount_text", "datetime_text")}
+        proof["rules_only"]["same_as_model"] = bool(fields) and ro.get("amount") == fields.get("amount") and ro.get("time") == fields.get("time")
     if not sender:
         from .intake import body_addresses
         proof["notes"].append("Several addresses in the message: add the customer's own e-mail so the ledger can be checked."

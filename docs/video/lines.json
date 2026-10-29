@@ -3,33 +3,28 @@
  "lines": [
   {
    "id": "P00",
-   "shot": "intro:doctored_result..doctored_table",
-   "text": "A customer writes: “I paid on the 20th, here's my screenshot.” Nemotron 3.5 Super VL, on Nebius Token Factory, reads the photo. The payment ledger has no payment at that time."
+   "shot": "cards:pick_0,pick_1,pick_2,pick_3",
+   "text": "“I paid on the 20th. Here's my screenshot.” Free OCR with rules grabs two hundred eighty-eight thousand three hundred won: the card bill. Nemotron picks the payment to the shop. The ledger has no payment at that time."
   },
   {
    "id": "P01",
-   "shot": "intro:follow_typed..follow_turn2",
-   "text": "The reply asks politely. The customer answers: “Sorry, it was the 19th.” Nemotron 3.5 Lightning reads the answer, and the agent checks the ledger again. Now it matches."
+   "shot": "intro:doctored_result..doctored_table",
+   "text": "Here it is live. Nemotron 3.5 Super VL, on Nebius Token Factory, reads the photo, and the payment provider's ledger decides. The model can't spot an edit. The ledger can."
   },
   {
    "id": "P02",
-   "shot": "intro:follow_chain..follow_reply",
-   "text": "The money chain shows where it really stopped: the credits arrived, the email never did. The reply is rewritten, and the fix waits for the seller to approve."
+   "shot": "intro:follow_turn2..follow_chain-1.3",
+   "text": "The reply asks politely, and the customer answers: “Sorry, it was the 19th.” Nemotron 3.5 Lightning reads the answer and the agent checks again. A real payment from this customer exists on the 19th, so now it matches."
   },
   {
    "id": "P03",
-   "shot": "cards:pick_0,pick_1,pick_2,pick_3",
-   "text": "Why a model at all? On this card alert, free OCR with rules grabs two hundred eighty-eight thousand three hundred won: the card bill. Nemotron picks the payment to the shop."
+   "shot": "intro:follow_chain..follow_reply",
+   "text": "The money chain shows where it really stopped: the credits arrived, but the email never went out. The reply is rewritten, and the fix waits for the seller to approve."
   },
   {
    "id": "P04",
    "shot": "card:measured_proof",
-   "text": "On sixteen held-out phone photos made by a separate agent, Nemotron read the payment right and reached the right verdict on fourteen. Free OCR with rules, three."
-  },
-  {
-   "id": "P05",
-   "shot": "intro:true_table..true_chain",
-   "text": "A genuine payment goes straight through: same amount, within ten minutes."
+   "text": "On sixteen held-out phone photos made by a separate agent, Nemotron read the payment and reached the right verdict on fourteen. Free OCR with rules: three."
   },
   {
    "id": "N03",
@@ -64,7 +59,7 @@
   {
    "id": "N11",
    "shot": "take:result5..end",
-   "text": "Ask for someone else's order, and it is not read. And when nothing was charged, it says so. Nothing is broken. You were never charged."
+   "text": "Ask for someone else's order number, and it is not read. And when nothing was charged, it says so. Nothing is broken. You were never charged."
   },
   {
    "id": "N12",

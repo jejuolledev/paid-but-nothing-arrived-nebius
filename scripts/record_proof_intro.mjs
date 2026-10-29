@@ -16,7 +16,7 @@ const FOLLOW = '아 죄송해요, 19일 새벽이었어요. 캡처는 다른 앱
 const D = imgDoc ? { file: imgDoc, message: pick('doctored').message } : { file: `app/proof_examples/${pick('doctored').id}.jpg`, message: pick('doctored').message };
 fs.mkdirSync(out, { recursive: true });
 const b = await chromium.launch();
-const ctx = await b.newContext({ viewport: { width: 1440, height: 900 }, recordVideo: { dir: out, size: { width: 1440, height: 900 } } });
+const ctx = await b.newContext({ viewport: { width: 960, height: 540 }, recordVideo: { dir: out, size: { width: 960, height: 540 } } });
 const p = await ctx.newPage();
 const t0 = Date.now(); const marks = {};
 const mark = k => { marks[k] = +((Date.now() - t0) / 1000).toFixed(2); console.log(k, marks[k]); };
@@ -24,7 +24,7 @@ const waitResult = async () => p.waitForFunction(() => !document.querySelector('
 const failed = async () => p.evaluate(() => { const m = document.body.innerText.match(/.{0,60}(failed|실패|FAKE).{0,40}/); return m ? m[0] : ''; });
 
 await p.request.post(base + '/api/reset');
-await p.goto(base); await p.addStyleTag({ content: 'body{zoom:1.25}' }); await p.waitForTimeout(1200); mark('home');
+await p.goto(base); await p.addStyleTag({ content: 'body{zoom:1}' }); await p.waitForTimeout(1200); mark('home');
 
 for (const [k, shot] of [['true', T], ['doctored', D]]) {
   await p.fill('#msg', ''); await p.type('#msg', shot.message, { delay: 14 }); mark(`${k}_typed`);

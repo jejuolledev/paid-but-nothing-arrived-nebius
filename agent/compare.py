@@ -6,6 +6,10 @@ import re
 _PACKS = {"lite10": ("lite", 10), "std30": ("standard", 30), "fam60": ("family", 60)}
 
 
+COMPLAINT_WORDS = {"not_received": "nothing arrived", "charged_twice": "charged twice", "credited_twice": "credited twice",
+                   "no_email": "no email", "not_sure_paid": "not sure the payment went through"}
+
+
 def _date_from(words: str) -> str | None:
     """'2026-10-13', '10/13', '10월 13일', 'Oct 13' -> '-10-13'. Relative words ('yesterday') -> None."""
     w = words.lower()
@@ -88,6 +92,6 @@ def compare_claims(intake: dict | None, journey: dict, verdict) -> list[dict]:
             note = "No charge exists, so nothing was owed."
         elif c == "not_received" and verdict.broken is None and grants:
             note = "The credits are in the account; the customer may not have looked."
-        out.append({"claim": "what went wrong", "says": c.replace("_", " "), "records": records,
+        out.append({"claim": "what went wrong", "says": COMPLAINT_WORDS.get(c, c.replace("_", " ")), "records": records,
                     "result": "match" if same else "differs", "refs": [], "note": note})
     return out

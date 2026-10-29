@@ -15,8 +15,9 @@ const b = await chromium.launch(); const p = await b.newPage({ viewport: { width
 const shot = async (html, name, transparent = true) => { await p.setContent(base + html); await p.screenshot({ path: `${OUT}/${name}.png`, omitBackground: transparent }); };
 
 const parts = {};
+const keep = s => s.replace(/(Nemotron|Nebius|Token|Super|3\.5|3) (3\.5|3|Super|Lightning|Ultra|VL|Token|Factory)/g, '$1\u00a0$2').replace(/(Nemotron|Nebius|Token|Super|3\.5|3) (3\.5|3|Super|Lightning|Ultra|VL|Token|Factory)/g, '$1\u00a0$2');
 for (const l of lines) {
-  parts[l.id] = split(l.text);
+  parts[l.id] = split(keep(l.text));
   for (const [j, t] of parts[l.id].entries())
     await shot(`<div style="position:absolute;left:0;right:0;bottom:46px;text-align:center"><span style="display:inline-block;max-width:1560px;background:rgba(8,10,14,.84);color:#fff;font-size:38px;line-height:1.32;font-weight:600;padding:12px 26px;border-radius:10px">${esc(t)}</span></div>`, `sub_${l.id}_${j}`);
 }

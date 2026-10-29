@@ -9,7 +9,7 @@ import fs from 'node:fs';
 const [base = 'http://127.0.0.1:8765', out = 'docs/video/take1'] = process.argv.slice(2);
 fs.mkdirSync(out, { recursive: true });
 const b = await chromium.launch();
-const ctx = await b.newContext({ viewport: { width: 1440, height: 900 }, recordVideo: { dir: out, size: { width: 1440, height: 900 } } });
+const ctx = await b.newContext({ viewport: { width: 960, height: 540 }, recordVideo: { dir: out, size: { width: 960, height: 540 } } });
 const p = await ctx.newPage();
 const t0 = Date.now(); const marks = {};
 const mark = k => { marks[k] = +((Date.now() - t0) / 1000).toFixed(2); console.log(k, marks[k]); };
@@ -18,7 +18,7 @@ const show = async (sel, key, hold = 3500) => { const el = await p.$(sel); if (!
 p.on('dialog', d => d.accept());
 
 await p.request.post(base + '/api/reset'); // put the demo bugs back (an earlier take may have approved the fix)
-await p.goto(base); await p.addStyleTag({ content: 'body{zoom:1.3}' }); await p.waitForTimeout(1500); mark('home');
+await p.goto(base); await p.addStyleTag({ content: 'body{zoom:1}' }); await p.waitForTimeout(1500); mark('home');
 // N03 — the two-address message, typed so the viewer can read it
 const MSG = "Hi, my wife's email is k.smith@example.org and she set up the account, but I paid 24,900 won with liam.patel906@example.com yesterday and the credits never came.";
 mark('typed'); await p.type('#msg', MSG, { delay: 18 }); await p.waitForTimeout(800);

@@ -1,6 +1,6 @@
 {
  "meta": {
-  "recorded_at": "2026-10-29T18:05:11+09:00",
+  "recorded_at": "2026-10-29T18:20:36+09:00",
   "provider": "Nebius Token Factory",
   "models": [
    "nvidia/Nemotron-3-Ultra-550b-a55b",
@@ -8,8 +8,8 @@
    "nvidia/nemotron-3-super-120b-a12b"
   ],
   "text": "아 죄송해요, 19일 새벽이었어요. 캡처는 다른 앱에서 했어요.",
-  "code_commit": "0e4ad00",
-  "wall_ms": 15524,
+  "code_commit": "0066c0d",
+  "wall_ms": 16883,
   "status": "ok"
  },
  "result": {
@@ -60,14 +60,14 @@
       "args": {
        "payment_id": "FROM_PAYMENTS"
       },
-      "why": "Get the order ID from the payment found."
+      "why": "Get the order ID from the payment record."
      },
      {
       "tool": "order_journey",
       "args": {
        "order_id": "BEST_ORDER"
       },
-      "why": "Show the full order history to confirm details."
+      "why": "Show the full order history to confirm pack, amount, and status."
      }
     ],
     "dropped": []
@@ -86,7 +86,7 @@
    },
    {
     "claim": "what went wrong",
-    "says": "not sure paid",
+    "says": "not sure the payment went through",
     "records": "Credits were granted, but the customer was never told.",
     "result": "differs",
     "refs": [],
@@ -107,7 +107,7 @@
     "requested_model": "nvidia/Nemotron-3_5-Lightning",
     "provider": "Nebius Token Factory",
     "ok": true,
-    "ms": 1472,
+    "ms": 1238,
     "prompt_tokens": 280,
     "completion_tokens": 63,
     "usd": 3.2e-05,
@@ -120,10 +120,10 @@
     "requested_model": "nvidia/Nemotron-3_5-Lightning",
     "provider": "Nebius Token Factory",
     "ok": true,
-    "ms": 2223,
+    "ms": 1743,
     "prompt_tokens": 885,
-    "completion_tokens": 200,
-    "usd": 0.000101,
+    "completion_tokens": 204,
+    "usd": 0.000102,
     "finish": "stop",
     "thinking": false
    },
@@ -133,10 +133,10 @@
     "requested_model": "nvidia/Nemotron-3-Ultra-550b-a55b",
     "provider": "Nebius Token Factory",
     "ok": true,
-    "ms": 2830,
+    "ms": 7102,
     "prompt_tokens": 885,
-    "completion_tokens": 589,
-    "usd": 0.002652,
+    "completion_tokens": 1420,
+    "usd": 0.005145,
     "finish": "stop",
     "thinking": null
    },
@@ -146,10 +146,10 @@
     "requested_model": "nvidia/nemotron-3-super-120b-a12b",
     "provider": "Nebius Token Factory",
     "ok": true,
-    "ms": 8758,
+    "ms": 6542,
     "prompt_tokens": 1487,
-    "completion_tokens": 999,
-    "usd": 0.001345,
+    "completion_tokens": 915,
+    "usd": 0.00127,
     "finish": "stop",
     "thinking": null
    }
@@ -214,8 +214,8 @@
   "unverified": [
    "Customer's spam folder"
   ],
-  "explanation": "결제 내역에 따르면 2026-10-18에 9900원 결제가 성공적으로 처리되었고([payments:pay_0904]), 주문 상태도 paid로 기록되어 있습니다([orders:ord_0904]). 이에 따라 10 크레딧이 부여되었지만([grants:g_ord_0904]), 메일 전송 단계에서 API 키 누락으로 오류가 발생해 알림 메일이 발송되지 않았습니다([server_logs:2026-10-18T18:00:09Z@/api/mail/send]).",
-  "customer_reply": "결제가 정상적으로 처리되어 10 크레딧이 적립되었습니다. 다만 알림 메일이 전송되지 않아 고객님께 알려드리지 못한 점 사과드립니다. 메일 재발송을 준비 중이며, 승인 후 바로 보내드리겠습니다.",
+  "explanation": "결제는 정상적으로 이루어졌으며(payments:pay_0904), 주문 상태도 paid로 기록되었고(orders:ord_0904), 10크레딧이 부여되었습니다(grants:g_ord_0904). 그러나 알림 메일 전송 시 메일 제공자 API 키 누락으로 오류가 발생했습니다(server_logs:2026-10-18T18:00:09Z@/api/mail/send). 따라서 크레딧은 지급되었으나 고객에게 알림이 가지 않았습니다.",
+  "customer_reply": "결제가 정상 처리되어 10크레딧이 계정에 적립되었습니다. 알림 메일이 전송되지 않아 불편을 드려 죄송합니다. 메일 발송 문제를 확인 후 승인되는 대로 다시 보내드리겠습니다.",
   "fix_action": "Resend the credit mail (requires approval). Code fix: alert on mail/send errors and retry with backoff.",
   "rows": {
    "orders": [
@@ -288,27 +288,27 @@
    {
     "step": "intake",
     "detail": "read the message",
-    "ms": 5056
+    "ms": 8850
    },
    {
     "step": "plan",
     "detail": "3 planned lookup(s), reached ord_0904",
-    "ms": 5059
+    "ms": 8857
    },
    {
     "step": "order_journey",
     "detail": "one query; 3 joined rows → 6 rows across 4 tables",
-    "ms": 5061
+    "ms": 8861
    },
    {
     "step": "verify_chain",
     "detail": "broken=mail_delivered",
-    "ms": 5061
+    "ms": 8861
    },
    {
     "step": "llm_explain",
     "detail": "nvidia/nemotron-3-super-120b-a12b citations_ok=True",
-    "ms": 13823
+    "ms": 15412
    }
   ],
   "steps": [
@@ -325,7 +325,7 @@
     ]
    },
    {
-    "thought": "Get the order ID from the payment found.",
+    "thought": "Get the order ID from the payment record.",
     "tool": "order_for_payment",
     "args": {
      "payment_id": "FROM_PAYMENTS"
@@ -337,7 +337,7 @@
     ]
    },
    {
-    "thought": "Show the full order history to confirm details.",
+    "thought": "Show the full order history to confirm pack, amount, and status.",
     "tool": "order_journey",
     "args": {
      "order_id": "BEST_ORDER"
@@ -389,32 +389,40 @@
    "unknown_refs": [],
    "claims": [
     {
-     "sentence": "결제 내역에 따르면 2026-10-18에 9900원 결제가 성공적으로 처리되었고([payments:pay_0904]), 주문 상태도 paid로 기록되어 있습니다([orders:ord_0904]).",
+     "sentence": "결제는 정상적으로 이루어졌으며(payments:pay_0904), 주문 상태도 paid로 기록되었고(orders:ord_0904), 10크레딧이 부여되었습니다(grants:g_ord_0904).",
      "refs": [
       "payments:pay_0904",
-      "orders:ord_0904"
+      "orders:ord_0904",
+      "grants:g_ord_0904"
      ],
      "facts": [
-      "2026",
       "10",
-      "18",
-      "9900",
-      "성공"
+      "10 credits",
+      "결제는 정상"
      ],
      "unsupported": []
     },
     {
-     "sentence": "이에 따라 10 크레딧이 부여되었지만([grants:g_ord_0904]), 메일 전송 단계에서 API 키 누락으로 오류가 발생해 알림 메일이 발송되지 않았습니다([server_logs:2026-10-18T18:00:09Z@/api/mail/send]).",
+     "sentence": "그러나 알림 메일 전송 시 메일 제공자 API 키 누락으로 오류가 발생했습니다(server_logs:2026-10-18T18:00:09Z@/api/mail/send).",
      "refs": [
+      "server_logs:2026-10-18T18:00:09Z@/api/mail/send"
+     ],
+     "facts": [
+      "api 키",
+      "오류"
+     ],
+     "unsupported": []
+    },
+    {
+     "sentence": "따라서 크레딧은 지급되었으나 고객에게 알림이 가지 않았습니다.",
+     "refs": [
+      "payments:pay_0904",
+      "orders:ord_0904",
       "grants:g_ord_0904",
       "server_logs:2026-10-18T18:00:09Z@/api/mail/send"
      ],
      "facts": [
-      "10",
-      "api 키",
-      "10 credits",
-      "발송되지 않",
-      "오류"
+      "지급되었"
      ],
      "unsupported": []
     }
@@ -423,7 +431,7 @@
   },
   "backend": "duckdb-local",
   "lang": "ko",
-  "elapsed_ms": 13826,
+  "elapsed_ms": 15419,
   "proof": {
    "fields": {
     "payment_found": true,
@@ -513,13 +521,13 @@
    ],
    "before": {
     "verdict": "no_matching_payment",
-    "reply": "안녕하세요, 고객님. 결제 스크린샷에 표시된 9,900원(10월 20일 03:00) 거래를 당사 결제 내역에서 확인하지 못했습니다. 다만 해당 주소에서 9,900원(10월 19일 03:00) 결제 내역이 보이는 점 참고 부탁드립니다. 카드 명세서의 해당 라인을 보내주시거나 다른 카드·주소를 사용하셨는지 알려주시면 감사하겠습니다."
+    "reply": "안녕하세요, 고객님. 결제 내역을 확인한 결과, 2026년 10월 20일 03시경에 9,900원 결제 기록을 찾을 수 없었습니다. 해당 주소로는 현재 다른 내역이 보이지 않습니다. 카드 명세서에서 해당 거래 라인을 보내주시거나, 다른 카드나 주소를 사용하셨는지 알려주시면 감사하겠습니다."
    },
    "after": {
     "verdict": "ledger_match",
-    "reply": "결제가 정상적으로 처리되어 10 크레딧이 적립되었습니다. 다만 알림 메일이 전송되지 않아 고객님께 알려드리지 못한 점 사과드립니다. 메일 재발송을 준비 중이며, 승인 후 바로 보내드리겠습니다."
+    "reply": "결제가 정상 처리되어 10크레딧이 계정에 적립되었습니다. 알림 메일이 전송되지 않아 불편을 드려 죄송합니다. 메일 발송 문제를 확인 후 승인되는 대로 다시 보내드리겠습니다."
    }
   },
-  "proof_elapsed_ms": 15508
+  "proof_elapsed_ms": 16858
  }
 }

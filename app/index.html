@@ -49,6 +49,7 @@ details{margin-top:14px}details>summary{cursor:pointer;font-size:18px;font-weigh
 .how-step b{display:block;font-size:13px;font-weight:600;line-height:1.3}
 .how-step span{display:block;font-size:12px;color:var(--mut);margin-top:2px;line-height:1.35}
 .fix-card{border-color:var(--ok)}.fix-meta{font-size:13px;color:var(--mut);margin:4px 0}.fix-chains{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}@media(max-width:720px){.fix-chains{grid-template-columns:1fr}}
+@media(max-width:1100px){.fix-chains{grid-template-columns:1fr}}
 .fix-chains .panel{border-radius:10px;padding:10px;border:2px solid var(--line)}.fix-chains .panel.before{border-color:var(--bad);background:rgba(255,77,79,.08)}.fix-chains .panel.after{border-color:var(--ok);background:rgba(46,204,113,.08)}
 .fix-chains .panel h3{font-size:13px;margin:0 0 8px;color:var(--mut)}.fix-chains .mini{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}@media(max-width:640px){.fix-chains .mini{grid-template-columns:repeat(2,1fr)}}
 .calls td,.calls th{font-size:12.5px;padding:3px 8px 3px 0;text-align:left;vertical-align:top}.calls{border-collapse:collapse}.banner{border-color:var(--acc);background:rgba(91,141,239,.08)}.res-match{color:var(--ok);font-weight:600}.res-differs{color:var(--bad);font-weight:600}.res-unchecked{color:var(--mut)}.masked{font:12.5px/1.5 ui-monospace,Menlo,monospace;white-space:pre-wrap;background:#0c0e12;border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:6px 0}.drop{color:#f3c969;font-size:12.5px}.fake{color:#f3c969;font-weight:700}
@@ -204,9 +205,11 @@ const I18N={
     ignored:'Numbers the reader did not take as the payment',
     sentNote:(r,red)=>`Sent to the model: ${r}${red&&red.length?' ('+red.length+' line(s) blurred)':''}.`,
     recordsTitle:'This customer\'s records',
+    otherRecords:'This customer\'s latest order (not matched to the screenshot)',
     followHead:{ledger_match:'The payment the customer now describes is in the ledger.',no_matching_payment:'Still no payment like this in the ledger.',not_paid:'The payment was not completed.',unread:'Still not enough to check.'},
     proofHead:{ledger_match:'The payment on the screenshot is in the ledger.',no_matching_payment:'No payment like this in the ledger: same amount, but not at that time.',not_paid:'The screenshot itself shows the payment was not completed.',unread:'The screenshot could not be read well enough to check.'},
     ledgerWins:'The ledger decides, not the photo.',
+    proofRulesOnly:x=>`Without Nemotron, free on-device OCR + payment-word rules would read ${(x.amount||0).toLocaleString('en-US')}원${x.date?' · '+x.date:''}${x.time?' '+x.time:''}: a different line on the screen.`,
     cost:'Cost',total:'Total',escalated:(why,used)=>`Escalated to the bigger model: ${why} (answer used: ${used}).`,
     readingPhoto:'Reading the screenshot…',
     recorded:(when,prov)=>`Recorded live run on ${prov}, ${when}. Same code; shown instantly so you don\'t wait.`,
@@ -323,9 +326,11 @@ const I18N={
     ignored:'결제로 보지 않은 숫자',
     sentNote:(r,red)=>`모델에 보낸 사진: ${r}${red&&red.length?' ('+red.length+'줄 흐림 처리)':''}.`,
     recordsTitle:'이 고객의 기록',
+    otherRecords:'이 고객의 최근 주문 (캡처와 맞지 않음)',
     followHead:{ledger_match:'손님이 다시 말한 결제가 장부에 있습니다.',no_matching_payment:'여전히 장부에 그런 결제가 없습니다.',not_paid:'결제가 끝나지 않았습니다.',unread:'아직 확인할 만큼 정보가 없습니다.'},
     proofHead:{ledger_match:'캡처의 결제가 장부에 있습니다.',no_matching_payment:'장부에 이런 결제가 없습니다: 금액은 같지만 그 시각이 아닙니다.',not_paid:'캡처 자체가 결제 미완료를 보여 줍니다.',unread:'캡처를 확인할 만큼 읽지 못했습니다.'},
     ledgerWins:'판정은 사진이 아니라 장부가 합니다.',
+    proofRulesOnly:x=>`Nemotron 없이 무료 기기 OCR + 결제 단어 규칙으로 읽으면 ${(x.amount||0).toLocaleString('ko-KR')}원${x.date?' · '+x.date:''}${x.time?' '+x.time:''}: 화면의 다른 줄입니다.`,
     cost:'비용',total:'합계',escalated:(why,used)=>`큰 모델로 다시 읽음: ${why} (쓴 답: ${used}).`,
     readingPhoto:'캡처 읽는 중…',
     recorded:(when,prov)=>`${prov}에서 실제로 돌린 결과를 녹화해 둔 것(${when}). 코드는 같고, 기다리지 않도록 바로 보여 줍니다.`,
@@ -492,7 +497,9 @@ function statusLine(r){
   const data=be?( /zetaris/i.test(be)?i.dataZetaris:i.dataLocal):'';
   if(!r.ok)return data;
   const parts=[];
+  const used=[...new Set((r.model_calls||[]).filter(c=>c.ok!==false&&c.model).map(c=>prettyModel(c.model)))];
   if(r.limited)parts.push(i.limitedExplain(r.limited));
+  else if(used.length)parts.push(i.answeredBy(used.join(', ')));
   else if(r.llm==='verifier-only')parts.push(i.recheckExplain);
   else if(r.llm==='failed')parts.push(i.failedExplain);
   else if(r.llm==='unreachable')parts.push(i.unreachableExplain);
@@ -705,7 +712,7 @@ function renderIntake(r){
   const row=(lab,val)=>val?`<tr><th>${esc(lab)}</th><td>${val}</td></tr>`:'';
   const rows=[row(i.sender,who(g.sender)),row(i.otherPeople,(g.other_people||[]).map(who).join(', ')),row(i.orderNos,esc((g.order_ids||[]).join(', '))),
     row(i.foreignNos,esc((g.foreign_order_ids||[]).join(', '))),row(i.amountSaid,g.amount?esc(Number(g.amount.value).toLocaleString()+' '+g.amount.currency):''),
-    row(i.paidWhen,esc(g.paid_when||'')),row(i.pack,esc(g.pack||'')),row(i.complaint,esc(String(g.complaint||'').replace(/_/g,' '))),row(i.wants,esc((g.wants||[]).join(', ').replace(/_/g,' ')))].join('');
+    row(i.paidWhen,esc(g.paid_when||'')),row(i.pack,esc(g.pack||'')),row(i.complaint,esc(({not_received:'nothing arrived',charged_twice:'charged twice',credited_twice:'credited twice',no_email:'no email',not_sure_paid:'not sure the payment went through',other:'something else'}[g.complaint]||String(g.complaint||'').replace(/_/g,' ')))),row(i.wants,esc((g.wants||[]).join(', ').replace(/_/g,' ')))].join('');
   const plan=(g.plan||[]).map(s=>`<li><span class="tool">${esc(trTool(s.tool))} ${esc(trArgs(s.args))}</span> — ${esc(s.why)}</li>`).join('');
   const drop=(g.dropped||[]).length?`<p class="drop">${esc(i.dropped)} ${esc(g.dropped.map(d=>d.field+': '+(typeof d.value==='string'?d.value:JSON.stringify(d.value))+' ('+d.why+')').join('; '))}</p>`:'';
   return `<div class="card"><h2>${esc(i.intakeTitle)} <span class="tag">${esc(k.model||'')}</span></h2>
@@ -743,8 +750,8 @@ function renderProof(r){
     <div><div class="shot"><img src="${esc(p.image_data_url||'')}" alt="screenshot">${boxes}</div>${legend}${p.highlight_source?`<p class="mut" style="font-size:12px">${esc(i.boxesFrom(p.highlight_source))}</p>`:''}</div>
     <div><p class="verdict ${cls}">${esc(((r.followup?i.followHead:i.proofHead)||{})[p.verdict]||p.headline)}</p><p class="mut" style="margin:0 0 8px">${esc(i.ledgerWins)}</p>
       <div class="rows"><table class="calls"><tr>${i.proofH.map(h=>`<th>${esc(h)}</th>`).join('')}</tr>${rows}</table></div>
-      ${ign}${drop}${notes}
-      <p class="mut" style="font-size:12px;margin-top:8px">${esc(i.readBy(({'vision model':'the vision model','followup model':'the answer reader'}[rd.reader]||rd.reader||'—'),rd.model?prettyModel(rd.model):''))}${rd.json_mode?' · JSON: '+esc(rd.json_mode):''}${rd.ok===false&&rd.error?' · '+esc(rd.error):''}<br>${esc(i.sentNote(img.redaction||'',img.redacted))}</p></div>
+      ${p.rules_only&&!p.rules_only.same_as_model&&p.rules_only.amount!=null?`<div class="warnline">${esc(i.proofRulesOnly(p.rules_only))}</div>`:''}${ign}${drop}${notes}
+      <p class="mut" style="font-size:12px;margin-top:8px">${esc(i.readBy(({'vision model':'the vision model','followup model':'the answer reader'}[rd.reader]||rd.reader||'—'),rd.model?prettyModel(rd.model):''))}${rd.ok===false&&rd.error?' · '+esc(rd.error):''}<br>${esc(i.sentNote(img.redaction||'',img.redacted))}</p></div>
   </div></div>`;
 }
 
@@ -775,7 +782,6 @@ function renderFixCard(){
   const i=t();
   const f=lastFix;
   return `<div class="card fix-card"><h2>${esc(i.fixedByYou)}</h2>
-    <p class="fix-meta">${esc(i.actionId)}: <b>${esc(f.action_id)}</b></p>
     <p class="prose">${esc(f.detail)}</p>
     <p class="fix-meta">${esc(f.ts)}</p>
     <div class="fix-chains">
@@ -799,6 +805,7 @@ function render(r, opts){
   const rows=Object.entries(r.rows).map(([table,rs])=>rs.length?`<h3 style="margin:10px 0 4px;font-size:14px">${esc(table)} <span class="tag">${esc(rowsLabel(rs.length))}</span></h3><table><tr>${Object.keys(rs[0]).filter(k=>k!=='ref').map(k=>`<th>${esc(k)}</th>`).join('')}</tr>${rs.map(x=>`<tr class="${cited.has(x.ref)?'cited':''}" id="row-${esc(slug(x.ref))}">${Object.entries(x).filter(([k])=>k!=='ref').map(([,v])=>`<td>${esc(v)}</td>`).join('')}</tr>`).join('')}</table>`:'').join('');
   let citeNote=i.citationSkip;
   if(r.citation_check&&r.citation_check.checked)citeNote=r.citation_check.ok?i.citationOk:i.citationFail;
+  const noMatch=!!(r.proof&&!r.followup&&['no_matching_payment','unread'].includes(r.proof.verdict));
   const needsFix=r.broken!=null&&!r.proof_blocks_fix;
   const fixTag=needsFix
     ?`<span class="tag warn">${esc(i.needsApproval)}</span>`
@@ -809,8 +816,8 @@ function render(r, opts){
 
   $('#out').innerHTML=`
   ${renderBanner(r)}${renderTurn2(r)}${renderProof(r)}${renderFixCard()}
-  <div class="card">${r.proof?`<h2>${esc(i.recordsTitle)}</h2>`:''}<div class="headline">${esc(trHeadline(r.headline))}</div><div class="mut">order ${esc(r.order_id)} · ${esc(r.email)}</div>${r.ignored_order?`<div class="warnline">${esc(i.ignoredOrder(r.ignored_order))}</div>`:''}${r.sender_unverified?`<div class="warnline">${esc(i.senderUnverified)}</div>`:''}
-    <div class="chain">${chain}</div></div>
+  ${noMatch?`<details class="card"><summary>${esc(i.otherRecords)}</summary>`:'<div class="card">'}${r.proof&&!noMatch?`<h2>${esc(i.recordsTitle)}</h2>`:''}<div class="headline">${esc(trHeadline(r.headline))}</div><div class="mut">order ${esc(r.order_id)} · ${esc(r.email)}</div>${r.ignored_order?`<div class="warnline">${esc(i.ignoredOrder(r.ignored_order))}</div>`:''}${r.sender_unverified?`<div class="warnline">${esc(i.senderUnverified)}</div>`:''}
+    <div class="chain">${chain}</div>${noMatch?'</details>':'</div>'}
   <div class="two">
     <div class="card"><div class="card-head"><h2>${esc(r.followup?i.replyNow:i.reply)}</h2><button type="button" class="ghost" id="copy-reply">${esc(i.copy)}</button></div>
       ${replyNote}<div class="prose" id="reply-text">${esc(r.customer_reply)}</div>
@@ -820,14 +827,14 @@ function render(r, opts){
       <p id="approve-msg" class="hint" style="margin:8px 0 0" hidden></p></div>
   </div>
   ${renderFollowCard(r)}
-  ${renderClaims(r)}
-  ${renderIntake(r)}
-  ${renderSteps(r.steps)}
+  ${noMatch?'':renderClaims(r)}
+  ${noMatch?'':renderIntake(r)}
+  ${noMatch?'':renderSteps(r.steps)}
   ${renderCalls(r)}
-  <div class="card"><h2>${esc(i.why)}</h2>${renderWhy(r)}${(!r.citation_check||!r.citation_check.checked||r.citation_check.replaced_with_verifier_text)?`<p class="hint">${esc(i.knownPattern)}</p>`:''}
+  ${noMatch?'<div hidden>':''}<div class="card"><h2>${esc(i.why)}</h2>${renderWhy(r)}${(!r.citation_check||!r.citation_check.checked||r.citation_check.replaced_with_verifier_text)?`<p class="hint">${esc(i.knownPattern)}</p>`:''}
     <p class="mut" style="font-size:12px">${esc(citeNote)}</p></div>
   <div class="card two"><div><h2>${esc(i.verified)}</h2><ul>${r.verified.map(v=>`<li>${esc(v)}</li>`).join('')}</ul></div>
-    <div><h2>${esc(i.unverified)}</h2><ul>${r.unverified.map(v=>`<li>${esc(v)}</li>`).join('')||`<li class="mut">—</li>`}</ul></div></div>
+    <div><h2>${esc(i.unverified)}</h2><ul>${r.unverified.map(v=>`<li>${esc(v)}</li>`).join('')||`<li class="mut">—</li>`}</ul></div></div>${noMatch?'</div>':''}
   <details class="card rows" id="evidence"><summary>${esc(i.evidence)}</summary>${(()=>{const q=(r.queries||[]).filter(x=>x.tool==='order_journey').pop();return q?`<p class="hint">${esc(i.oneQuery(sqlSource(r),q.rows))}</p><pre class="sqlbox">${esc(prettySql(q.sql))}</pre>`:'';})()}${rows}</details>
   <details class="card" id="trace"><summary>${esc(i.trace)}</summary><ul>${(r.trace||[]).map(tr=>`<li><b>${esc(tr.step)}</b> — ${esc(tr.detail)} <span class="mut">${esc(tr.ms)} ${esc(i.ms)}</span></li>`).join('')}</ul>${(r.queries||[]).length?`<p class="hint">${esc(i.allSql(sqlSource(r)))}</p><pre class="sqlbox">${esc(r.queries.map(q=>`-- ${q.tool} · ${q.rows} row(s)\n`+prettySql(q.sql)).join('\n\n'))}</pre>`:''}</details>`;
 
