@@ -1,0 +1,378 @@
+{
+ "meta": {
+  "recorded_at": "2026-10-29T16:15:53+09:00",
+  "provider": "Nebius Token Factory",
+  "models": [
+   "nvidia/Nemotron-3_5-Lightning",
+   "nvidia/nemotron-3-super-120b-a12b"
+  ],
+  "requested": {
+   "intake": "nvidia/Nemotron-3_5-Lightning",
+   "explain": "nvidia/nemotron-3-super-120b-a12b"
+  },
+  "code_commit": "0c7ce51",
+  "wall_ms": 12095,
+  "status": "ok"
+ },
+ "result": {
+  "ok": true,
+  "order_id": "ord_0904",
+  "email": "noah.chen904@example.com",
+  "headline": "Credits were granted, but the customer was never told.",
+  "intake": {
+   "ok": true,
+   "masked": "Credits arrived but I never got an email. Order ord_0904. EMAIL_1 (n***@example.com)",
+   "placeholders": {
+    "EMAIL_1": "n***@example.com"
+   },
+   "model": "nvidia/Nemotron-3_5-Lightning",
+   "error": null,
+   "routing": {
+    "escalated": false,
+    "reason": null
+   },
+   "grounded": {
+    "sender": "EMAIL_1",
+    "other_people": [],
+    "order_ids": [
+     "ord_0904"
+    ],
+    "foreign_order_ids": [],
+    "amount": null,
+    "paid_when": null,
+    "pack": null,
+    "complaint": "no_email",
+    "wants": [
+     "explanation",
+     "resend_email"
+    ],
+    "language": "en",
+    "unsure": false,
+    "plan": [
+     {
+      "tool": "find_orders",
+      "args": {
+       "order_id": "ord_0904"
+      },
+      "why": "Retrieve order details for ord_0904 to check status and email delivery."
+     },
+     {
+      "tool": "order_journey",
+      "args": {
+       "order_id": "ord_0904"
+      },
+      "why": "Get the full history of the order to see if the email was sent and when credits were delivered."
+     }
+    ],
+    "dropped": []
+   }
+  },
+  "claims_vs_records": [
+   {
+    "claim": "what went wrong",
+    "says": "no email",
+    "records": "Credits were granted, but the customer was never told.",
+    "result": "match",
+    "refs": [],
+    "note": ""
+   }
+  ],
+  "rules_only": {
+   "ok": true,
+   "order_id": "ord_0904",
+   "broken": "mail_delivered",
+   "headline": "Credits were granted, but the customer was never told.",
+   "same": true
+  },
+  "model_calls": [
+   {
+    "role": "intake",
+    "model": "nvidia/Nemotron-3_5-Lightning",
+    "requested_model": "nvidia/Nemotron-3_5-Lightning",
+    "provider": "Nebius Token Factory",
+    "ok": true,
+    "ms": 2054,
+    "prompt_tokens": 865,
+    "completion_tokens": 188,
+    "usd": 9.7e-05,
+    "finish": "stop",
+    "thinking": false
+   },
+   {
+    "role": "explain",
+    "model": "nvidia/nemotron-3-super-120b-a12b",
+    "requested_model": "nvidia/nemotron-3-super-120b-a12b",
+    "provider": "Nebius Token Factory",
+    "ok": true,
+    "ms": 9927,
+    "prompt_tokens": 1394,
+    "completion_tokens": 1790,
+    "usd": 0.002029,
+    "finish": "stop",
+    "thinking": null
+   }
+  ],
+  "provider": "Nebius Token Factory",
+  "ignored_order": "",
+  "sender_unverified": false,
+  "chain": [
+   {
+    "name": "card_authorized",
+    "label": "Card authorized",
+    "state": "green",
+    "note": "Payment provider shows a PAID charge of 9900 KRW (card •••• 1117)",
+    "refs": [
+     "payments:pay_0904"
+    ]
+   },
+   {
+    "name": "psp_paid",
+    "label": "Payment provider: paid",
+    "state": "green",
+    "note": "Payment provider status: PAID",
+    "refs": [
+     "payments:pay_0904"
+    ]
+   },
+   {
+    "name": "order_created",
+    "label": "Order confirmed",
+    "state": "green",
+    "note": "Order status paid in our database",
+    "refs": [
+     "orders:ord_0904",
+     "server_logs:2026-10-18T18:00:06Z@/api/payments/confirm"
+    ]
+   },
+   {
+    "name": "credit_granted",
+    "label": "Credits granted",
+    "state": "green",
+    "note": "10 credits granted",
+    "refs": [
+     "grants:g_ord_0904"
+    ]
+   },
+   {
+    "name": "mail_delivered",
+    "label": "Mail delivered",
+    "state": "red",
+    "note": "mail provider error: missing API key",
+    "refs": [
+     "server_logs:2026-10-18T18:00:09Z@/api/mail/send"
+    ]
+   }
+  ],
+  "broken": "mail_delivered",
+  "verified": [
+   "Charge exists at the payment provider (payments:pay_0904)",
+   "Order row is paid (orders:ord_0904)",
+   "Grant row exists (grants:g_ord_0904)"
+  ],
+  "unverified": [
+   "Customer's spam folder"
+  ],
+  "explanation": "The payment for order ord_0904 was successful (9900 KRW) [orders:ord_0904][payments:pay_0904], and 10 credits were granted to the account linked to that order [grants:g_ord_0904]. However, the automated email that should have notified you of the credits failed because the mail service reported a missing API key [server_logs:2026-10-18T18:00:09Z@/api/mail/send]. Hence you received the credits but no notification.",
+  "customer_reply": "Hi there, your payment for order ord_0904 was successful and 10 credits were added to your account. Unfortunately, the email confirming the credits didn’t send due to a technical issue. We will arrange for the confirmation email to be sent as soon as possible. Thank you for your patience.",
+  "fix_action": "Resend the credit mail (requires approval). Code fix: alert on mail/send errors and retry with backoff.",
+  "rows": {
+   "orders": [
+    {
+     "order_id": "ord_0904",
+     "payment_id": "pay_0904",
+     "email": "noah.chen904@example.com",
+     "reward_key": "lite10",
+     "amount": "9900",
+     "status": "paid",
+     "credited": "1",
+     "created_at": "2026-10-18T18:00:00Z",
+     "updated_at": "2026-10-18T18:00:09Z",
+     "ref": "orders:ord_0904"
+    }
+   ],
+   "payments": [
+    {
+     "payment_id": "pay_0904",
+     "amount": "9900",
+     "currency": "KRW",
+     "status": "PAID",
+     "card_last4": "1117",
+     "customer_email": "noah.chen904@example.com",
+     "created_at": "2026-10-18T18:00:00Z",
+     "ref": "payments:pay_0904"
+    }
+   ],
+   "grants": [
+    {
+     "grant_id": "g_ord_0904",
+     "email": "noah.chen904@example.com",
+     "reward_key": "lite10",
+     "credits": "10",
+     "status": "granted",
+     "order_id": "ord_0904",
+     "created_at": "2026-10-18T18:00:08Z",
+     "ref": "grants:g_ord_0904"
+    }
+   ],
+   "server_logs": [
+    {
+     "ts": "2026-10-18T18:00:02Z",
+     "route": "/api/payments/webhook",
+     "order_id": "ord_0904",
+     "http_status": "200",
+     "message": "PSP webhook PAID",
+     "ref": "server_logs:2026-10-18T18:00:02Z@/api/payments/webhook"
+    },
+    {
+     "ts": "2026-10-18T18:00:06Z",
+     "route": "/api/payments/confirm",
+     "order_id": "ord_0904",
+     "http_status": "200",
+     "message": "confirmed; credits granted",
+     "ref": "server_logs:2026-10-18T18:00:06Z@/api/payments/confirm"
+    },
+    {
+     "ts": "2026-10-18T18:00:09Z",
+     "route": "/api/mail/send",
+     "order_id": "ord_0904",
+     "http_status": "500",
+     "message": "mail provider error: missing API key",
+     "ref": "server_logs:2026-10-18T18:00:09Z@/api/mail/send"
+    }
+   ],
+   "mail_events": []
+  },
+  "trace": [
+   {
+    "step": "intake",
+    "detail": "read the message",
+    "ms": 2062
+   },
+   {
+    "step": "plan",
+    "detail": "2 planned lookup(s), reached ord_0904",
+    "ms": 2072
+   },
+   {
+    "step": "order_journey",
+    "detail": "one query; 3 joined rows → 6 rows across 4 tables",
+    "ms": 2078
+   },
+   {
+    "step": "verify_chain",
+    "detail": "broken=mail_delivered",
+    "ms": 2078
+   },
+   {
+    "step": "llm_explain",
+    "detail": "nvidia/nemotron-3-super-120b-a12b citations_ok=True",
+    "ms": 12009
+   }
+  ],
+  "steps": [
+   {
+    "thought": "Retrieve order details for ord_0904 to check status and email delivery.",
+    "tool": "find_orders",
+    "args": {
+     "order_id": "ord_0904"
+    },
+    "rows": 1,
+    "planned": true,
+    "sql": [
+     "SELECT * FROM orders WHERE order_id = 'ord_0904' ORDER BY created_at DESC LIMIT 10"
+    ]
+   },
+   {
+    "thought": "Get the full history of the order to see if the email was sent and when credits were delivered.",
+    "tool": "order_journey",
+    "args": {
+     "order_id": "ord_0904"
+    },
+    "rows": 6,
+    "planned": true,
+    "sql": [
+     "SELECT o.order_id AS o__order_id, o.payment_id AS o__payment_id, o.email AS o__email, o.reward_key AS o__reward_key, o.amount AS o__amount, o.status AS o__status, o.credited AS o__credited, o.created_at AS o__created_at, o.updated_at AS o__updated_at, p.payment_id AS p__payment_id, p.amount AS p__amount, p.currency AS p__currency, p.status AS p__status, p.card_last4 AS p__card_last4, p.customer_email AS p__customer_email, p.created_at AS p__created_at, g.grant_id AS g__grant_id, g.email AS g__email, g.reward_key AS g__reward_key, g.credits AS g__credits, g.status AS g__status, g.order_id AS g__order_id, g.created_at AS g__created_at, l.ts AS l__ts, l.route AS l__route, l.order_id AS l__order_id, l.http_status AS l__http_status, l.message AS l__message, m.email_id AS m__email_id, m.to_address AS m__to_address, m.event AS m__event, m.ts AS m__ts, m.order_tag AS m__order_tag FROM orders o LEFT JOIN payments p ON p.payment_id = o.payment_id LEFT JOIN grants g ON g.order_id = o.order_id LEFT JOIN server_logs l ON l.order_id = o.order_id LEFT JOIN mail_events m ON m.order_tag = o.order_id WHERE o.order_id = 'ord_0904'"
+    ]
+   }
+  ],
+  "queries": [
+   {
+    "tool": "find_orders",
+    "sql": "SELECT * FROM orders WHERE order_id = 'ord_0904' ORDER BY created_at DESC LIMIT 10",
+    "rows": 1,
+    "backend": "duckdb-local"
+   },
+   {
+    "tool": "order_journey",
+    "sql": "SELECT o.order_id AS o__order_id, o.payment_id AS o__payment_id, o.email AS o__email, o.reward_key AS o__reward_key, o.amount AS o__amount, o.status AS o__status, o.credited AS o__credited, o.created_at AS o__created_at, o.updated_at AS o__updated_at, p.payment_id AS p__payment_id, p.amount AS p__amount, p.currency AS p__currency, p.status AS p__status, p.card_last4 AS p__card_last4, p.customer_email AS p__customer_email, p.created_at AS p__created_at, g.grant_id AS g__grant_id, g.email AS g__email, g.reward_key AS g__reward_key, g.credits AS g__credits, g.status AS g__status, g.order_id AS g__order_id, g.created_at AS g__created_at, l.ts AS l__ts, l.route AS l__route, l.order_id AS l__order_id, l.http_status AS l__http_status, l.message AS l__message, m.email_id AS m__email_id, m.to_address AS m__to_address, m.event AS m__event, m.ts AS m__ts, m.order_tag AS m__order_tag FROM orders o LEFT JOIN payments p ON p.payment_id = o.payment_id LEFT JOIN grants g ON g.order_id = o.order_id LEFT JOIN server_logs l ON l.order_id = o.order_id LEFT JOIN mail_events m ON m.order_tag = o.order_id WHERE o.order_id = 'ord_0904'",
+    "rows": 3,
+    "backend": "duckdb-local"
+   },
+   {
+    "tool": "find_orders",
+    "sql": "SELECT * FROM orders WHERE order_id = 'ord_0904' ORDER BY created_at DESC LIMIT 10",
+    "rows": 1,
+    "backend": "duckdb-local"
+   },
+   {
+    "tool": "order_journey",
+    "sql": "SELECT o.order_id AS o__order_id, o.payment_id AS o__payment_id, o.email AS o__email, o.reward_key AS o__reward_key, o.amount AS o__amount, o.status AS o__status, o.credited AS o__credited, o.created_at AS o__created_at, o.updated_at AS o__updated_at, p.payment_id AS p__payment_id, p.amount AS p__amount, p.currency AS p__currency, p.status AS p__status, p.card_last4 AS p__card_last4, p.customer_email AS p__customer_email, p.created_at AS p__created_at, g.grant_id AS g__grant_id, g.email AS g__email, g.reward_key AS g__reward_key, g.credits AS g__credits, g.status AS g__status, g.order_id AS g__order_id, g.created_at AS g__created_at, l.ts AS l__ts, l.route AS l__route, l.order_id AS l__order_id, l.http_status AS l__http_status, l.message AS l__message, m.email_id AS m__email_id, m.to_address AS m__to_address, m.event AS m__event, m.ts AS m__ts, m.order_tag AS m__order_tag FROM orders o LEFT JOIN payments p ON p.payment_id = o.payment_id LEFT JOIN grants g ON g.order_id = o.order_id LEFT JOIN server_logs l ON l.order_id = o.order_id LEFT JOIN mail_events m ON m.order_tag = o.order_id WHERE o.order_id = 'ord_0904'",
+    "rows": 3,
+    "backend": "duckdb-local"
+   }
+  ],
+  "receipts": [],
+  "llm": "nvidia/nemotron-3-super-120b-a12b",
+  "citation_check": {
+   "checked": true,
+   "ok": true,
+   "unknown_refs": [],
+   "claims": [
+    {
+     "sentence": "The payment for order ord_0904 was successful (9900 KRW) [orders:ord_0904][payments:pay_0904], and 10 credits were granted to the account linked to that order [grants:g_ord_0904].",
+     "refs": [
+      "orders:ord_0904",
+      "payments:pay_0904",
+      "grants:g_ord_0904"
+     ],
+     "facts": [
+      "9900",
+      "10",
+      "ord_0904",
+      "10 credits",
+      "granted",
+      "successful"
+     ],
+     "unsupported": []
+    },
+    {
+     "sentence": "However, the automated email that should have notified you of the credits failed because the mail service reported a missing API key [server_logs:2026-10-18T18:00:09Z@/api/mail/send].",
+     "refs": [
+      "server_logs:2026-10-18T18:00:09Z@/api/mail/send"
+     ],
+     "facts": [
+      "api key"
+     ],
+     "unsupported": []
+    },
+    {
+     "sentence": "Hence you received the credits but no notification.",
+     "refs": [
+      "orders:ord_0904",
+      "payments:pay_0904",
+      "grants:g_ord_0904",
+      "server_logs:2026-10-18T18:00:09Z@/api/mail/send"
+     ],
+     "facts": [
+      "received the credits"
+     ],
+     "unsupported": []
+    }
+   ],
+   "claims_ok": true
+  },
+  "backend": "duckdb-local",
+  "lang": "en",
+  "elapsed_ms": 12019
+ }
+}

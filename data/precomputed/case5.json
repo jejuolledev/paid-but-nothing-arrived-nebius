@@ -1,0 +1,355 @@
+{
+ "meta": {
+  "recorded_at": "2026-10-29T16:16:04+09:00",
+  "provider": "Nebius Token Factory",
+  "models": [
+   "nvidia/Nemotron-3-Ultra-550b-a55b",
+   "nvidia/Nemotron-3_5-Lightning",
+   "nvidia/nemotron-3-super-120b-a12b"
+  ],
+  "requested": {
+   "intake": "nvidia/Nemotron-3_5-Lightning",
+   "explain": "nvidia/nemotron-3-super-120b-a12b"
+  },
+  "code_commit": "0c7ce51",
+  "wall_ms": 10742,
+  "status": "ok"
+ },
+ "result": {
+  "ok": true,
+  "order_id": "ord_0905",
+  "email": "emma.song905@example.com",
+  "headline": "Nothing is broken. You were never charged.",
+  "intake": {
+   "ok": true,
+   "masked": "I thought I paid but nothing showed up. Order ord_0905. EMAIL_1 (e***@example.com)",
+   "placeholders": {
+    "EMAIL_1": "e***@example.com"
+   },
+   "model": "nvidia/Nemotron-3-Ultra-550b-a55b",
+   "error": null,
+   "routing": {
+    "escalated": true,
+    "reason": "the reader said it was unsure",
+    "first_model": "nvidia/Nemotron-3_5-Lightning",
+    "second_model": "nvidia/Nemotron-3-Ultra-550b-a55b",
+    "used": "escalate",
+    "second_unsure": null
+   },
+   "grounded": {
+    "sender": "EMAIL_1",
+    "other_people": [],
+    "order_ids": [
+     "ord_0905"
+    ],
+    "foreign_order_ids": [],
+    "amount": null,
+    "paid_when": null,
+    "pack": null,
+    "complaint": "not_received",
+    "wants": [
+     "credits",
+     "explanation"
+    ],
+    "language": "en",
+    "unsure": false,
+    "plan": [
+     {
+      "tool": "find_orders",
+      "args": {
+       "email": "EMAIL_1"
+      },
+      "why": "Locate all orders associated with the customer's email to verify ord_0905 exists and see its status."
+     },
+     {
+      "tool": "order_journey",
+      "args": {
+       "order_id": "ord_0905"
+      },
+      "why": "Get the full history of the specific order to see payment status, credit delivery, and any issues."
+     },
+     {
+      "tool": "find_payments",
+      "args": {
+       "email": "EMAIL_1"
+      },
+      "why": "Check the payment provider's ledger for any payments made by this email that might not be linked to an order."
+     }
+    ],
+    "dropped": []
+   }
+  },
+  "claims_vs_records": [
+   {
+    "claim": "what went wrong",
+    "says": "not received",
+    "records": "Nothing is broken. You were never charged.",
+    "result": "differs",
+    "refs": [],
+    "note": "No charge exists, so nothing was owed."
+   }
+  ],
+  "rules_only": {
+   "ok": true,
+   "order_id": "ord_0905",
+   "broken": null,
+   "headline": "Nothing is broken. You were never charged.",
+   "same": true
+  },
+  "model_calls": [
+   {
+    "role": "intake",
+    "model": "nvidia/Nemotron-3_5-Lightning",
+    "requested_model": "nvidia/Nemotron-3_5-Lightning",
+    "provider": "Nebius Token Factory",
+    "ok": true,
+    "ms": 2249,
+    "prompt_tokens": 864,
+    "completion_tokens": 277,
+    "usd": 0.000118,
+    "finish": "stop",
+    "thinking": false
+   },
+   {
+    "role": "escalate",
+    "model": "nvidia/Nemotron-3-Ultra-550b-a55b",
+    "requested_model": "nvidia/Nemotron-3-Ultra-550b-a55b",
+    "provider": "Nebius Token Factory",
+    "ok": true,
+    "ms": 1723,
+    "prompt_tokens": 864,
+    "completion_tokens": 477,
+    "usd": 0.002295,
+    "finish": "stop",
+    "thinking": null
+   },
+   {
+    "role": "explain",
+    "model": "nvidia/nemotron-3-super-120b-a12b",
+    "requested_model": "nvidia/nemotron-3-super-120b-a12b",
+    "provider": "Nebius Token Factory",
+    "ok": true,
+    "ms": 6647,
+    "prompt_tokens": 802,
+    "completion_tokens": 963,
+    "usd": 0.001107,
+    "finish": "stop",
+    "thinking": null
+   }
+  ],
+  "provider": "Nebius Token Factory",
+  "ignored_order": "",
+  "sender_unverified": false,
+  "chain": [
+   {
+    "name": "card_authorized",
+    "label": "Card authorized",
+    "state": "grey",
+    "note": "No charge at the payment provider for this order",
+    "refs": []
+   },
+   {
+    "name": "psp_paid",
+    "label": "Payment provider: paid",
+    "state": "grey",
+    "note": "not reached",
+    "refs": []
+   },
+   {
+    "name": "order_created",
+    "label": "Order confirmed",
+    "state": "grey",
+    "note": "not reached",
+    "refs": []
+   },
+   {
+    "name": "credit_granted",
+    "label": "Credits granted",
+    "state": "grey",
+    "note": "not reached",
+    "refs": []
+   },
+   {
+    "name": "mail_delivered",
+    "label": "Mail delivered",
+    "state": "grey",
+    "note": "not reached",
+    "refs": []
+   }
+  ],
+  "broken": null,
+  "verified": [
+   "No payment row at the payment provider for this order or email"
+  ],
+  "unverified": [
+   "Customer's card statement (not provided) — could confirm nothing was charged on their side"
+  ],
+  "explanation": "The order ord_0905 exists with a pending status and no payment ID, and the server log shows only a checkout start event with no subsequent payment attempt ([orders:ord_0905], [server_logs:2026-10-20T05:00:00Z@/api/checkout/start]). Therefore no charge was made to the customer’s card.",
+  "customer_reply": "Thank you for writing. I checked our payment provider: no charge was made on your card for this order, so nothing is missing and nothing will be billed. I can send you a fresh checkout link whenever you are ready.",
+  "fix_action": "No fix needed. Reply with reassurance and a fresh checkout link.",
+  "rows": {
+   "orders": [
+    {
+     "order_id": "ord_0905",
+     "payment_id": null,
+     "email": "emma.song905@example.com",
+     "reward_key": "std30",
+     "amount": "24900",
+     "status": "pending",
+     "credited": "0",
+     "created_at": "2026-10-20T05:00:00Z",
+     "updated_at": "2026-10-20T05:00:00Z",
+     "ref": "orders:ord_0905"
+    }
+   ],
+   "payments": [],
+   "grants": [],
+   "server_logs": [
+    {
+     "ts": "2026-10-20T05:00:00Z",
+     "route": "/api/checkout/start",
+     "order_id": "ord_0905",
+     "http_status": "200",
+     "message": "checkout started",
+     "ref": "server_logs:2026-10-20T05:00:00Z@/api/checkout/start"
+    }
+   ],
+   "mail_events": []
+  },
+  "trace": [
+   {
+    "step": "intake",
+    "detail": "read the message",
+    "ms": 3978
+   },
+   {
+    "step": "plan",
+    "detail": "3 planned lookup(s), reached ord_0905",
+    "ms": 3990
+   },
+   {
+    "step": "order_journey",
+    "detail": "one query; 1 joined rows → 2 rows across 2 tables",
+    "ms": 3997
+   },
+   {
+    "step": "verify_chain",
+    "detail": "broken=None",
+    "ms": 3997
+   },
+   {
+    "step": "llm_explain",
+    "detail": "nvidia/nemotron-3-super-120b-a12b citations_ok=True",
+    "ms": 10650
+   }
+  ],
+  "steps": [
+   {
+    "thought": "Locate all orders associated with the customer's email to verify ord_0905 exists and see its status.",
+    "tool": "find_orders",
+    "args": {
+     "email": "EMAIL_1"
+    },
+    "rows": 1,
+    "planned": true,
+    "sql": [
+     "SELECT * FROM orders WHERE lower(email) = lower('emma.song905@example.com') ORDER BY created_at DESC LIMIT 10"
+    ]
+   },
+   {
+    "thought": "Get the full history of the specific order to see payment status, credit delivery, and any issues.",
+    "tool": "order_journey",
+    "args": {
+     "order_id": "ord_0905"
+    },
+    "rows": 2,
+    "planned": true,
+    "sql": [
+     "SELECT o.order_id AS o__order_id, o.payment_id AS o__payment_id, o.email AS o__email, o.reward_key AS o__reward_key, o.amount AS o__amount, o.status AS o__status, o.credited AS o__credited, o.created_at AS o__created_at, o.updated_at AS o__updated_at, p.payment_id AS p__payment_id, p.amount AS p__amount, p.currency AS p__currency, p.status AS p__status, p.card_last4 AS p__card_last4, p.customer_email AS p__customer_email, p.created_at AS p__created_at, g.grant_id AS g__grant_id, g.email AS g__email, g.reward_key AS g__reward_key, g.credits AS g__credits, g.status AS g__status, g.order_id AS g__order_id, g.created_at AS g__created_at, l.ts AS l__ts, l.route AS l__route, l.order_id AS l__order_id, l.http_status AS l__http_status, l.message AS l__message, m.email_id AS m__email_id, m.to_address AS m__to_address, m.event AS m__event, m.ts AS m__ts, m.order_tag AS m__order_tag FROM orders o LEFT JOIN payments p ON p.payment_id = o.payment_id LEFT JOIN grants g ON g.order_id = o.order_id LEFT JOIN server_logs l ON l.order_id = o.order_id LEFT JOIN mail_events m ON m.order_tag = o.order_id WHERE o.order_id = 'ord_0905'"
+    ]
+   },
+   {
+    "thought": "Check the payment provider's ledger for any payments made by this email that might not be linked to an order.",
+    "tool": "find_payments",
+    "args": {
+     "email": "EMAIL_1"
+    },
+    "rows": 0,
+    "planned": true,
+    "sql": [
+     "SELECT * FROM payments WHERE lower(customer_email) = lower('emma.song905@example.com') ORDER BY created_at DESC LIMIT 10"
+    ]
+   }
+  ],
+  "queries": [
+   {
+    "tool": "find_orders",
+    "sql": "SELECT * FROM orders WHERE lower(email) = lower('emma.song905@example.com') ORDER BY created_at DESC LIMIT 10",
+    "rows": 1,
+    "backend": "duckdb-local"
+   },
+   {
+    "tool": "order_journey",
+    "sql": "SELECT o.order_id AS o__order_id, o.payment_id AS o__payment_id, o.email AS o__email, o.reward_key AS o__reward_key, o.amount AS o__amount, o.status AS o__status, o.credited AS o__credited, o.created_at AS o__created_at, o.updated_at AS o__updated_at, p.payment_id AS p__payment_id, p.amount AS p__amount, p.currency AS p__currency, p.status AS p__status, p.card_last4 AS p__card_last4, p.customer_email AS p__customer_email, p.created_at AS p__created_at, g.grant_id AS g__grant_id, g.email AS g__email, g.reward_key AS g__reward_key, g.credits AS g__credits, g.status AS g__status, g.order_id AS g__order_id, g.created_at AS g__created_at, l.ts AS l__ts, l.route AS l__route, l.order_id AS l__order_id, l.http_status AS l__http_status, l.message AS l__message, m.email_id AS m__email_id, m.to_address AS m__to_address, m.event AS m__event, m.ts AS m__ts, m.order_tag AS m__order_tag FROM orders o LEFT JOIN payments p ON p.payment_id = o.payment_id LEFT JOIN grants g ON g.order_id = o.order_id LEFT JOIN server_logs l ON l.order_id = o.order_id LEFT JOIN mail_events m ON m.order_tag = o.order_id WHERE o.order_id = 'ord_0905'",
+    "rows": 1,
+    "backend": "duckdb-local"
+   },
+   {
+    "tool": "find_payments",
+    "sql": "SELECT * FROM payments WHERE lower(customer_email) = lower('emma.song905@example.com') ORDER BY created_at DESC LIMIT 10",
+    "rows": 0,
+    "backend": "duckdb-local"
+   },
+   {
+    "tool": "find_orders",
+    "sql": "SELECT * FROM orders WHERE order_id = 'ord_0905' ORDER BY created_at DESC LIMIT 10",
+    "rows": 1,
+    "backend": "duckdb-local"
+   },
+   {
+    "tool": "order_journey",
+    "sql": "SELECT o.order_id AS o__order_id, o.payment_id AS o__payment_id, o.email AS o__email, o.reward_key AS o__reward_key, o.amount AS o__amount, o.status AS o__status, o.credited AS o__credited, o.created_at AS o__created_at, o.updated_at AS o__updated_at, p.payment_id AS p__payment_id, p.amount AS p__amount, p.currency AS p__currency, p.status AS p__status, p.card_last4 AS p__card_last4, p.customer_email AS p__customer_email, p.created_at AS p__created_at, g.grant_id AS g__grant_id, g.email AS g__email, g.reward_key AS g__reward_key, g.credits AS g__credits, g.status AS g__status, g.order_id AS g__order_id, g.created_at AS g__created_at, l.ts AS l__ts, l.route AS l__route, l.order_id AS l__order_id, l.http_status AS l__http_status, l.message AS l__message, m.email_id AS m__email_id, m.to_address AS m__to_address, m.event AS m__event, m.ts AS m__ts, m.order_tag AS m__order_tag FROM orders o LEFT JOIN payments p ON p.payment_id = o.payment_id LEFT JOIN grants g ON g.order_id = o.order_id LEFT JOIN server_logs l ON l.order_id = o.order_id LEFT JOIN mail_events m ON m.order_tag = o.order_id WHERE o.order_id = 'ord_0905'",
+    "rows": 1,
+    "backend": "duckdb-local"
+   }
+  ],
+  "receipts": [],
+  "llm": "nvidia/nemotron-3-super-120b-a12b",
+  "citation_check": {
+   "checked": true,
+   "ok": true,
+   "unknown_refs": [],
+   "claims": [
+    {
+     "sentence": "The order ord_0905 exists with a pending status and no payment ID, and the server log shows only a checkout start event with no subsequent payment attempt ([orders:ord_0905], [server_logs:2026-10-20T05:00:00Z@/api/checkout/start]).",
+     "refs": [
+      "orders:ord_0905",
+      "server_logs:2026-10-20T05:00:00Z@/api/checkout/start"
+     ],
+     "facts": [
+      "ord_0905",
+      "order ord_0905 exists with a pending"
+     ],
+     "unsupported": []
+    },
+    {
+     "sentence": "Therefore no charge was made to the customer’s card.",
+     "refs": [
+      "orders:ord_0905",
+      "server_logs:2026-10-20T05:00:00Z@/api/checkout/start"
+     ],
+     "facts": [
+      "no charge"
+     ],
+     "unsupported": []
+    }
+   ],
+   "claims_ok": true,
+   "reply_replaced": true,
+   "reply_reason": "does not state the finding"
+  },
+  "backend": "duckdb-local",
+  "lang": "en",
+  "elapsed_ms": 10659
+ }
+}

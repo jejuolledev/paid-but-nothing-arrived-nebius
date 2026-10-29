@@ -42,6 +42,12 @@ await shot(card(`<div style="font-size:30px;color:#9aa3b2;letter-spacing:.08em;t
 <div style="display:flex;gap:34px">${stat(M.model_end_to_end, 'right order and broken link, with Nemotron reading the message')}${stat(M.rules_end_to_end, 'the same, with rules only')}${stat(M.complaint, 'complaint read correctly')}</div>
 <div style="font-size:26px;color:#9aa3b2;margin-top:40px">Model: ${esc(M.model_id)} on Nebius Token Factory · values the message did not support and were dropped: ${esc(M.dropped_values)} · avg model time per message: ${esc(M.avg_ms)} ms · all data synthetic</div>`), 'card_measured', false);
 
+const P = M.proof;
+await shot(card(`<div style="font-size:30px;color:#9aa3b2;letter-spacing:.08em;text-transform:uppercase">Measured · held-out, run once</div>
+<div style="font-size:54px;font-weight:800;margin:14px 0 46px">${esc(P.n)} phone photos of payment screens, made by a separate agent</div>
+<div style="display:flex;gap:34px">${stat(P.model_strict, 'payment read right and verdict right · Nemotron 3.5 Super VL')}${stat(P.ocr_strict, 'the same · free on-device OCR + payment-word rules')}${stat(P.doctored, 'edited screenshots ended as “not in the ledger”')}</div>
+<div style="font-size:26px;color:#9aa3b2;margin-top:40px">Same Nemotron given only the OCR text, no image: ${esc(P.ocrtext_strict)} · avg ${esc(P.avg_s)} s and $${esc(P.usd_per_photo)} per photo on Nebius Token Factory · synthetic screens, Korean and Japanese</div>`), 'card_measured_proof', false);
+
 await shot(card(`<div style="height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center">
 <div style="font-size:96px;font-weight:800">Paid, but nothing arrived?</div><div style="font-size:52px;color:#7ee2a8;margin-top:18px">Found in one pass.</div>
 <div style="font-size:30px;color:#9aa3b2;margin-top:60px">NVIDIA Nemotron on Nebius Token Factory</div>

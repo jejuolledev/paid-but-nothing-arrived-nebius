@@ -65,7 +65,8 @@ Report exactly what the screen shows for that transaction; do not correct, guess
   fill date and time from it ("10/20 03:00" -> date "10-20", time "03:00"); never leave them null if they are on screen.
 - card_last4: the last four digits of a masked card number if shown, else null.
 - status: approved / paid / pending / cancelled / failed / refunded / unknown, as the screen states it; status_text: the words.
-- Do not take these as the payment: account balance, points or cashback, instalment counts, the phone's status-bar
+- Do not take these as the payment: account balance, running or monthly totals (누적, 累計, "total this month"),
+  points or cashback, instalment counts, the phone's status-bar
   clock, ads and banners, other transactions in a list, approval numbers. List up to 8 such numbers in ignored_numbers.
 - legibility: clear, partly_unreadable (some characters you cannot read; use null rather than guessing), or unreadable.
 Return ONE JSON object matching the schema and nothing else."""

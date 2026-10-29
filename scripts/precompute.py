@@ -20,7 +20,7 @@ from agent import sql_backend
 from agent.llm import model_for
 
 html = (ROOT / "app/index.html").read_text()
-EXAMPLES = {int(n): json.loads('"' + s + '"') for n, s in re.findall(r"\n\s*(\d):\{label:'[^']*',send:'((?:[^'\\]|\\.)*)'\}", html)}
+EXAMPLES = {int(n): json.loads('"' + s.replace("\\'", "'") + '"') for n, s in re.findall(r"\n\s*(\d):\{label:'(?:[^'\\]|\\.)*',send:'((?:[^'\\]|\\.)*)'\}", html)}
 assert len(EXAMPLES) == 6, EXAMPLES
 out = ROOT / "data/precomputed"
 out.mkdir(parents=True, exist_ok=True)

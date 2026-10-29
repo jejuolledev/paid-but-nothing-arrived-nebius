@@ -21,7 +21,10 @@ from agent.llm import model_for
 ex = json.loads((ROOT / "app/proof_examples/examples.json").read_text())
 out = ROOT / "data/precomputed"; out.mkdir(parents=True, exist_ok=True)
 commit = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
+only = set(sys.argv[1:])   # optional: ids to record again, e.g. d01
 for e in ex:
+    if only and e['id'] not in only:
+        continue
     sql_backend._CACHE.clear()
     t = time.time()
     r = investigate_proof((ROOT / f"app/proof_examples/{e['id']}.jpg").read_bytes(), e["message"])

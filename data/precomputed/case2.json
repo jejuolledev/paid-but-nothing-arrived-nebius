@@ -1,0 +1,366 @@
+{
+ "meta": {
+  "recorded_at": "2026-10-29T16:15:31+09:00",
+  "provider": "Nebius Token Factory",
+  "models": [
+   "nvidia/Nemotron-3-Ultra-550b-a55b",
+   "nvidia/Nemotron-3_5-Lightning",
+   "nvidia/nemotron-3-super-120b-a12b"
+  ],
+  "requested": {
+   "intake": "nvidia/Nemotron-3_5-Lightning",
+   "explain": "nvidia/nemotron-3-super-120b-a12b"
+  },
+  "code_commit": "0c7ce51",
+  "wall_ms": 9563,
+  "status": "ok"
+ },
+ "result": {
+  "ok": true,
+  "order_id": "ord_0902",
+  "email": "jun.park902@example.com",
+  "headline": "Paid, but the order was never confirmed.",
+  "intake": {
+   "ok": true,
+   "masked": "I paid but the order never confirmed. Order ord_0902. EMAIL_1 (j***@example.com)",
+   "placeholders": {
+    "EMAIL_1": "j***@example.com"
+   },
+   "model": "nvidia/Nemotron-3-Ultra-550b-a55b",
+   "error": null,
+   "routing": {
+    "escalated": true,
+    "reason": "the reader said it was unsure",
+    "first_model": "nvidia/Nemotron-3_5-Lightning",
+    "second_model": "nvidia/Nemotron-3-Ultra-550b-a55b",
+    "used": "escalate",
+    "second_unsure": null
+   },
+   "grounded": {
+    "sender": "EMAIL_1",
+    "other_people": [],
+    "order_ids": [
+     "ord_0902"
+    ],
+    "foreign_order_ids": [],
+    "amount": null,
+    "paid_when": null,
+    "pack": null,
+    "complaint": "not_received",
+    "wants": [
+     "credits",
+     "explanation"
+    ],
+    "language": "en",
+    "unsure": false,
+    "plan": [
+     {
+      "tool": "find_orders",
+      "args": {
+       "order_id": "ord_0902"
+      },
+      "why": "Locate the order the customer references to see its status and details."
+     },
+     {
+      "tool": "order_journey",
+      "args": {
+       "order_id": "ord_0902"
+      },
+      "why": "Get the full history of that order to understand why it never confirmed and what happened with payment."
+     }
+    ],
+    "dropped": []
+   }
+  },
+  "claims_vs_records": [
+   {
+    "claim": "what went wrong",
+    "says": "not received",
+    "records": "Paid, but the order was never confirmed.",
+    "result": "match",
+    "refs": [],
+    "note": ""
+   }
+  ],
+  "rules_only": {
+   "ok": true,
+   "order_id": "ord_0902",
+   "broken": "order_created",
+   "headline": "Paid, but the order was never confirmed.",
+   "same": true
+  },
+  "model_calls": [
+   {
+    "role": "intake",
+    "model": "nvidia/Nemotron-3_5-Lightning",
+    "requested_model": "nvidia/Nemotron-3_5-Lightning",
+    "provider": "Nebius Token Factory",
+    "ok": true,
+    "ms": 2076,
+    "prompt_tokens": 863,
+    "completion_tokens": 254,
+    "usd": 0.000113,
+    "finish": "stop",
+    "thinking": false
+   },
+   {
+    "role": "escalate",
+    "model": "nvidia/Nemotron-3-Ultra-550b-a55b",
+    "requested_model": "nvidia/Nemotron-3-Ultra-550b-a55b",
+    "provider": "Nebius Token Factory",
+    "ok": true,
+    "ms": 2046,
+    "prompt_tokens": 863,
+    "completion_tokens": 516,
+    "usd": 0.002411,
+    "finish": "stop",
+    "thinking": null
+   },
+   {
+    "role": "explain",
+    "model": "nvidia/nemotron-3-super-120b-a12b",
+    "requested_model": "nvidia/nemotron-3-super-120b-a12b",
+    "provider": "Nebius Token Factory",
+    "ok": true,
+    "ms": 5358,
+    "prompt_tokens": 1141,
+    "completion_tokens": 1195,
+    "usd": 0.001418,
+    "finish": "stop",
+    "thinking": null
+   }
+  ],
+  "provider": "Nebius Token Factory",
+  "ignored_order": "",
+  "sender_unverified": false,
+  "chain": [
+   {
+    "name": "card_authorized",
+    "label": "Card authorized",
+    "state": "green",
+    "note": "Payment provider shows a PAID charge of 9900 KRW (card •••• 4444)",
+    "refs": [
+     "payments:pay_0902"
+    ]
+   },
+   {
+    "name": "psp_paid",
+    "label": "Payment provider: paid",
+    "state": "green",
+    "note": "Payment provider status: PAID",
+    "refs": [
+     "payments:pay_0902"
+    ]
+   },
+   {
+    "name": "order_created",
+    "label": "Order confirmed",
+    "state": "red",
+    "note": "Webhook PAID arrived, but no /confirm request was ever received; order stayed 'pending'",
+    "refs": [
+     "orders:ord_0902",
+     "server_logs:2026-10-15T20:00:31Z@/api/payments/webhook"
+    ]
+   },
+   {
+    "name": "credit_granted",
+    "label": "Credits granted",
+    "state": "grey",
+    "note": "not reached",
+    "refs": []
+   },
+   {
+    "name": "mail_delivered",
+    "label": "Mail delivered",
+    "state": "grey",
+    "note": "not reached",
+    "refs": []
+   }
+  ],
+  "broken": "order_created",
+  "verified": [
+   "Charge exists at the payment provider (payments:pay_0902)",
+   "Webhook PAID is in the server log"
+  ],
+  "unverified": [
+   "Whether the customer saw an error screen (no client-side telemetry in these sources)"
+  ],
+  "explanation": "The customer paid, the payment provider told us, but the client-side confirm call never happened — consistent with the confirm button being unreachable after payment. [orders:ord_0902] [server_logs:2026-10-15T20:00:31Z@/api/payments/webhook]",
+  "customer_reply": "Thank you for your patience. I can confirm your payment went through on our provider's side. Our system did not complete your order after that — that is our fault, not yours. I will release your credits as soon as this is fixed on our side, and you will get a confirmation email.",
+  "fix_action": "Confirm the order server-side from the PAID webhook and grant credits (requires approval). Code fix: never rely on a client click after a PAID webhook.",
+  "rows": {
+   "orders": [
+    {
+     "order_id": "ord_0902",
+     "payment_id": "pay_0902",
+     "email": "jun.park902@example.com",
+     "reward_key": "lite10",
+     "amount": "9900",
+     "status": "pending",
+     "credited": "0",
+     "created_at": "2026-10-15T20:00:00Z",
+     "updated_at": "2026-10-15T20:00:00Z",
+     "ref": "orders:ord_0902"
+    }
+   ],
+   "payments": [
+    {
+     "payment_id": "pay_0902",
+     "amount": "9900",
+     "currency": "KRW",
+     "status": "PAID",
+     "card_last4": "4444",
+     "customer_email": "jun.park902@example.com",
+     "created_at": "2026-10-15T20:00:30Z",
+     "ref": "payments:pay_0902"
+    }
+   ],
+   "grants": [],
+   "server_logs": [
+    {
+     "ts": "2026-10-15T20:00:00Z",
+     "route": "/api/checkout/start",
+     "order_id": "ord_0902",
+     "http_status": "200",
+     "message": "checkout started",
+     "ref": "server_logs:2026-10-15T20:00:00Z@/api/checkout/start"
+    },
+    {
+     "ts": "2026-10-15T20:00:31Z",
+     "route": "/api/payments/webhook",
+     "order_id": "ord_0902",
+     "http_status": "200",
+     "message": "PSP webhook PAID",
+     "ref": "server_logs:2026-10-15T20:00:31Z@/api/payments/webhook"
+    }
+   ],
+   "mail_events": []
+  },
+  "trace": [
+   {
+    "step": "intake",
+    "detail": "read the message",
+    "ms": 4128
+   },
+   {
+    "step": "plan",
+    "detail": "2 planned lookup(s), reached ord_0902",
+    "ms": 4137
+   },
+   {
+    "step": "order_journey",
+    "detail": "one query; 2 joined rows → 4 rows across 3 tables",
+    "ms": 4144
+   },
+   {
+    "step": "verify_chain",
+    "detail": "broken=order_created",
+    "ms": 4144
+   },
+   {
+    "step": "llm_explain",
+    "detail": "nvidia/nemotron-3-super-120b-a12b citations_ok=False",
+    "ms": 9506
+   }
+  ],
+  "steps": [
+   {
+    "thought": "Locate the order the customer references to see its status and details.",
+    "tool": "find_orders",
+    "args": {
+     "order_id": "ord_0902"
+    },
+    "rows": 1,
+    "planned": true,
+    "sql": [
+     "SELECT * FROM orders WHERE order_id = 'ord_0902' ORDER BY created_at DESC LIMIT 10"
+    ]
+   },
+   {
+    "thought": "Get the full history of that order to understand why it never confirmed and what happened with payment.",
+    "tool": "order_journey",
+    "args": {
+     "order_id": "ord_0902"
+    },
+    "rows": 4,
+    "planned": true,
+    "sql": [
+     "SELECT o.order_id AS o__order_id, o.payment_id AS o__payment_id, o.email AS o__email, o.reward_key AS o__reward_key, o.amount AS o__amount, o.status AS o__status, o.credited AS o__credited, o.created_at AS o__created_at, o.updated_at AS o__updated_at, p.payment_id AS p__payment_id, p.amount AS p__amount, p.currency AS p__currency, p.status AS p__status, p.card_last4 AS p__card_last4, p.customer_email AS p__customer_email, p.created_at AS p__created_at, g.grant_id AS g__grant_id, g.email AS g__email, g.reward_key AS g__reward_key, g.credits AS g__credits, g.status AS g__status, g.order_id AS g__order_id, g.created_at AS g__created_at, l.ts AS l__ts, l.route AS l__route, l.order_id AS l__order_id, l.http_status AS l__http_status, l.message AS l__message, m.email_id AS m__email_id, m.to_address AS m__to_address, m.event AS m__event, m.ts AS m__ts, m.order_tag AS m__order_tag FROM orders o LEFT JOIN payments p ON p.payment_id = o.payment_id LEFT JOIN grants g ON g.order_id = o.order_id LEFT JOIN server_logs l ON l.order_id = o.order_id LEFT JOIN mail_events m ON m.order_tag = o.order_id WHERE o.order_id = 'ord_0902'"
+    ]
+   }
+  ],
+  "queries": [
+   {
+    "tool": "find_orders",
+    "sql": "SELECT * FROM orders WHERE order_id = 'ord_0902' ORDER BY created_at DESC LIMIT 10",
+    "rows": 1,
+    "backend": "duckdb-local"
+   },
+   {
+    "tool": "order_journey",
+    "sql": "SELECT o.order_id AS o__order_id, o.payment_id AS o__payment_id, o.email AS o__email, o.reward_key AS o__reward_key, o.amount AS o__amount, o.status AS o__status, o.credited AS o__credited, o.created_at AS o__created_at, o.updated_at AS o__updated_at, p.payment_id AS p__payment_id, p.amount AS p__amount, p.currency AS p__currency, p.status AS p__status, p.card_last4 AS p__card_last4, p.customer_email AS p__customer_email, p.created_at AS p__created_at, g.grant_id AS g__grant_id, g.email AS g__email, g.reward_key AS g__reward_key, g.credits AS g__credits, g.status AS g__status, g.order_id AS g__order_id, g.created_at AS g__created_at, l.ts AS l__ts, l.route AS l__route, l.order_id AS l__order_id, l.http_status AS l__http_status, l.message AS l__message, m.email_id AS m__email_id, m.to_address AS m__to_address, m.event AS m__event, m.ts AS m__ts, m.order_tag AS m__order_tag FROM orders o LEFT JOIN payments p ON p.payment_id = o.payment_id LEFT JOIN grants g ON g.order_id = o.order_id LEFT JOIN server_logs l ON l.order_id = o.order_id LEFT JOIN mail_events m ON m.order_tag = o.order_id WHERE o.order_id = 'ord_0902'",
+    "rows": 2,
+    "backend": "duckdb-local"
+   },
+   {
+    "tool": "find_orders",
+    "sql": "SELECT * FROM orders WHERE order_id = 'ord_0902' ORDER BY created_at DESC LIMIT 10",
+    "rows": 1,
+    "backend": "duckdb-local"
+   },
+   {
+    "tool": "order_journey",
+    "sql": "SELECT o.order_id AS o__order_id, o.payment_id AS o__payment_id, o.email AS o__email, o.reward_key AS o__reward_key, o.amount AS o__amount, o.status AS o__status, o.credited AS o__credited, o.created_at AS o__created_at, o.updated_at AS o__updated_at, p.payment_id AS p__payment_id, p.amount AS p__amount, p.currency AS p__currency, p.status AS p__status, p.card_last4 AS p__card_last4, p.customer_email AS p__customer_email, p.created_at AS p__created_at, g.grant_id AS g__grant_id, g.email AS g__email, g.reward_key AS g__reward_key, g.credits AS g__credits, g.status AS g__status, g.order_id AS g__order_id, g.created_at AS g__created_at, l.ts AS l__ts, l.route AS l__route, l.order_id AS l__order_id, l.http_status AS l__http_status, l.message AS l__message, m.email_id AS m__email_id, m.to_address AS m__to_address, m.event AS m__event, m.ts AS m__ts, m.order_tag AS m__order_tag FROM orders o LEFT JOIN payments p ON p.payment_id = o.payment_id LEFT JOIN grants g ON g.order_id = o.order_id LEFT JOIN server_logs l ON l.order_id = o.order_id LEFT JOIN mail_events m ON m.order_tag = o.order_id WHERE o.order_id = 'ord_0902'",
+    "rows": 2,
+    "backend": "duckdb-local"
+   }
+  ],
+  "receipts": [],
+  "llm": "nvidia/nemotron-3-super-120b-a12b",
+  "citation_check": {
+   "checked": true,
+   "ok": false,
+   "unknown_refs": [],
+   "claims": [
+    {
+     "sentence": "The payment provider recorded a PAID charge of 9900 KRW for order ord_0902 [payments:pay_0902] and our server logged the PSP webhook PAID [server_logs:2026-10-15T20:00:31Z@/api/payments/webhook], but the order record stayed pending because no /confirm request was processed [orders:ord_0902].",
+     "refs": [
+      "payments:pay_0902",
+      "server_logs:2026-10-15T20:00:31Z@/api/payments/webhook",
+      "orders:ord_0902"
+     ],
+     "facts": [
+      "9900",
+      "confirm",
+      "ord_0902",
+      "paid",
+      "order record stayed pending"
+     ],
+     "unsupported": [
+      "confirm (not the cited endpoint)"
+     ]
+    },
+    {
+     "sentence": "Hence the customer was charged but the order never confirmed.",
+     "refs": [
+      "payments:pay_0902",
+      "server_logs:2026-10-15T20:00:31Z@/api/payments/webhook",
+      "orders:ord_0902"
+     ],
+     "facts": [
+      "charged",
+      "order never confirmed"
+     ],
+     "unsupported": []
+    }
+   ],
+   "claims_ok": false,
+   "reply_replaced": true,
+   "reply_reason": "contains a masked placeholder",
+   "replaced_with_verifier_text": true
+  },
+  "backend": "duckdb-local",
+  "lang": "en",
+  "elapsed_ms": 9513
+ }
+}
