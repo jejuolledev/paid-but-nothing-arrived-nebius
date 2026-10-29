@@ -1,7 +1,6 @@
 # Feedback: Nebius Token Factory and NVIDIA Nemotron
 
 Written while building this entry, from what actually happened. Logs: `docs/gate_result.json`, `docs/measurements/`; the per-call spend log `build/spend_ledger.jsonl` stays local (git-ignored).
-Lines still marked **FILL** are filled after the measurement runs, once credits are on the account.
 
 ## What we used them for
 - **Nebius Token Factory** (OpenAI-compatible API): every model call at runtime, from a FastAPI server. The key stays on the server.
@@ -10,7 +9,7 @@ Lines still marked **FILL** are filled after the measurement runs, once credits 
   - `nvidia/Nemotron-3_5-Lightning` reads the message and plans the read-only lookups.
   - `nvidia/Nemotron-3-Ultra-550b-a55b` re-reads only when code finds the first reading unsure.
   - `nvidia/nemotron-3-super-120b-a12b` writes the cited explanation and the reply.
-  - FILL: final per-job choices after the dev runs.
+  - Kept after the dev runs: reasoning off for the two readers (vision, intake), on (model default) for the writer.
 
 ## Bug reports (tool · step · what we did · what happened · expected · suggestion)
 
@@ -33,13 +32,16 @@ Lines still marked **FILL** are filled after the measurement runs, once credits 
   - On the model card and in the catalog, say that this model reasons by default and that reasoning counts against
     `max_tokens`. Add one sentence about it to the vision quickstart.
   - Recommend a minimum `max_tokens` for image inputs, or show how to switch reasoning off
-    (`chat_template_kwargs.enable_thinking`). FILL: whether `enable_thinking=false` is accepted on Super VL.
+    (`chat_template_kwargs.enable_thinking`). We confirmed on 2026-10-29: `enable_thinking=false` is accepted on Super VL. With it, the same
+    photo came back as a correct strict-JSON answer in 146 completion tokens. Over the 16 held-out photos: average 5.5 s, none
+    empty. One later call (OCR-text input, no image) still used all 4,000 tokens and returned nothing (`finish_reason=length`).
 
 ### 2. Lightning on the intake prompt: completions stopped at the limit
 - **What we saw.** Every intake call on `nvidia/Nemotron-3_5-Lightning` with `max_tokens=1500` reported
   `completion_tokens=1500`, exactly the limit.
 - It looks like the same pattern as item 1, but we did not log `finish_reason` on those calls, so this is not
-  confirmed. FILL after a rerun that logs `finish_reason`.
+  confirmed. With `enable_thinking=false` the same intake prompt used at most 411 completion tokens over 50 calls,
+  median 2.2 s, so reasoning was the cause.
 - **Suggestion.** On each Nemotron model page, show whether reasoning is on by default and how to change it.
 
 ### 3. Sign-up and credits: snags at four steps
@@ -52,7 +54,9 @@ Lines still marked **FILL** are filled after the measurement runs, once credits 
 - **Promo credits** (`NEBIUS-DEVPOST-GLOBAL26`).
   - The code goes through a HubSpot form and the credit is sent by e-mail later. It is not applied in the console.
   - Until it arrives, the balance is $0 with a card on file, so early test calls go to the card.
-  - FILL: hours until the credit arrived.
+  - The credit had not arrived about 30 hours after the promo request (2026-10-28 to 10-29), and other
+    participants in the Discord channel reported the same. We asked support and Discord. We ran the whole
+    measurement on the card (about $0.6 in total).
 - **Suggestion.** Apply hackathon codes directly in the billing console, or show "credit pending" so builders know
   whether a call will be charged to their card.
 
@@ -70,10 +74,15 @@ Lines still marked **FILL** are filled after the measurement runs, once credits 
   `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B`.
 - **Suggestion.** Link the catalog from the quickstart and keep one id style.
 
-### 6. FILL after the runs
-- Structured output (`json_schema`, strict) with an image: honoured, ignored, or a 400?
-- p50 and worst latency per model.
-- Any 429 or 5xx errors.
+### 6. What we measured about the endpoint (2026-10-29, about 390 calls)
+- Structured output (`json_schema`, strict) with an image: honoured on Super VL (every answer parsed against the schema).
+- Median and worst latency per call: Super VL 5.4 s / 55 s (the 55 s call is the one that ran to 4,000 tokens; the first
+  dev run of the day averaged 27 s per photo, later runs 3-6 s);
+  Lightning 2.2 s / 5.5 s; Ultra 2.6 s / 7.7 s; Super 6.5 s / 20 s.
+- One failed call in the 40-message run (we did not keep its error type); apart from that and the 4,000-token call above, none failed.
+- There is no usage or balance endpoint in the API (`/v1/usage`, `/v1/balance` and similar return 404), so we
+  kept our own per-call ledger from the `usage` object and catalog prices. A usage endpoint would let builders
+  set a hard budget in code.
 
 ## What worked well
 - The OpenAI-compatible endpoint: our client needed only a base URL, a key and a model id.
@@ -82,9 +91,15 @@ Lines still marked **FILL** are filled after the measurement runs, once credits 
   minutes.
 
 ## NVIDIA Nemotron as a model for this job
-FILL from the held-out runs:
-- Screenshots read right, compared with free on-device OCR + rules (3 of 16).
-- Korean messages read right, compared with rules alone (17 of 22).
+From the held-out runs (run once each):
+- Screenshots: Super VL read the payment and reached the right verdict on 14 of 16 phone photos; free on-device OCR +
+  payment-word rules 3 of 16. Given only the OCR text, the same model got 13 of 16: its strength here is picking
+  the right line out of a crowded screen (balances, running totals, ads, other rows). Its two misses: it took a
+  running total for the payment once, and did not recognise an unfinished checkout once.
+- Korean messages: Lightning (with Ultra when unsure) found who was writing on 20 of 22, rules 16 of 22. Lightning
+  asked for Ultra on 16 of 22 Korean threads, so Ultra did much of the work there.
 
 ## Would we build with them again?
-FILL: two sentences, after the measurements.
+Yes. One OpenAI-compatible endpoint with a vision model and three text models let us give each job its own model
+with one environment variable, and the usage object told us exactly where the tokens went. What we would ask for:
+reasoning defaults on the model cards, promo credits applied in the console, and a usage endpoint.

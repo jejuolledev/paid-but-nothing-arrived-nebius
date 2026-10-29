@@ -1,7 +1,7 @@
 # Devpost submission — Nebius × NVIDIA Global AI Hackathon
 
 Deadline: **Fri Oct 30, 2026 10:00 PDT = Sat Oct 31 02:00 KST**. Submit a few hours early.
-Before pasting: replace every `FILL` / `TRY_IT_URL` / `VIDEO_URL` / `REPO_URL` (HANDOFF.md step 9 checks this).
+Before pasting: replace `TRY_IT_URL` / `VIDEO_URL` / `REPO_URL` (owner steps) (HANDOFF.md step 9 checks this).
 The exact hackathon-specific questions are only visible after "Enter a submission"; the usual Devpost fields are
 below, plus the ones the rules require (track, feedback, what changed during the period, repo, demo URL, video).
 
@@ -53,17 +53,18 @@ Edit the amount, date or time on a screenshot and the ledger has never seen that
 - Public demo: per-visitor copy of the synthetic data, recorded live runs for the examples ("Run it live now" for a real call), rate limits, the key only on the server.
 
 ## Measured (held-out sets built by a separate agent before any model run)
-- 16 phone photos (Korean, Japanese; 8 edited): verdict right with the fields right — free on-device OCR + rules 3/16, Nemotron 3.5 Super VL FILL/16; same Nemotron given only the OCR text FILL/16.
-- 22 Korean-heavy messages: right order and broken link — rules 17/22, Nemotron FILL/22.
-- FILL: average time and cost per case.
+- 16 phone photos (Korean, Japanese; 8 edited), run once: payment read right and verdict right — Nemotron 3.5 Super VL 14/16; free on-device OCR + payment-word rules 3/16. Given only the OCR text, the same Nemotron gets 13/16, so most of the gain is choosing the right line on a crowded screen. Edited screenshots: 8/8 "not in the ledger" with every reader, because the ledger catches them.
+- 22 Korean-heavy messages, run once: who is writing — Nemotron 20/22, rules 16/22; right order and broken link — Nemotron 20/22, rules 21/22. One of Nemotron's two misses is a prompt-injection message where it named no sender, so nobody's records were read.
+- 40 English-heavy messages: Nemotron 40/40, rules 38/40.
+- Cost and time: about 5.5 s and $0.0008 per photo read; a full photo case (read, plan, explain, reply) took 8-19 s in our recorded runs.
 
 ## Limitations
-- The photo set is synthetic (rendered app screens, photographed-looking distortions); FILL real photos.
+- The photo set is synthetic (rendered app screens, photographed-looking distortions); not yet measured on real customer photos.
 - The model cannot tell an edited screenshot from a real one; only the ledger can.
 - The verifier knows five kinds of break; a new kind lands in "not verified".
 
 ## Challenges
-Nemotron 3.5 Super VL spent its whole token budget reasoning on the first gate run (the reasoning had read the screen correctly; the answer was empty). FILL: what fixed it.
+Nemotron 3.5 Super VL spent its whole token budget reasoning on the first gate run (the reasoning had read the screen correctly; the answer was empty). Turning reasoning off for the two reader jobs (chat_template_kwargs.enable_thinking=false, accepted on Super VL and Lightning) fixed it: answers in about 5 s, no empty replies.
 
 ## What's next
 Connect it read-only to a real payment provider's API and a shop database; English and more banking-app layouts.
@@ -76,7 +77,7 @@ First written on Oct 22-25, 2026 (inside this hackathon's submission period) for
 
 ## Which NVIDIA models and where did Token Factory help?
 ```
-nvidia/Nemotron-3.5-Super-VL reads the customer's payment screenshot; nvidia/Nemotron-3_5-Lightning reads the message and plans the lookups; nvidia/Nemotron-3-Ultra-550b-a55b re-reads only when the first reading is unsure; nvidia/nemotron-3-super-120b-a12b writes the cited explanation and the reply. Token Factory serves all four behind one OpenAI-compatible endpoint, so routing each job to a different model is one environment variable per job; the page shows the model, time, tokens and cost of each call. FILL: per-case cost and time from the runs.
+nvidia/Nemotron-3.5-Super-VL reads the customer's payment screenshot; nvidia/Nemotron-3_5-Lightning reads the message and plans the lookups; nvidia/Nemotron-3-Ultra-550b-a55b re-reads only when the first reading is unsure; nvidia/nemotron-3-super-120b-a12b writes the cited explanation and the reply. Token Factory serves all four behind one OpenAI-compatible endpoint, so routing each job to a different model is one environment variable per job; the page shows the model, time, tokens and cost of each call. Measured: about $0.0008 and 5.5 s per photo read; a full case costs well under one cent.
 ```
 
 ## Feedback on Nebius Token Factory, AI Cloud and NVIDIA tools (required)
@@ -84,5 +85,5 @@ Paste docs/feedback.md (after filling it), as plain text.
 
 ## Testing instructions (for judges)
 ```
-Open TRY_IT_URL. No login. Best first click: "Or try a customer's screenshot" -> "Korean card SMS, 9,900 won": the photo, the numbers Nemotron read, photo vs ledger, then the money chain. Then "Card alert with its date edited": the ledger has never seen that payment. Examples answer at once from a recorded live run on Token Factory (labelled, with the time); "Run it live now" calls Nemotron for real (about FILL seconds). You can also drop or paste (Ctrl/Cmd+V) your own screenshot; it is not stored. Message examples are below the box; Approve a fix and the chain turns green, in your own copy of the data only. Live runs are limited to 8 per hour per visitor; after that the ledger and verifier still answer and the page says no model was used. All data is synthetic.
+Open TRY_IT_URL. No login. Best first click: "Or try a customer's screenshot" -> "Korean card SMS, 9,900 won": the photo, the numbers Nemotron read, photo vs ledger, then the money chain. Then "Card alert with its date edited": the ledger has never seen that payment. Examples answer at once from a recorded live run on Token Factory (labelled, with the time); "Run it live now" calls Nemotron for real (about 10-20 seconds). You can also drop or paste (Ctrl/Cmd+V) your own screenshot; it is not stored. Message examples are below the box; Approve a fix and the chain turns green, in your own copy of the data only. Live runs are limited to 8 per hour per visitor; after that the ledger and verifier still answer and the page says no model was used. All data is synthetic.
 ```

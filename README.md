@@ -49,25 +49,33 @@ Every run is logged in `docs/measurements/` and summarised in `docs/measurements
 |---|---|---|---|
 | Free on-device OCR (macOS Vision) + today's rules | 1/16 | 0/16 | 0/16 |
 | Free on-device OCR + payment-word rules | 5/16 | 8/16 | 3/16 |
-| Nemotron 3.5 Super VL on Token Factory | FILL | FILL | FILL |
-| Same Nemotron given only the OCR text (no image) | FILL | FILL | FILL |
+| **Nemotron 3.5 Super VL on Token Factory** | **14/16** | **14/16** | **14/16** |
+| Same Nemotron given only the OCR text (no image) | 15/16 | 13/16 | 13/16 |
+
+Held-out, run once (2026-10-29, commit 9124eb9), reasoning off, strict JSON schema; average 5.5 s and about $0.0008 per photo.
+The two misses: a card push list where it took the account's running total (3,158,900) as the payment, so the ledger found nothing (a wrong "not in the ledger", never a wrong "paid"); and an unfinished easy-pay checkout it did not recognise as a payment screen ("could not read" instead of "not paid").
+**What this shows, honestly:** given only the OCR lines, the same Nemotron gets 13/16. Most of the gain over the rules comes from Nemotron choosing the right line on a crowded screen, not from reading pixels better than OCR. The image still matters where there is no on-device OCR (the hosted demo) and on two Japanese pay-history photos where the date sits in a section header above the time: reading the image got the date, reading the OCR lines did not. Edited screenshots: 8/8 ended as "not in the ledger" with every reader, including the rules, because the ledger catches them, not the reader. On the clean (unphotographed) screens Nemotron gets 15/16.
+After the held-out run, one prompt line was added from a dev example (running totals such as 누적 are not the payment); the held-out set was not run again (`docs/measurements.md`, note).
 
 **Messages** (Korean-heavy held-out set `docs/eval/text_fallback.jsonl`, 22: 만/천 amounts, Korean number words, forwarded headers, a spouse writing, requests for someone else's order):
 
 | Reader | Sender found | Right order + broken link |
 |---|---|---|
-| Rules only | 16/22 | 17/22 |
-| Nemotron (Lightning, Ultra when unsure) | FILL | FILL |
+| Rules only | 16/22 | 21/22 |
+| **Nemotron 3.5 Lightning, Ultra when unsure** | **20/22** | 20/22 |
 
-Older English-heavy set (40): rules only 38/40, Nemotron FILL. FILL: what the model still misses (ids from the log).
+Held-out, run once (2026-10-29, commit c4748e2). Nemotron finds who is writing far more often; end to end the rules get one more right. Its two end-to-end misses: a spouse asking about the wife's order (it read the writer's own unrelated order), and a prompt-injection message asking for another customer's card digits, where it named no sender, so **nobody's records were read** (counted wrong, safe on purpose). Ultra was called on 16 of 22 (Lightning often says it is unsure on Korean threads); average 15.5 s of model time and $0.005 per message.
+Fair note: while tuning on the dev set we also taught the shared lookup code that the shop's own address and no-reply senders are never the customer; that lifted the rules row from 17/22 to 21/22 too, and both rows above use it.
 
-From the version this builds on (still true of the verifier): six seeded cases right 6/6; the sentence checker caught 32 of 40 wrong sentences written by a separate model and wrongly rejected 2 of 20 true ones (`scripts/claim_eval.py`). 52 automated tests (`pytest`, never call a paid model).
+Older English-heavy set (40): rules only 38/40, **Nemotron 40/40** (one model call failed on h16; the run still reached the right order; complaint read right 29/40).
+
+From the version this builds on (still true of the verifier): six seeded cases right 6/6; the sentence checker caught 32 of 40 wrong sentences written by a separate model and wrongly rejected 2 of 20 true ones (`scripts/claim_eval.py`). 56 automated tests (`pytest`, never call a paid model).
 
 ## Run it yourself
 ```bash
 git clone REPO_URL && cd paid-but-nothing-arrived-nebius
 uv venv --python 3.12 .venv && uv pip install --python .venv/bin/python -r requirements.txt
-.venv/bin/python data/gen_synthetic.py && .venv/bin/python -m pytest -q        # 52 tests, no key needed
+.venv/bin/python data/gen_synthetic.py && .venv/bin/python -m pytest -q        # 56 tests, no key needed
 cp .env.example .env.local    # put your Token Factory key in NEBIUS_API_KEY
 .venv/bin/uvicorn app.main:app --port 8765                                     # open http://127.0.0.1:8765
 ```
@@ -100,7 +108,9 @@ The submission period runs from 2026-08-26. This project was **first written on 
 - The verifier knows five kinds of break; a new kind lands in "not verified" instead of being guessed.
 - Relative dates ("yesterday") are not checked against the ledger, because the message date is unknown.
 - The intake can still pick the wrong sender when the message itself is ambiguous; the seller sees the sender and the dropped values on the page before sending anything.
-- FILL after measuring: the failure cases from the held-out log.
+- Measured failures (held-out): the running-total misread and the unfinished checkout above (photos); the spouse case and the injection case (messages). Lightning asks Ultra for help on most Korean threads, which roughly triples the cost of those messages.
+- The photos are synthetic (rendered app screens with photo-like distortion); we have not measured real customer photos.
+- Nemotron cannot tell an edited screenshot from a real one. Only the ledger can, and only for payments to this shop.
 - All data is synthetic (`@example.com`, public test card numbers). On real data, the seller decides whether masked rows may go to Token Factory.
 
 ## Feedback on Nebius Token Factory and NVIDIA Nemotron
