@@ -1,7 +1,7 @@
 # Devpost submission — Nebius × NVIDIA Global AI Hackathon
 
 Deadline: **Fri Oct 30, 2026 10:00 PDT = Sat Oct 31 02:00 KST**. Submit a few hours early.
-Before pasting: replace `TRY_IT_URL` / `VIDEO_URL` / `REPO_URL` (owner steps).
+Before pasting: replace `TRY_IT_URL` / `VIDEO_URL` / `https://github.com/jejuolledev/paid-but-nothing-arrived-nebius` (owner steps).
 The exact hackathon-specific questions are only visible after "Enter a submission"; the usual Devpost fields are
 below, plus the ones the rules require (track, feedback, what changed during the period, repo, demo URL, video).
 
@@ -28,7 +28,7 @@ nebius-token-factory, nvidia-nemotron, nemotron-3.5-super-vl, nemotron-3.5-light
 ## Try it out (links)
 ```
 TRY_IT_URL
-REPO_URL
+https://github.com/jejuolledev/paid-but-nothing-arrived-nebius
 ```
 
 ## Video demo link

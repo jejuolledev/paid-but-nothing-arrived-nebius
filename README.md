@@ -85,7 +85,7 @@ From the version this builds on (still true of the verifier): six seeded cases r
 
 ## Run it yourself
 ```bash
-git clone REPO_URL && cd paid-but-nothing-arrived-nebius
+git clone https://github.com/jejuolledev/paid-but-nothing-arrived-nebius && cd paid-but-nothing-arrived-nebius
 uv venv --python 3.12 .venv && uv pip install --python .venv/bin/python -r requirements.txt
 .venv/bin/python data/gen_synthetic.py && .venv/bin/python -m pytest -q        # 65 tests, no key needed
 cp .env.example .env.local    # put your Token Factory key in NEBIUS_API_KEY
