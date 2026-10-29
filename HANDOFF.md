@@ -1,10 +1,10 @@
 # HANDOFF — status 2026-10-29 17:00 KST (measured, recorded, video built; owner steps left)
 
-Done on 2026-10-29 (card, owner's $5 cap; spend ledger `build/spend_ledger.jsonl`, about $0.67 at 17:50):
+Done on 2026-10-29 (card, owner's $5 cap; spend ledger `build/spend_ledger.jsonl`, about $0.69 at 18:10):
 - Gate: PHOTO (Super VL, reasoning off, strict JSON). Dev tuning committed before each held-out run; held-out run once.
 - Held-out: photos Super VL 14/16 vs OCR+rules 3/16 (OCR text only to Nemotron 13/16); Korean messages sender 20/22 vs 16/22,
   end to end 20/22 vs 21/22; English 40/40 vs 38/40. `docs/measurements.md`, `docs/measurements_nebius.md`.
-- Recorded runs `data/precomputed/` (4 photos, 6 messages). Video `docs/video/final_nebius.mp4` (2:37, not in git).
+- Recorded runs `data/precomputed/` (4 photos, 6 messages). Video `docs/video/final_nebius.mp4` (2:39, not in git; copy in the hackathon folder 제출본/배정길).
   Thumbnail `docs/video/thumbnail_nebius.png`. README / feedback / form values filled; only REPO_URL, TRY_IT_URL, VIDEO_URL left.
 
 Owner steps, in order (nothing below was done by Claude):
