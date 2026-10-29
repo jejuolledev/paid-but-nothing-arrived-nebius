@@ -368,8 +368,8 @@ _MONEY = re.compile(r"refund|compensat|discount|voucher|\bfor free\b|free of cha
 
 REPLY_SYSTEM = """You write a short reply FROM a small online shop's owner TO a customer who sent a payment screenshot.
 The shop checked its payment provider's ledger (given as JSON) and could not find the payment shown on the screenshot.
-Write <=80 words in the given language, polite. Say which amount and time you looked for, say what (if anything) you
-can see from their address, and ask them to send the line from their card statement or tell you if they used another
+Write <=80 words in the given language, polite. Say which amount and time you looked for, do not tell them anything the
+ledger holds (no amounts, dates or times from the records), and ask them to send the line from their card statement or tell you if they used another
 card or address. Never say or hint that the screenshot is fake, edited or wrong; people pay from other cards and
 accounts. Never promise money, refunds or credits. Return JSON: {"customer_reply": "..."}"""
 
@@ -377,11 +377,10 @@ accounts. Never promise money, refunds or credits. Return JSON: {"customer_reply
 def template_reply(f: dict, d: dict, nearest: dict | None, lang: str) -> str:
     amt = f"{f['amount']:,}" if f.get("amount") is not None else "?"
     when = " ".join(x for x in (f.get("date"), f.get("time")) if x)
+    # The reply never tells the customer what the ledger holds (no amounts or times from the records): the customer
+    # gives the details, the ledger checks them. Otherwise a wrong or edited screenshot would be answered with the real record.
     if nearest:
-        loc = _local(nearest["created_at"]).strftime("%Y-%m-%d %H:%M")
-        seen = {"ko": f"고객님 주소로 확인되는 결제는 {loc} {int(nearest['amount']):,}원입니다.",
-                "ja": f"お客様のアドレスで確認できるお支払いは {loc} の {int(nearest['amount']):,}ウォンです。",
-                "en": f"The payment I can see from your address is {int(nearest['amount']):,} KRW on {loc}."}
+        seen = {"ko": "", "ja": "", "en": ""}
     else:
         seen = {"ko": "고객님 주소로는 결제 내역이 보이지 않습니다.", "ja": "お客様のアドレスではお支払いの記録が見当たりません。",
                 "en": "I can't see a payment from your address."}
@@ -405,8 +404,7 @@ def proof_reply(client, f: dict, d: dict, nearest: dict | None, lang: str) -> tu
         return tpl, {"source": "template"}
     payload = {"language": {"ko": "Korean (polite 존댓말)", "ja": "Japanese (polite です/ます)"}.get(lang, "English"),
                "screenshot": {"amount": f.get("amount"), "currency": f.get("currency"), "date": f.get("date"), "time": f.get("time")},
-               "ledger_payment_from_this_address": ({"amount": int(nearest["amount"]), "local_time": _local(nearest["created_at"]).strftime("%Y-%m-%d %H:%M"),
-                                                     "status": nearest.get("status")} if nearest else None)}
+               "ledger_has_other_payments_from_this_address": bool(nearest)}
     try:
         resp = client.chat.completions.create(**({"_role": "reply"} if hasattr(client, "log") else {}), model=model_for("reply"), temperature=0.2,
                                               max_tokens=int(os.getenv("LLM_MAX_TOKENS", "4000")),
