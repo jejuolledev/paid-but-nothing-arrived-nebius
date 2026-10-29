@@ -3,7 +3,7 @@
 > Your customer already has proof they paid. This agent finds yours.
 
 **Check it in three steps (no login, each step answers in under 5 seconds):**
-1. Open **TRY_IT_URL**.
+1. Open **https://paid-but-nothing-arrived-ue5lzmopwq-uc.a.run.app**.
 2. Click **See it in 30 seconds**. A customer's card alert says 9,900 won on the 20th; Nemotron 3.5 Super VL reads it and
    the payment ledger has **no payment at that time**. The customer answers *"Sorry, it was the 19th"* and sends the
    card-statement line; Nemotron 3.5 Super VL reads the statement, the agent checks the ledger again, it **matches**, the

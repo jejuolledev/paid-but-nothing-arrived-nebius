@@ -1,7 +1,7 @@
 # Devpost submission — Nebius × NVIDIA Global AI Hackathon
 
 Deadline: **Fri Oct 30, 2026 10:00 PDT = Sat Oct 31 02:00 KST**. Submit a few hours early.
-Before pasting: replace `TRY_IT_URL` / `VIDEO_URL` / `https://github.com/jejuolledev/paid-but-nothing-arrived-nebius` (owner steps).
+Before pasting: replace `https://paid-but-nothing-arrived-ue5lzmopwq-uc.a.run.app` / `VIDEO_URL` / `https://github.com/jejuolledev/paid-but-nothing-arrived-nebius` (owner steps).
 The exact hackathon-specific questions are only visible after "Enter a submission"; the usual Devpost fields are
 below, plus the ones the rules require (track, feedback, what changed during the period, repo, demo URL, video).
 
@@ -27,7 +27,7 @@ nebius-token-factory, nvidia-nemotron, nemotron-3.5-super-vl, nemotron-3.5-light
 
 ## Try it out (links)
 ```
-TRY_IT_URL
+https://paid-but-nothing-arrived-ue5lzmopwq-uc.a.run.app
 https://github.com/jejuolledev/paid-but-nothing-arrived-nebius
 ```
 
@@ -86,5 +86,5 @@ Paste docs/feedback.md (after filling it), as plain text.
 
 ## Testing instructions (for judges)
 ```
-Open TRY_IT_URL. No login. Click "See it in 30 seconds" (each step answers in under 5 seconds from recorded live runs on Token Factory, labelled with the time): an edited card alert -> "no payment like this in the ledger" (with the line free OCR + rules would have read instead) -> the customer's answer "it was the 19th" -> Nemotron 3.5 Lightning reads it, the ledger matches, the money chain shows the email never went out, and the reply is rewritten. Then click any example and "Run it live now" to call Nemotron on Token Factory yourself (about 10-20 seconds; 4 live runs per hour per visitor, 10 per day in total; past that, the ledger and verifier still answer and the page says no model was used). You can also drop or paste your own screenshot; it is not stored. All data is synthetic.
+Open https://paid-but-nothing-arrived-ue5lzmopwq-uc.a.run.app. No login. Click "See it in 30 seconds" (each step answers in under 5 seconds from recorded live runs on Token Factory, labelled with the time): an edited card alert -> "no payment like this in the ledger" (with the line free OCR + rules would have read instead) -> the customer's answer "it was the 19th" -> Nemotron 3.5 Lightning reads it, the ledger matches, the money chain shows the email never went out, and the reply is rewritten. Then click any example and "Run it live now" to call Nemotron on Token Factory yourself (about 10-20 seconds; 4 live runs per hour per visitor, 10 per day in total; past that, the ledger and verifier still answer and the page says no model was used). You can also drop or paste your own screenshot; it is not stored. All data is synthetic.
 ```

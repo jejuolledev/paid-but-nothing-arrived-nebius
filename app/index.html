@@ -767,7 +767,7 @@ function renderProof(r){
   return `<div class="card"><h2>${esc(i.proofTitle)}</h2><div class="proof">
     <div><div class="shot"><img src="${esc(p.image_data_url||'')}" alt="screenshot">${boxes}</div>${legend}${p.highlight_source?`<p class="mut" style="font-size:12px">${esc(i.boxesFrom(p.highlight_source))}</p>`:''}</div>
     <div><p class="verdict ${cls}">${esc(((r.followup?i.followHead:i.proofHead)||{})[p.verdict]||p.headline)}</p><p class="mut" style="margin:0 0 8px">${esc(i.ledgerWins)}</p>
-      <div class="rows"><table class="calls"><tr>${(r.followup?i.proofHF:i.proofH).map(h=>`<th>${esc(h)}</th>`).join('')}</tr>${rows}</table></div>
+      <div class="rows"><table class="calls"><tr>${(r.followup&&r.followup.kind==='message'?i.proofHF:i.proofH).map(h=>`<th>${esc(h)}</th>`).join('')}</tr>${rows}</table></div>
       ${p.rules_only&&!p.rules_only.same_as_model&&p.rules_only.amount!=null?`<div class="warnline">${esc(i.proofRulesOnly(p.rules_only))}</div>`:''}${ign}${drop}${notes}
       <p class="mut" style="font-size:12px;margin-top:8px">${esc(i.readBy(({'vision model':'the vision model','followup model':'the answer reader'}[rd.reader]||rd.reader||'—'),rd.model?prettyModel(rd.model):''))}${rd.ok===false&&rd.error?' · '+esc(rd.error):''}<br>${esc(i.sentNote(img.redaction||'',img.redacted))}</p></div>
   </div></div>`;
