@@ -55,7 +55,7 @@ def main():
         g = it["gold"]
         sql_backend._CACHE.clear()  # fresh synthetic data per message (no approvals carry over)
         use_model = a.mode == "model"
-        r = investigate(it["message"], use_model=use_model)
+        r = investigate(it["message"], use_model=use_model, first_address_rule=not use_model)   # rules row = the old regex
         if use_model:
             gi = ((r.get("intake") or {}).get("grounded") or {})
             ph = (r.get("intake") or {}).get("placeholders") or {}

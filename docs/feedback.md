@@ -40,8 +40,8 @@ Written while building this entry, from what actually happened. Logs: `docs/gate
 - **What we saw.** Every intake call on `nvidia/Nemotron-3_5-Lightning` with `max_tokens=1500` reported
   `completion_tokens=1500`, exactly the limit.
 - It looks like the same pattern as item 1, but we did not log `finish_reason` on those calls, so this is not
-  confirmed. With `enable_thinking=false` the same intake prompt used at most 411 completion tokens over 50 calls,
-  median 2.2 s, so reasoning was the cause.
+  confirmed. With `enable_thinking=false` the same intake prompt used at most 411 completion tokens over 113 calls,
+  median 2.0 s, so reasoning was the cause.
 - **Suggestion.** On each Nemotron model page, show whether reasoning is on by default and how to change it.
 
 ### 3. Sign-up and credits: snags at four steps
@@ -76,10 +76,10 @@ Written while building this entry, from what actually happened. Logs: `docs/gate
 
 ### 6. What we measured about the endpoint (2026-10-29, about 390 calls)
 - Structured output (`json_schema`, strict) with an image: honoured on Super VL (every answer parsed against the schema).
-- Median and worst latency per call: Super VL 5.4 s / 55 s (the 55 s call is the one that ran to 4,000 tokens; the first
-  dev run of the day averaged 27 s per photo, later runs 3-6 s);
-  Lightning 2.2 s / 5.5 s; Ultra 2.6 s / 7.7 s; Super 6.5 s / 20 s.
-- One failed call in the 40-message run (we did not keep its error type); apart from that and the 4,000-token call above, none failed.
+- Median and worst latency per call: Super VL 4.2 s / 55 s (the 55 s call ran to 4,000 tokens; the first dev run of
+  the day averaged 27 s per photo, later runs 3-6 s); Lightning 2.0 s / 5.5 s; Ultra 2.5 s / 17 s; Super 6.9 s / 26 s.
+- One failed call in the 40-message run (we did not keep its error type); two calls ran to the 4,000-token limit (a Super VL
+  call on OCR-text input, which returned nothing, and one Ultra re-read); no other failures.
 - There is no usage or balance endpoint in the API (`/v1/usage`, `/v1/balance` and similar return 404), so we
   kept our own per-call ledger from the `usage` object and catalog prices. A usage endpoint would let builders
   set a hard budget in code.

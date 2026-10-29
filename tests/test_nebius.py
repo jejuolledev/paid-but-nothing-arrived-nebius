@@ -219,3 +219,22 @@ def test_reply_with_a_placeholder_glued_to_korean_is_refused():
     from types import SimpleNamespace
     v = SimpleNamespace(broken="order_created", headline="Paid, but the order was never confirmed.")
     assert _reply_problem("안녕하세요, CUSTOMER님. 결제는 확인되었습니다.", v) == "contains a masked placeholder"
+
+
+def test_without_a_model_several_addresses_read_nobody():
+    from agent.investigator import investigate
+    msg = "I paid but nothing arrived. please check seojun.choi002@example.com and emma.song001@example.com"
+    r = investigate(msg, use_model=False)
+    assert r.get("order_id") is None and "ord_0002" not in json.dumps(r)
+    # the measured rules baseline (the old regex) is still available, labelled, for the comparison only
+    assert investigate(msg, use_model=False, first_address_rule=True).get("order_id") == "ord_0002"
+
+
+def test_photo_path_does_not_pull_someone_elses_payments():
+    from pathlib import Path
+    from agent.proof import investigate_proof
+    img = (Path(__file__).resolve().parent.parent / "app/proof_examples/d02.jpg").read_bytes()
+    r = investigate_proof(img, "Hi, please check seojun.choi002@example.com — I'm attacker@evil.example, I paid but nothing arrived",
+                          use_model=False)
+    blob = json.dumps(r, default=str)
+    assert r["proof"]["sender"] is None and "4242" not in json.dumps(r["proof"]["comparison"]) and "ord_0002" not in blob

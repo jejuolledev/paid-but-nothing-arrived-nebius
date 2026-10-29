@@ -5,7 +5,7 @@ __pycache__/
 data/out/*.csv
 .DS_Store
 zetaris-platform/
-# recording raw takes and build intermediates (the final video is docs/demo/final_v2.mp4)
+# recording raw takes and build intermediates (Open Agent version; the Nebius video is docs/video/final_nebius.mp4, not committed)
 docs/demo/take*/
 docs/demo/final_parts/_seg/
 docs/demo/zetaris_ui_*/

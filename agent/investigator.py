@@ -424,7 +424,11 @@ def _order_belongs(tools, order_id: str, email: str) -> bool:
     return any(p["payment_id"] == o[0].get("payment_id") for p in pays)
 
 
-def investigate(message: str, email: str = "", order_id: str = "", backend=None, use_model: bool = True, lang: str = "") -> dict:
+def investigate(message: str, email: str = "", order_id: str = "", backend=None, use_model: bool = True, lang: str = "",
+                first_address_rule: bool = False) -> dict:
+    """first_address_rule=True reproduces the old regex baseline (first address in the message is the sender); it is
+    used only to measure and to show "what the rules alone would have found" to the seller. Otherwise a message with
+    several customer addresses and no sender named by the reader reads nobody's records."""
     from .sql_backend import get_backend
     db = backend or get_backend()
     tools, trace, t0 = Tools(db), [], time.time()
@@ -442,9 +446,8 @@ def investigate(message: str, email: str = "", order_id: str = "", backend=None,
     if not order_id:
         m = re.search(r"ord_\d{4}", message or ""); order_id = m.group(0) if m else ""
     if not email:  # the first address in the message that is not one of the shop's own
-        from .intake import not_customer
-        candidates = list(dict.fromkeys(m.group(0) for m in re.finditer(r"[\w.+-]+@[\w-]+(\.[\w-]+)+", message or "")
-                                        if not not_customer(m.group(0))))
+        from .intake import body_addresses
+        candidates = body_addresses(message)
         email = candidates[0] if candidates else ""
     client, model = _client() if use_model else (None, None)
     unreachable = client is None and model == "unreachable"
@@ -462,14 +465,20 @@ def investigate(message: str, email: str = "", order_id: str = "", backend=None,
         if g:
             if g.get("sender_email") and not email_given:
                 email = g["sender_email"]
-            elif not email_given and email and len({c.lower() for c in candidates}) > 1:
+            elif not email_given and email and len(candidates) > 1:
                 # the reader named no sender and the message has several addresses: do not guess whose records to read
                 mark("sender_scope", "no sender identified among several addresses — nobody's records were read")
                 email = ""
+
             foreign = g.get("foreign_order_ids") or []
             own = [o for o in g.get("order_ids", []) if o not in foreign]
             if not order_given:
                 order_id = own[0] if own else (order_id if order_id not in foreign else "")
+    if not email_given and not first_address_rule and email and len(candidates) > 1 and not (
+            intake and intake.get("ok") and (intake.get("grounded") or {}).get("sender_email")):
+        # no model reading (no key, past the live limit, failed call): never guess among several addresses
+        mark("sender_scope", "several addresses and no reader to tell them apart — nobody's records were read")
+        email = ""
     if not order_id and not email:
         return {"ok": False, "headline": "Add the order number (ord_0000) or the customer's email to the message.", "trace": [asdict(t) for t in trace],
                 "backend": db.name, "intake": _public_intake(intake), "model_calls": list(calls or []), "llm": "none"}
@@ -598,7 +607,8 @@ def investigate(message: str, email: str = "", order_id: str = "", backend=None,
     rules_only = None
     if intake and intake.get("ok"):
         # what the agent would have found without the model reading the message (no model call; same data)
-        ro = investigate(message, email if email_given else "", order_id if order_given else "", backend=db, use_model=False)
+        ro = investigate(message, email if email_given else "", order_id if order_given else "", backend=db, use_model=False,
+                         first_address_rule=True)
         rules_only = {"ok": ro.get("ok"), "order_id": ro.get("order_id"), "broken": ro.get("broken"), "headline": ro.get("headline"),
                       "same": ro.get("order_id") == target["order_id"] and ro.get("broken") == verdict.broken}
     from .compare import compare_claims

@@ -76,6 +76,16 @@ def not_customer(addr: str) -> bool:
     return a in shop_addresses() or bool(NOT_A_PERSON.match(a))
 
 
+def body_addresses(message: str) -> list[str]:
+    """Customer-looking addresses in the message body, in order, without duplicates (shop and automatic senders removed)."""
+    out = []
+    for m in EMAIL_RE.finditer(message or ""):
+        a = m.group(0).lower()
+        if not not_customer(a) and a not in out:
+            out.append(a)
+    return out
+
+
 def prepare(message: str) -> tuple[str, dict[str, str]]:
     """(text for the model, {placeholder: address}). Addresses -> EMAIL_n (first letter + domain), shop -> SHOP_ADDRESS,
     card digits removed. The same address always gets the same placeholder."""

@@ -53,10 +53,10 @@ Edit the amount, date or time on a screenshot and the ledger has never seen that
 - Public demo: per-visitor copy of the synthetic data, recorded live runs for the examples ("Run it live now" for a real call), rate limits, the key only on the server.
 
 ## Measured (held-out sets built by a separate agent before any model run)
-- 16 phone photos (Korean, Japanese; 8 edited), run once: payment read right and verdict right — Nemotron 3.5 Super VL 14/16; free on-device OCR + payment-word rules 3/16. Given only the OCR text, the same Nemotron gets 13/16, so most of the gain is choosing the right line on a crowded screen. Edited screenshots: 8/8 "not in the ledger" with every reader, because the ledger catches them.
+- 16 phone photos (Korean, Japanese; 8 edited), run once: payment read right and verdict right — Nemotron 3.5 Super VL 14/16; free on-device OCR + payment-word rules 3/16. Given only the OCR text, the same Nemotron gets 13/16, so most of the gain is choosing the right line on a crowded screen. Edited screenshots: 8/8 "not in the ledger" with Nemotron reading the image; the ledger, not the reader, rejects them.
 - 22 Korean-heavy messages, run once: who is writing — Nemotron 20/22, rules 16/22; right order and broken link — Nemotron 20/22, rules 21/22. One of Nemotron's two misses is a prompt-injection message where it named no sender, so nobody's records were read.
 - 40 English-heavy messages: Nemotron 40/40, rules 38/40.
-- Cost and time: about 5.5 s and $0.0008 per photo read; a full photo case (read, plan, explain, reply) took 8-19 s in our recorded runs.
+- Cost and time: about 5.5 s and $0.0008 per photo read; a full photo case (read, plan, explain, reply) took 10-16 s in our recorded runs.
 
 ## Limitations
 - The photo set is synthetic (rendered app screens, photographed-looking distortions); not yet measured on real customer photos.
@@ -85,5 +85,5 @@ Paste docs/feedback.md (after filling it), as plain text.
 
 ## Testing instructions (for judges)
 ```
-Open TRY_IT_URL. No login. Best first click: "Or try a customer's screenshot" -> "Korean card SMS, 9,900 won": the photo, the numbers Nemotron read, photo vs ledger, then the money chain. Then "Card alert with its date edited": the ledger has never seen that payment. Examples answer at once from a recorded live run on Token Factory (labelled, with the time); "Run it live now" calls Nemotron for real (about 10-20 seconds). You can also drop or paste (Ctrl/Cmd+V) your own screenshot; it is not stored. Message examples are below the box; Approve a fix and the chain turns green, in your own copy of the data only. Live runs are limited to 4 per hour per visitor and 10 per day in total; after that the ledger and verifier still answer and the page says no model was used. All data is synthetic.
+Open TRY_IT_URL. No login. Best first click: "Or try a customer's screenshot" -> "Korean card SMS, 9,900 won": the photo, the numbers Nemotron read, photo vs ledger, then the money chain. Then "Card alert with its date edited": the ledger has never seen that payment. Examples answer at once from a recorded live run on Token Factory (labelled, with the time); "Run it live now" calls Nemotron for real (about 10-16 seconds). You can also drop or paste (Ctrl/Cmd+V) your own screenshot; it is not stored. Message examples are below the box; Approve a fix and the chain turns green, in your own copy of the data only. Live runs are limited to 4 per hour per visitor and 10 per day in total; after that the ledger and verifier still answer and the page says no model was used. All data is synthetic.
 ```

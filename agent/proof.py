@@ -84,6 +84,8 @@ def prepare_image(data: bytes) -> tuple[bytes, dict]:
     Image.MAX_IMAGE_PIXELS = 50_000_000
     try:
         im = Image.open(io.BytesIO(data))
+        if im.size[0] * im.size[1] > Image.MAX_IMAGE_PIXELS:   # checked before decoding (Pillow only refuses at 2x)
+            raise ValueError("image too large (over 50 megapixels)")
         fmt = im.format
         if fmt not in ("PNG", "JPEG", "WEBP", "GIF", "BMP", "MPO"):
             raise ValueError(f"unsupported image type {fmt}")
@@ -429,13 +431,13 @@ def proof_reply(client, f: dict, d: dict, nearest: dict | None, lang: str) -> tu
 # ---------- the whole step ----------
 
 def sender_from(message: str, email: str = "") -> str:
-    from .intake import shop_addresses
+    """The seller-entered address, else the only customer address in the message. Several addresses: nobody (the
+    seller adds the customer's address), so a message naming someone else's address cannot pull their payments."""
+    from .intake import body_addresses
     if email and _EMAIL.fullmatch(email):
         return email.lower()
-    for m in _EMAIL.finditer(message or ""):
-        if m.group(0).lower() not in shop_addresses():
-            return m.group(0).lower()
-    return ""
+    found = body_addresses(message)
+    return found[0] if len(found) == 1 else ""
 
 
 def read_fields(jpeg: bytes, client, ocr: dict | None) -> tuple[dict | None, dict]:
@@ -492,7 +494,10 @@ def investigate_proof(image: bytes, message: str = "", email: str = "", backend=
              "highlight_source": "on-device OCR (macOS Vision) locates the lines the reader used" if ocr else None,
              "image_data_url": "data:image/jpeg;base64," + base64.b64encode(jpeg).decode()}
     if not sender:
-        proof["notes"].append("No sender address in the message: add the customer's e-mail so the ledger can be checked.")
+        from .intake import body_addresses
+        proof["notes"].append("Several addresses in the message: add the customer's own e-mail so the ledger can be checked."
+                              if len(body_addresses(message)) > 1 else
+                              "No sender address in the message: add the customer's e-mail so the ledger can be checked.")
     order_id = ""
     if d["matched"]:
         rows = tools.order_for_payment(d["matched"].split(":", 1)[1])

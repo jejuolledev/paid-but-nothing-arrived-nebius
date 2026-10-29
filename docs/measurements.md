@@ -1,6 +1,7 @@
-# Measurements: screenshot proof and the text fallback (no model yet)
+# Measurements: screenshot proof and the text fallback
 
-All runs below were made on 2026-10-27, **before any vision model call** (the Token Factory key arrives 10/28).
+The baseline runs (free OCR + rules) were made on 2026-10-27, **before any vision model call**. The Nemotron runs on
+Token Factory were made on 2026-10-29 and are appended at the end (dev first, then held-out once).
 Sets were built and committed by a separate agent that never saw the prompts or the agent code (commit 5a4e015;
 `docs/eval/screens/SPEC.md`). Every run writes a full per-image log to `docs/measurements/`.
 
@@ -39,8 +40,10 @@ number itself (`agent/screen_rules.py`); the rules themselves were not changed. 
 ## Text fallback set (Korean-heavy, rules only) — from `scripts/intake_eval.py`, logged in `docs/measurements_nebius.md`
 `docs/eval/text_fallback.jsonl` (30: 21 Korean, 9 Japanese; 만/천 amounts, Korean number words, forwarded headers whose
 first address is the shop's or a gateway's, CC lines, "두 번째 주문", attacks asking for someone else's order).
-- Rules only, held-out 22: sender 16/22, right order + broken link **17/22** (vs 38/40 on the older English-heavy set).
-- Rules only, dev 8: sender 6/8, end to end 5/8.
+- Rules only, held-out 22 (2026-10-27): sender 16/22, right order + broken link 17/22 (vs 38/40 on the older English-heavy set).
+- Rules only, dev 8 (2026-10-27): sender 6/8, end to end 5/8.
+- 2026-10-29: after the dev-set changes to the shared lookup code (the shop's own help@ address and no-reply senders are
+  never the customer), the same rules give held-out 16/22 and **21/22**, dev 6/8 and 6/8 (`docs/measurements_nebius.md`, 15:55).
 
 ## After the key (fill from the runs, do not edit by hand)
 `scripts/proof_eval.py --mode model` appends rows to the table below (`nvidia/Nemotron-3.5-Super-VL` on Token Factory,

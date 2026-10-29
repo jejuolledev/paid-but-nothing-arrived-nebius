@@ -157,7 +157,8 @@ def _out(resp, sid: str, request: Request | None = None):
 
 def _ip(request: Request) -> str:
     fwd = request.headers.get("x-forwarded-for", "")
-    return (fwd.split(",")[0].strip() if fwd else (request.client.host if request.client else "?"))[:64]
+    # the last entry is the one Cloud Run's front end appended; earlier entries can be typed by the visitor
+    return (fwd.split(",")[-1].strip() if fwd else (request.client.host if request.client else "?"))[:64]
 
 
 def _backend(sid: str):

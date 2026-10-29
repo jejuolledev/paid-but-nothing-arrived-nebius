@@ -42,13 +42,15 @@ def still(img, secs, out, zoom=(1.0, 1.05)):
     run(["-loop", "1", "-i", str(img), "-vf", vf, "-frames:v", str(n), *ENC, str(out)])
 
 
-def clip(a, b, secs, out, video=None):
+def clip(a, b, secs, out, video=None, crop=None):
     """Recorded screen from a to b, scaled to 1080p; holds the last frame if the narration is longer,
     speeds up (at most 2x) if the beat is longer than the narration."""
     span = max(0.1, b - a)
     speed = min(2.0, max(1.0, span / secs))
     hold = max(0.0, secs - span / speed)
-    vf = (f"setpts=PTS/{speed:.3f},fps={FPS},scale=-2:{H}:flags=lanczos,pad={W}:{H}:(ow-iw)/2:0:color={BG},setsar=1,"
+    # crop = [x, y, w, h] in the recording's pixels (1440x900): zoom into the part the narration is about
+    zoom = (f"crop={crop[2]}:{crop[3]}:{crop[0]}:{crop[1]}," if crop else "")
+    vf = (f"setpts=PTS/{speed:.3f},fps={FPS},{zoom}scale=-2:{H}:flags=lanczos,pad={W}:{H}:(ow-iw)/2:0:color={BG},setsar=1,"
           f"tpad=stop_mode=clone:stop_duration={hold:.3f}")
     run(["-ss", f"{a:.3f}", "-t", f"{span:.3f}", "-i", str(video or VIDEO), "-vf", vf, "-t", f"{secs:.3f}", *ENC, str(out)])
 
@@ -83,10 +85,10 @@ for l in LINES:
         if not INTRO_VIDEO:
             sys.exit(f"{k}: needs the screenshot take (scripts/record_proof_intro.mjs) in {INTRO}")
         a, b = beat(arg, slot[k], INTRO_MARKS)
-        out = TMP / f"{k}.mp4"; clip(a, b, slot[k], out, INTRO_VIDEO); segs.append(out); live.add(k)
+        out = TMP / f"{k}.mp4"; clip(a, b, slot[k], out, INTRO_VIDEO, l.get("crop")); segs.append(out); live.add(k)
     elif kind == "take":
         a, b = beat(arg, slot[k])
-        out = TMP / f"{k}.mp4"; clip(a, b, slot[k], out); segs.append(out); live.add(k)
+        out = TMP / f"{k}.mp4"; clip(a, b, slot[k], out, None, l.get("crop")); segs.append(out); live.add(k)
     timeline.append((k, t, slot[k])); t += slot[k]
 if t >= 178:
     print(f"WARNING: {t:.1f}s — over the 3-minute rule margin; shorten lines")

@@ -49,14 +49,26 @@ await shot(card(`<div style="margin-top:-40px;font-size:56px;font-weight:800;lin
 <div style="font-size:30px;color:#9aa3b2;margin:10px 0 30px">Nemotron reads both on Nebius Token Factory. The payment ledger knows which is which.</div>
 <div style="display:flex;gap:40px">${shotPane(b64(OUT + '/cold_true.png'), 'Real: in the ledger', '#3ccf7a')}${shotPane(b64(OUT + '/cold_doc.png'), 'Edited date: the ledger never saw it', '#ff6b6b')}</div>`), 'card_cold', false);
 
+// Which number on a crowded screen? The demo's edited card alert (app/proof_examples/d05.jpg): what free OCR + rules took,
+// what Nemotron took (data/precomputed/proof_d05.json), and what the ledger said. Values checked 2026-10-29.
+const pick = (who, val, note, color) => `<div style="border:2px solid ${color};border-radius:18px;padding:22px 28px;background:#151922;margin-bottom:22px"><div style="font-size:26px;color:#9aa3b2">${who}</div><div style="font-size:50px;font-weight:800;color:${color};margin-top:4px">${val}</div><div style="font-size:26px;color:#c3c9d4;margin-top:6px">${note}</div></div>`;
+const d05 = 'data:image/jpeg;base64,' + fs.readFileSync('app/proof_examples/d05.jpg').toString('base64');
+await shot(card(`<div style="margin-top:-110px;display:flex;gap:60px;align-items:flex-start">
+<img src="${d05}" style="height:900px;border-radius:18px">
+<div style="flex:1;padding-top:10px"><div style="font-size:52px;font-weight:800;line-height:1.15;margin-bottom:30px">A list of card alerts. Which number do you check?</div>
+${pick('Free on-device OCR + payment-word rules', '288,300원', 'the card bill due on 10/25: the wrong line', '#ff8a8c')}
+${pick('Nemotron 3.5 Super VL · Nebius Token Factory', '9,900원 · 10/20 03:00', 'the payment to MOAHUB', '#7ee2a8')}
+${pick('The payment provider’s ledger', 'never saw it', 'the real payment was on 10/19: the date was edited', '#f5c46b')}
+</div></div>`), 'card_pick', false);
+
 const P = M.proof;
 await shot(card(`<div style="font-size:30px;color:#9aa3b2;letter-spacing:.08em;text-transform:uppercase">Measured · held-out, run once</div>
 <div style="font-size:54px;font-weight:800;margin:14px 0 46px">${esc(P.n)} phone photos of payment screens, made by a separate agent</div>
 <div style="display:flex;gap:34px">${stat(P.model_strict, 'payment read right and verdict right · Nemotron 3.5 Super VL')}${stat(P.ocr_strict, 'the same · free on-device OCR + payment-word rules')}${stat(P.ocrtext_strict, 'the same · Nemotron given only the OCR text, no image')}</div>
-<div style="font-size:26px;color:#9aa3b2;margin-top:40px">Edited screenshots: ${esc(P.doctored)} ended as “not in the ledger” with either reader (the ledger catches them, not the reader) · avg ${esc(P.avg_s)} s and $${esc(P.usd_per_photo)} per photo on Nebius Token Factory · synthetic screens, Korean and Japanese</div>`), 'card_measured_proof', false);
+<div style="font-size:26px;color:#9aa3b2;margin-top:40px">Edited screenshots: ${esc(P.doctored)} ended as “not in the ledger” with Nemotron reading the image (the ledger rejects them, not the reader) · avg ${esc(P.avg_s)} s and $${esc(P.usd_per_photo)} per photo on Nebius Token Factory · synthetic screens, Korean and Japanese</div>`), 'card_measured_proof', false);
 
 await shot(card(`<div style="height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center">
-<div style="font-size:96px;font-weight:800">Paid, but nothing arrived?</div><div style="font-size:52px;color:#7ee2a8;margin-top:18px">Found in one pass.</div>
+<div style="font-size:96px;font-weight:800">Paid, but nothing arrived?</div><div style="font-size:52px;color:#7ee2a8;margin-top:18px">Where the money stopped, with the rows that prove it.</div>
 <div style="font-size:30px;color:#9aa3b2;margin-top:60px">NVIDIA Nemotron on Nebius Token Factory</div>
 <div style="font-size:26px;color:#6f7888;margin-top:16px">TRY_IT_URL · all data synthetic · MIT</div></div>`.replace('TRY_IT_URL', esc(process.env.TRY_URL || 'live demo link in the description'))), 'card_title', false);
 await b.close(); console.log('overlays ok');
