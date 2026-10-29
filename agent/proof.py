@@ -63,7 +63,8 @@ Report exactly what the screen shows for that transaction; do not correct, guess
 - date: "YYYY-MM-DD", or "MM-DD" if the screen shows no year. time: "HH:MM" 24-hour (오후 9:05 -> 21:05). null if not shown.
 - datetime_text: the exact characters of the date/time on screen. Whenever datetime_text has a date or a time, also
   fill date and time from it ("10/20 03:00" -> date "10-20", time "03:00"); never leave them null if they are on screen.
-- card_last4: the last four digits of a masked card number if shown, else null.
+- card_last4: the last four digits of the card if shown, masked or in brackets after the card name
+  (솔카드(1117) -> "1117", ****4242 -> "4242"), else null.
 - status: approved / paid / pending / cancelled / failed / refunded / unknown, as the screen states it; status_text: the words.
 - Do not take these as the payment: account balance, running or monthly totals (누적, 累計, "total this month"),
   points or cashback, instalment counts, the phone's status-bar

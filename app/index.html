@@ -385,6 +385,8 @@ const EXAMPLES={
   6:{label:'Two addresses: “my wife\'s is k.smith@…, I paid with liam.patel906@…”',send:'Hi, my wife\'s email is k.smith@example.org and she set up the account, but I paid 24,900 won with liam.patel906@example.com yesterday and the credits never came.'},
 };
 
+EXAMPLES[7]={...EXAMPLES[6],label:'Same message, turn by turn: the agent picks each lookup itself',label_ko:'같은 메시지, 한 단계씩: 에이전트가 다음 조회를 스스로 고름',mode:'loop'};
+
 let lang='en', followPhoto=null, firstTurn=null, lastResult=null, lastFix=null, casesCache=[], cfg={}, lastCase=null, photo=null, photoExample=null, photoExamples=[];
 let howOpen=true, howSeenResult=false;
 
@@ -553,7 +555,7 @@ function renderSamples(){
   $('#samples').innerHTML=`<span class="label">${esc(i.examples)}</span>`+casesCache.map(c=>{
     const ex=EXAMPLES[c.case]||{label:c.title,send:'order '+String(c.order_id||'')};
     return `<button type="button" class="ghost" data-case="${esc(c.case)}" data-send="${esc(ex.send)}">${esc(ex.label)}</button>`;
-  }).join('');
+  }).join('')+(casesCache.some(c=>c.case===6)?`<button type="button" class="ghost" data-case="7" data-send="${esc(EXAMPLES[7].send)}">${esc(lang==='ko'?EXAMPLES[7].label_ko:EXAMPLES[7].label)}</button>`:'');
   document.querySelectorAll('#samples button').forEach(b=>b.onclick=()=>{
     $('#msg').value=b.dataset.send;lastCase=+b.dataset.case;$('#empty-hint').hidden=true;$('#empty-hint').dataset.show='';run();
   });
@@ -573,6 +575,7 @@ async function run(live){
   const message=$('#msg').value.trim();
   const ex=lastCase&&EXAMPLES[lastCase];
   const caseNo=(ex&&ex.send===message)?lastCase:null;
+  const mode=(caseNo&&EXAMPLES[caseNo]&&EXAMPLES[caseNo].mode)||'';
   const hint=$('#empty-hint');
   if(photo){return runProof(live);}
   if(!message){
@@ -583,7 +586,7 @@ async function run(live){
   $('#go').disabled=true;
   lastFix=null;
   try{
-    const res=await fetch('/api/investigate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message,lang,case:caseNo,live:!!live})});
+    const res=await fetch('/api/investigate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message,lang,case:caseNo,live:!!live,mode})});
     if(!res.ok){
       lastResult=null;
       hideHowAfterResult();
@@ -846,7 +849,7 @@ function render(r, opts){
       <p id="approve-msg" class="hint" style="margin:8px 0 0" hidden></p></div>
   </div>
   ${renderFollowCard(r)}
-  ${noMatch?'':renderClaims(r)}
+  ${noMatch||r.followup?'':renderClaims(r)}
   ${noMatch?'':renderIntake(r)}
   ${noMatch?'':renderSteps(r.steps)}
   ${renderCalls(r)}

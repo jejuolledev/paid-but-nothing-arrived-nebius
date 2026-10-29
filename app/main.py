@@ -48,6 +48,7 @@ class Ask(BaseModel):
     lang: str = Field(default="", max_length=4)
     case: int | None = None          # an example button: may be answered from the recorded run
     live: bool = False                # "Run it live" on an example
+    mode: str = Field(default="", max_length=8)   # "loop": the model picks each lookup turn by turn
 
 
 class ProofAsk(BaseModel):
@@ -329,7 +330,8 @@ def api_investigate(ask: Ask, request: Request):
         elif not LIMITER.slots.acquire(timeout=20):
             use_model, limited = False, "too many live runs at this moment"
     try:
-        r = investigate(ask.message, ask.email, ask.order_id, backend=_backend(sid), lang=ask.lang, use_model=use_model)
+        r = investigate(ask.message, ask.email, ask.order_id, backend=_backend(sid), lang=ask.lang, use_model=use_model,
+                        mode="loop" if ask.mode == "loop" else "")
     finally:
         if PUBLIC and use_model:
             LIMITER.slots.release()

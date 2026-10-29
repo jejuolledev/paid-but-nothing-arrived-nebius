@@ -1,6 +1,6 @@
 {
  "meta": {
-  "recorded_at": "2026-10-29T19:12:29+09:00",
+  "recorded_at": "2026-10-29T19:21:51+09:00",
   "provider": "Nebius Token Factory",
   "models": [
    "nvidia/Nemotron-3-Ultra-550b-a55b",
@@ -9,8 +9,8 @@
    "nvidia/nemotron-3-super-120b-a12b"
   ],
   "text": "아 죄송해요, 19일 새벽이었어요. 카드 이용내역 캡처 보내요.",
-  "code_commit": "66d3c92",
-  "wall_ms": 16234,
+  "code_commit": "35df947",
+  "wall_ms": 14385,
   "status": "ok"
  },
  "result": {
@@ -55,28 +55,14 @@
       "args": {
        "email": "EMAIL_1"
       },
-      "why": "Find any orders placed by the customer's email address"
-     },
-     {
-      "tool": "find_payments",
-      "args": {
-       "email": "EMAIL_1"
-      },
-      "why": "Check the payment provider's ledger for payments made by this email"
-     },
-     {
-      "tool": "order_for_payment",
-      "args": {
-       "payment_id": "FROM_PAYMENTS"
-      },
-      "why": "Map each payment to its corresponding order"
+      "why": "Find any orders placed by the customer's email to locate the relevant purchase."
      },
      {
       "tool": "order_journey",
       "args": {
        "order_id": "BEST_ORDER"
       },
-      "why": "Get the full history of the most relevant order to see if credits were delivered"
+      "why": "Get the full history of the most likely order to see if credits were delivered."
      }
     ],
     "dropped": []
@@ -116,10 +102,10 @@
     "requested_model": "nvidia/Nemotron-3.5-Super-VL",
     "provider": "Nebius Token Factory",
     "ok": true,
-    "ms": 3730,
-    "prompt_tokens": 1770,
-    "completion_tokens": 276,
-    "usd": 0.000779,
+    "ms": 4448,
+    "prompt_tokens": 1808,
+    "completion_tokens": 280,
+    "usd": 0.000794,
     "finish": "stop",
     "thinking": false
    },
@@ -129,10 +115,10 @@
     "requested_model": "nvidia/Nemotron-3_5-Lightning",
     "provider": "Nebius Token Factory",
     "ok": true,
-    "ms": 2666,
+    "ms": 1994,
     "prompt_tokens": 885,
-    "completion_tokens": 224,
-    "usd": 0.000107,
+    "completion_tokens": 205,
+    "usd": 0.000102,
     "finish": "stop",
     "thinking": false
    },
@@ -142,10 +128,10 @@
     "requested_model": "nvidia/Nemotron-3-Ultra-550b-a55b",
     "provider": "Nebius Token Factory",
     "ok": true,
-    "ms": 2313,
+    "ms": 2101,
     "prompt_tokens": 885,
-    "completion_tokens": 649,
-    "usd": 0.002832,
+    "completion_tokens": 560,
+    "usd": 0.002565,
     "finish": "stop",
     "thinking": null
    },
@@ -155,10 +141,10 @@
     "requested_model": "nvidia/nemotron-3-super-120b-a12b",
     "provider": "Nebius Token Factory",
     "ok": true,
-    "ms": 6884,
+    "ms": 5259,
     "prompt_tokens": 1502,
-    "completion_tokens": 1429,
-    "usd": 0.001737,
+    "completion_tokens": 1045,
+    "usd": 0.001391,
     "finish": "stop",
     "thinking": null
    }
@@ -223,8 +209,8 @@
   "unverified": [
    "Customer's spam folder"
   ],
-  "explanation": "The payment was successfully processed (payments:pay_0904) and the order marked paid (orders:ord_0904). Ten credits were granted to the customer's email (grants:g_ord_0904), but the notification email failed to send due to a missing API key (server_logs:2026-10-18T18:00:09Z@/api/mail/send). Hence the customer received the credits without notice.",
-  "customer_reply": "결제가 정상 처리되어 크레딧이 지급되었으나 알림 메일이 전송되지 않았습니다. 확인 후 알림을 다시 보내드리겠습니다.",
+  "explanation": "The payment of 9900 KRW was successful (payments:pay_0904) and the order is marked paid (orders:ord_0904). Ten credits were granted to the customer email CUSTOMER (grants:g_ord_0904). However, the subsequent email notification failed because the mail provider reported a missing API key (server_logs:2026-10-18T18:00:09Z@/api/mail/send), so the customer did not receive the credit notice.",
+  "customer_reply": "결제가 정상적으로 처리되어 10크레딧이 계정에 적립되었습니다. 다만 알림 메일이 전송되지 않아 확인하지 못하셨을 수 있습니다. 판매자 승인 후 메일을 다시 보내드리겠습니다.",
   "fix_action": "Resend the credit mail (requires approval). Code fix: alert on mail/send errors and retry with backoff.",
   "rows": {
    "orders": [
@@ -297,32 +283,32 @@
    {
     "step": "intake",
     "detail": "read the message",
-    "ms": 4982
+    "ms": 4100
    },
    {
     "step": "plan",
-    "detail": "4 planned lookup(s), reached ord_0904",
-    "ms": 4986
+    "detail": "2 planned lookup(s), reached ord_0904",
+    "ms": 4103
    },
    {
     "step": "order_journey",
     "detail": "one query; 3 joined rows → 6 rows across 4 tables",
-    "ms": 4988
+    "ms": 4105
    },
    {
     "step": "verify_chain",
     "detail": "broken=mail_delivered",
-    "ms": 4988
+    "ms": 4105
    },
    {
     "step": "llm_explain",
     "detail": "nvidia/nemotron-3-super-120b-a12b citations_ok=True",
-    "ms": 11877
+    "ms": 9368
    }
   ],
   "steps": [
    {
-    "thought": "Find any orders placed by the customer's email address",
+    "thought": "Find any orders placed by the customer's email to locate the relevant purchase.",
     "tool": "find_orders",
     "args": {
      "email": "EMAIL_1"
@@ -334,31 +320,7 @@
     ]
    },
    {
-    "thought": "Check the payment provider's ledger for payments made by this email",
-    "tool": "find_payments",
-    "args": {
-     "email": "EMAIL_1"
-    },
-    "rows": 1,
-    "planned": true,
-    "sql": [
-     "SELECT * FROM payments WHERE lower(customer_email) = lower('noah.chen904@example.com') ORDER BY created_at DESC LIMIT 10"
-    ]
-   },
-   {
-    "thought": "Map each payment to its corresponding order",
-    "tool": "order_for_payment",
-    "args": {
-     "payment_id": "FROM_PAYMENTS"
-    },
-    "rows": 1,
-    "planned": true,
-    "sql": [
-     "SELECT * FROM orders WHERE payment_id = 'pay_0904'"
-    ]
-   },
-   {
-    "thought": "Get the full history of the most relevant order to see if credits were delivered",
+    "thought": "Get the full history of the most likely order to see if credits were delivered.",
     "tool": "order_journey",
     "args": {
      "order_id": "BEST_ORDER"
@@ -374,18 +336,6 @@
    {
     "tool": "find_orders",
     "sql": "SELECT * FROM orders WHERE lower(email) = lower('noah.chen904@example.com') ORDER BY created_at DESC LIMIT 10",
-    "rows": 1,
-    "backend": "duckdb-local"
-   },
-   {
-    "tool": "find_payments",
-    "sql": "SELECT * FROM payments WHERE lower(customer_email) = lower('noah.chen904@example.com') ORDER BY created_at DESC LIMIT 10",
-    "rows": 1,
-    "backend": "duckdb-local"
-   },
-   {
-    "tool": "order_for_payment",
-    "sql": "SELECT * FROM orders WHERE payment_id = 'pay_0904'",
     "rows": 1,
     "backend": "duckdb-local"
    },
@@ -416,41 +366,37 @@
    "unknown_refs": [],
    "claims": [
     {
-     "sentence": "The payment was successfully processed (payments:pay_0904) and the order marked paid (orders:ord_0904).",
+     "sentence": "The payment of 9900 KRW was successful (payments:pay_0904) and the order is marked paid (orders:ord_0904).",
      "refs": [
       "payments:pay_0904",
       "orders:ord_0904"
      ],
      "facts": [
+      "9900",
       "paid",
-      "successfully"
+      "successful"
      ],
      "unsupported": []
     },
     {
-     "sentence": "Ten credits were granted to the customer's email (grants:g_ord_0904), but the notification email failed to send due to a missing API key (server_logs:2026-10-18T18:00:09Z@/api/mail/send).",
+     "sentence": "Ten credits were granted to the customer email CUSTOMER (grants:g_ord_0904).",
      "refs": [
-      "grants:g_ord_0904",
+      "grants:g_ord_0904"
+     ],
+     "facts": [
+      "10 credits",
+      "granted"
+     ],
+     "unsupported": []
+    },
+    {
+     "sentence": "However, the subsequent email notification failed because the mail provider reported a missing API key (server_logs:2026-10-18T18:00:09Z@/api/mail/send), so the customer did not receive the credit notice.",
+     "refs": [
       "server_logs:2026-10-18T18:00:09Z@/api/mail/send"
      ],
      "facts": [
       "api key",
-      "10 credits",
-      "granted",
       "failed"
-     ],
-     "unsupported": []
-    },
-    {
-     "sentence": "Hence the customer received the credits without notice.",
-     "refs": [
-      "payments:pay_0904",
-      "orders:ord_0904",
-      "grants:g_ord_0904",
-      "server_logs:2026-10-18T18:00:09Z@/api/mail/send"
-     ],
-     "facts": [
-      "received the credits"
      ],
      "unsupported": []
     }
@@ -459,7 +405,7 @@
   },
   "backend": "duckdb-local",
   "lang": "ko",
-  "elapsed_ms": 11880,
+  "elapsed_ms": 9371,
   "proof": {
    "fields": {
     "payment_found": true,
@@ -470,7 +416,7 @@
     "date": "10-19",
     "time": "03:00",
     "datetime_text": "10.19 (월) 03:00 · 일시불",
-    "card_last4": null,
+    "card_last4": "1117",
     "status": "approved",
     "status_text": "승인",
     "source": "vision",
@@ -501,7 +447,8 @@
     "dropped": [],
     "ocr_check": {
      "amount": true,
-     "time": true
+     "time": true,
+     "card_last4": true
     }
    },
    "reader": {
@@ -545,9 +492,9 @@
     },
     {
      "field": "card",
-     "photo": "not shown",
+     "photo": "…1117",
      "ledger": "…1117",
-     "result": "unchecked",
+     "result": "match",
      "ref": "payments:pay_0904"
     },
     {
@@ -574,7 +521,7 @@
      ]
     },
     {
-     "role": "other",
+     "role": "card_last4",
      "text": "솔카드(1117) • 2026년 10월 승인 기준",
      "box": [
       0.0503,
@@ -705,18 +652,18 @@
     "same_as_model": false
    }
   },
-  "proof_elapsed_ms": 16210,
+  "proof_elapsed_ms": 14363,
   "followup": {
    "turn": 2,
    "text": "아 죄송해요, 19일 새벽이었어요. 카드 이용내역 캡처 보내요.",
    "kind": "new screenshot",
    "before": {
     "verdict": "no_matching_payment",
-    "reply": "안녕하세요, 고객님. 10월 20일 03시 00분에 9,900원 결제 내역을 확인했으나 당사 결제 시스템에서는 해당 기록을 찾지 못했습니다. 카드 명세서에서 해당 거래 라인을 캡처해 보내주시거나, 다른 카드나 주소로 결제하셨는지 알려주시면 감사하겠습니다."
+    "reply": "안녕하세요, 고객님. 10월 20일 03시 00분에 9,900원 결제 내역을 확인했으나 당사 결제 시스템에서는 해당 기록을 찾을 수 없었습니다. 카드 명세서에서 해당 거래 라인을 캡처해 보내주시거나, 다른 카드나 주소로 결제하셨는지 알려주시면 감사하겠습니다."
    },
    "after": {
     "verdict": "ledger_match",
-    "reply": "결제가 정상 처리되어 크레딧이 지급되었으나 알림 메일이 전송되지 않았습니다. 확인 후 알림을 다시 보내드리겠습니다."
+    "reply": "결제가 정상적으로 처리되어 10크레딧이 계정에 적립되었습니다. 다만 알림 메일이 전송되지 않아 확인하지 못하셨을 수 있습니다. 판매자 승인 후 메일을 다시 보내드리겠습니다."
    }
   }
  }

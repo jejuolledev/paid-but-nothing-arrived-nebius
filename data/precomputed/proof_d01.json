@@ -1,6 +1,6 @@
 {
  "meta": {
-  "recorded_at": "2026-10-29T18:37:47+09:00",
+  "recorded_at": "2026-10-29T19:20:58+09:00",
   "provider": "Nebius Token Factory",
   "models": [
    "nvidia/Nemotron-3-Ultra-550b-a55b",
@@ -14,8 +14,8 @@
    "explain": "nvidia/nemotron-3-super-120b-a12b",
    "reply": "nvidia/nemotron-3-super-120b-a12b"
   },
-  "code_commit": "f25fdf8",
-  "wall_ms": 11814,
+  "code_commit": "35df947",
+  "wall_ms": 14990,
   "status": "ok"
  },
  "result": {
@@ -67,7 +67,7 @@
       "args": {
        "order_id": "BEST_ORDER"
       },
-      "why": "Check the status and credit delivery timeline for the most relevant order"
+      "why": "Check the full history of the most relevant order to see payment status and credit delivery"
      }
     ],
     "dropped": []
@@ -97,10 +97,10 @@
     "requested_model": "nvidia/Nemotron-3.5-Super-VL",
     "provider": "Nebius Token Factory",
     "ok": true,
-    "ms": 2928,
-    "prompt_tokens": 1920,
-    "completion_tokens": 155,
-    "usd": 0.000715,
+    "ms": 4211,
+    "prompt_tokens": 1958,
+    "completion_tokens": 222,
+    "usd": 0.000787,
     "finish": "stop",
     "thinking": false
    },
@@ -110,9 +110,9 @@
     "requested_model": "nvidia/Nemotron-3_5-Lightning",
     "provider": "Nebius Token Factory",
     "ok": true,
-    "ms": 1606,
+    "ms": 2479,
     "prompt_tokens": 863,
-    "completion_tokens": 201,
+    "completion_tokens": 199,
     "usd": 0.0001,
     "finish": "stop",
     "thinking": false
@@ -123,10 +123,10 @@
     "requested_model": "nvidia/Nemotron-3-Ultra-550b-a55b",
     "provider": "Nebius Token Factory",
     "ok": true,
-    "ms": 1715,
+    "ms": 1709,
     "prompt_tokens": 863,
-    "completion_tokens": 375,
-    "usd": 0.001988,
+    "completion_tokens": 452,
+    "usd": 0.002219,
     "finish": "stop",
     "thinking": null
    },
@@ -136,10 +136,10 @@
     "requested_model": "nvidia/nemotron-3-super-120b-a12b",
     "provider": "Nebius Token Factory",
     "ok": true,
-    "ms": 4952,
-    "prompt_tokens": 1225,
-    "completion_tokens": 692,
-    "usd": 0.00099,
+    "ms": 5975,
+    "prompt_tokens": 1226,
+    "completion_tokens": 1443,
+    "usd": 0.001667,
     "finish": "stop",
     "thinking": null
    }
@@ -199,8 +199,8 @@
   "unverified": [
    "Whether the customer saw an error screen (no client-side telemetry in these sources)"
   ],
-  "explanation": "The customer paid, the payment provider told us, but the client-side confirm call never happened — consistent with the confirm button being unreachable after payment. [orders:ord_0902] [server_logs:2026-10-15T20:00:31Z@/api/payments/webhook]",
-  "customer_reply": "결제가 정상적으로 처리되었으나 주문 확인이 이루어지지 않아 크레딧이 아직 지급되지 않았습니다. 주문을 확인하고 크레딧을 지급하도록 조치하겠습니다. 추가로 필요한 사항이 있으면 알려주세요.",
+  "explanation": "The payment provider recorded a PAID charge of 9900 KRW for order ord_0902 [payments:pay_0902] and our server logged the webhook PAID [server_logs:2026-10-15T20:00:31Z@/api/payments/webhook], but the order record stayed pending because the client‑side confirm call never arrived [orders:ord_0902]. Consequently no credits were granted.",
+  "customer_reply": "결제가 성공했으나 주문 확인이 누락되어 크레딧이 지급되지 않았습니다. 확인 절차를 거쳐 크레딧을 지급하겠습니다.",
   "fix_action": "Confirm the order server-side from the PAID webhook and grant credits (requires approval). Code fix: never rely on a client click after a PAID webhook.",
   "rows": {
    "orders": [
@@ -254,27 +254,27 @@
    {
     "step": "intake",
     "detail": "read the message",
-    "ms": 3325
+    "ms": 4192
    },
    {
     "step": "plan",
     "detail": "2 planned lookup(s), reached ord_0902",
-    "ms": 3328
+    "ms": 4195
    },
    {
     "step": "order_journey",
     "detail": "one query; 2 joined rows → 4 rows across 3 tables",
-    "ms": 3331
+    "ms": 4196
    },
    {
     "step": "verify_chain",
     "detail": "broken=order_created",
-    "ms": 3331
+    "ms": 4196
    },
    {
     "step": "llm_explain",
-    "detail": "nvidia/nemotron-3-super-120b-a12b citations_ok=False",
-    "ms": 8288
+    "detail": "nvidia/nemotron-3-super-120b-a12b citations_ok=True",
+    "ms": 10176
    }
   ],
   "steps": [
@@ -291,7 +291,7 @@
     ]
    },
    {
-    "thought": "Check the status and credit delivery timeline for the most relevant order",
+    "thought": "Check the full history of the most relevant order to see payment status and credit delivery",
     "tool": "order_journey",
     "args": {
      "order_id": "BEST_ORDER"
@@ -333,11 +333,11 @@
   "llm": "nvidia/nemotron-3-super-120b-a12b",
   "citation_check": {
    "checked": true,
-   "ok": false,
+   "ok": true,
    "unknown_refs": [],
    "claims": [
     {
-     "sentence": "The payment provider shows a PAID charge of 9900 KRW for order ord_0902 [payments:pay_0902] and the server logged the PSP webhook PAID [server_logs:2026-10-15T20:00:31Z@/api/payments/webhook], but the order record remains pending because no /confirm request was received [orders:ord_0902].",
+     "sentence": "The payment provider recorded a PAID charge of 9900 KRW for order ord_0902 [payments:pay_0902] and our server logged the webhook PAID [server_logs:2026-10-15T20:00:31Z@/api/payments/webhook], but the order record stayed pending because the client‑side confirm call never arrived [orders:ord_0902].",
      "refs": [
       "payments:pay_0902",
       "server_logs:2026-10-15T20:00:31Z@/api/payments/webhook",
@@ -345,36 +345,30 @@
      ],
      "facts": [
       "9900",
-      "confirm",
       "ord_0902",
       "paid",
-      "was received",
-      "order record remains pending"
+      "order record stayed pending"
      ],
-     "unsupported": [
-      "confirm (not the cited endpoint)",
-      "was received"
-     ]
+     "unsupported": []
     },
     {
-     "sentence": "Therefore credits have not been granted yet.",
+     "sentence": "Consequently no credits were granted.",
      "refs": [
       "payments:pay_0902",
       "server_logs:2026-10-15T20:00:31Z@/api/payments/webhook",
       "orders:ord_0902"
      ],
      "facts": [
-      "not been granted"
+      "no credits were granted"
      ],
      "unsupported": []
     }
    ],
-   "claims_ok": false,
-   "replaced_with_verifier_text": true
+   "claims_ok": true
   },
   "backend": "duckdb-local",
   "lang": "ko",
-  "elapsed_ms": 8291,
+  "elapsed_ms": 10178,
   "proof": {
    "fields": {
     "payment_found": true,
@@ -385,18 +379,34 @@
     "date": "2026-10-16",
     "time": "05:00",
     "datetime_text": "10/16 05:00",
-    "card_last4": "4444",
+    "card_last4": null,
     "status": "unknown",
     "status_text": null,
     "source": "vision",
-    "ignored_numbers": [],
+    "ignored_numbers": [
+     {
+      "text": "9,300원",
+      "what": "other_transaction"
+     },
+     {
+      "text": "1,348,400원",
+      "what": "other_transaction"
+     },
+     {
+      "text": "1,367,600원",
+      "what": "other_transaction"
+     },
+     {
+      "text": "30,000원",
+      "what": "other_transaction"
+     }
+    ],
     "legibility": "clear",
     "screen_language": "ko",
     "dropped": [],
     "ocr_check": {
      "amount": true,
-     "time": true,
-     "card_last4": true
+     "time": true
     }
    },
    "reader": {
@@ -442,9 +452,9 @@
     },
     {
      "field": "card",
-     "photo": "…4444",
+     "photo": "not shown",
      "ledger": "…4444",
-     "result": "match",
+     "result": "unchecked",
      "ref": "payments:pay_0902"
     },
     {
@@ -479,7 +489,7 @@
      ]
     },
     {
-     "role": "card_last4",
+     "role": "other",
      "text": "가람카드(4444)승인",
      "box": [
       0.1817,
@@ -529,7 +539,7 @@
      ]
     },
     {
-     "role": "card_last4",
+     "role": "other",
      "text": "가람카드(4444)승인",
      "box": [
       0.1814,
@@ -610,6 +620,6 @@
     "same_as_model": true
    }
   },
-  "proof_elapsed_ms": 11807
+  "proof_elapsed_ms": 14984
  }
 }

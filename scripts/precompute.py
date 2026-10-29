@@ -22,6 +22,7 @@ from agent.llm import model_for
 html = (ROOT / "app/index.html").read_text()
 EXAMPLES = {int(n): json.loads('"' + s.replace("\\'", "'") + '"') for n, s in re.findall(r"\n\s*(\d):\{label:'(?:[^'\\]|\\.)*',send:'((?:[^'\\]|\\.)*)'\}", html)}
 assert len(EXAMPLES) == 6, EXAMPLES
+EXAMPLES[7] = EXAMPLES[6]   # same message, loop mode: the model picks each lookup turn by turn
 out = ROOT / "data/precomputed"
 out.mkdir(parents=True, exist_ok=True)
 commit = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
@@ -31,7 +32,7 @@ for n, msg in EXAMPLES.items():
         continue
     sql_backend._CACHE.clear()
     t = time.time()
-    r = investigate(msg)
+    r = investigate(msg, mode="loop" if n == 7 else "")
     calls = r.get("model_calls") or []
     bad = [c for c in calls if not c.get("ok")]
     status = "ok" if calls and not bad else "MODEL CALL FAILED — rerun" if bad else "NO MODEL CALL — check the key"

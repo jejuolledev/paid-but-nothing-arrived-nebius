@@ -1,0 +1,499 @@
+{
+ "meta": {
+  "recorded_at": "2026-10-29T19:20:43+09:00",
+  "provider": "Nebius Token Factory",
+  "models": [
+   "nvidia/Nemotron-3_5-Lightning",
+   "nvidia/nemotron-3-super-120b-a12b"
+  ],
+  "requested": {
+   "intake": "nvidia/Nemotron-3_5-Lightning",
+   "explain": "nvidia/nemotron-3-super-120b-a12b"
+  },
+  "code_commit": "35df947",
+  "wall_ms": 15712,
+  "status": "ok"
+ },
+ "result": {
+  "ok": true,
+  "order_id": "ord_0906",
+  "email": "liam.patel906@exmaple.com",
+  "headline": "Paid, but the credits went to a different account.",
+  "intake": {
+   "ok": true,
+   "masked": "Hi, my wife's email is EMAIL_1 (k***@example.org) and she set up the account, but I paid 24,900 won with EMAIL_2 (l***@example.com) yesterday and the credits never came.",
+   "placeholders": {
+    "EMAIL_1": "k***@example.org",
+    "EMAIL_2": "l***@example.com"
+   },
+   "model": "nvidia/Nemotron-3_5-Lightning",
+   "error": null,
+   "routing": {
+    "escalated": false,
+    "reason": null
+   },
+   "grounded": {
+    "sender": "EMAIL_2",
+    "other_people": [
+     "EMAIL_1"
+    ],
+    "order_ids": [],
+    "foreign_order_ids": [],
+    "amount": {
+     "value": 24900,
+     "currency": "KRW",
+     "quote": "24,900 won"
+    },
+    "paid_when": "yesterday",
+    "pack": null,
+    "complaint": "not_received",
+    "wants": [
+     "credits",
+     "explanation"
+    ],
+    "language": "en",
+    "unsure": false,
+    "plan": [
+     {
+      "tool": "find_payments",
+      "args": {
+       "email": "EMAIL_2"
+      },
+      "why": "Find the payment made with EMAIL_2 to locate the order."
+     },
+     {
+      "tool": "order_for_payment",
+      "args": {
+       "payment_id": "FROM_PAYMENTS"
+      },
+      "why": "Get the order ID from the payment record."
+     },
+     {
+      "tool": "order_journey",
+      "args": {
+       "order_id": "BEST_ORDER"
+      },
+      "why": "See the full history of the order to check credit delivery status."
+     }
+    ],
+    "dropped": []
+   }
+  },
+  "claims_vs_records": [
+   {
+    "claim": "amount paid",
+    "says": "24,900 KRW",
+    "records": "24,900 KRW PAID",
+    "result": "match",
+    "refs": [
+     "payments:pay_0906"
+    ],
+    "note": ""
+   },
+   {
+    "claim": "paid on",
+    "says": "yesterday",
+    "records": "2026-10-21",
+    "result": "unchecked",
+    "refs": [
+     "payments:pay_0906"
+    ],
+    "note": "Relative date; the message date is not known here."
+   },
+   {
+    "claim": "what went wrong",
+    "says": "nothing arrived",
+    "records": "Paid, but the credits went to a different account.",
+    "result": "match",
+    "refs": [],
+    "note": ""
+   }
+  ],
+  "rules_only": {
+   "ok": false,
+   "order_id": null,
+   "broken": null,
+   "headline": "No order or payment found for k.smith@example.org. Check the address the customer paid with, or ask for the order number.",
+   "same": false
+  },
+  "model_calls": [
+   {
+    "role": "intake",
+    "model": "nvidia/Nemotron-3_5-Lightning",
+    "requested_model": "nvidia/Nemotron-3_5-Lightning",
+    "provider": "Nebius Token Factory",
+    "ok": true,
+    "ms": 2488,
+    "prompt_tokens": 891,
+    "completion_tokens": 237,
+    "usd": 0.00011,
+    "finish": "stop",
+    "thinking": false
+   },
+   {
+    "role": "loop",
+    "model": "nvidia/nemotron-3-super-120b-a12b",
+    "requested_model": "nvidia/nemotron-3-super-120b-a12b",
+    "provider": "Nebius Token Factory",
+    "ok": true,
+    "ms": 860,
+    "prompt_tokens": 377,
+    "completion_tokens": 50,
+    "usd": 0.000158,
+    "finish": "stop",
+    "thinking": false
+   },
+   {
+    "role": "loop",
+    "model": "nvidia/nemotron-3-super-120b-a12b",
+    "requested_model": "nvidia/nemotron-3-super-120b-a12b",
+    "provider": "Nebius Token Factory",
+    "ok": true,
+    "ms": 850,
+    "prompt_tokens": 528,
+    "completion_tokens": 60,
+    "usd": 0.000212,
+    "finish": "stop",
+    "thinking": false
+   },
+   {
+    "role": "loop",
+    "model": "nvidia/nemotron-3-super-120b-a12b",
+    "requested_model": "nvidia/nemotron-3-super-120b-a12b",
+    "provider": "Nebius Token Factory",
+    "ok": true,
+    "ms": 1237,
+    "prompt_tokens": 741,
+    "completion_tokens": 64,
+    "usd": 0.00028,
+    "finish": "stop",
+    "thinking": false
+   },
+   {
+    "role": "loop",
+    "model": "nvidia/nemotron-3-super-120b-a12b",
+    "requested_model": "nvidia/nemotron-3-super-120b-a12b",
+    "provider": "Nebius Token Factory",
+    "ok": true,
+    "ms": 1569,
+    "prompt_tokens": 1663,
+    "completion_tokens": 141,
+    "usd": 0.000626,
+    "finish": "stop",
+    "thinking": false
+   },
+   {
+    "role": "explain",
+    "model": "nvidia/nemotron-3-super-120b-a12b",
+    "requested_model": "nvidia/nemotron-3-super-120b-a12b",
+    "provider": "Nebius Token Factory",
+    "ok": true,
+    "ms": 7168,
+    "prompt_tokens": 1813,
+    "completion_tokens": 1756,
+    "usd": 0.002124,
+    "finish": "stop",
+    "thinking": null
+   }
+  ],
+  "provider": "Nebius Token Factory",
+  "ignored_order": "",
+  "sender_unverified": false,
+  "chain": [
+   {
+    "name": "card_authorized",
+    "label": "Card authorized",
+    "state": "green",
+    "note": "Payment provider shows a PAID charge of 24900 KRW (card •••• 5556)",
+    "refs": [
+     "payments:pay_0906"
+    ]
+   },
+   {
+    "name": "psp_paid",
+    "label": "Payment provider: paid",
+    "state": "green",
+    "note": "Payment provider status: PAID",
+    "refs": [
+     "payments:pay_0906"
+    ]
+   },
+   {
+    "name": "order_created",
+    "label": "Order confirmed",
+    "state": "green",
+    "note": "Order status paid in our database",
+    "refs": [
+     "orders:ord_0906",
+     "server_logs:2026-10-20T17:00:26Z@/api/payments/confirm"
+    ]
+   },
+   {
+    "name": "credit_granted",
+    "label": "Credits granted",
+    "state": "red",
+    "note": "Credits went to liam.patel906@exmaple.com, but the card was paid by liam.patel906@example.com",
+    "refs": [
+     "payments:pay_0906",
+     "orders:ord_0906",
+     "grants:g_ord_0906",
+     "mail_events:m_ord_0906@bounced"
+    ]
+   },
+   {
+    "name": "mail_delivered",
+    "label": "Mail delivered",
+    "state": "red",
+    "note": "Mail bounced at the order address",
+    "refs": [
+     "mail_events:m_ord_0906@bounced"
+    ]
+   }
+  ],
+  "broken": "account_mismatch",
+  "verified": [
+   "Charge exists at the payment provider (payments:pay_0906)",
+   "Order row is paid (orders:ord_0906)",
+   "Payment provider payer is liam.patel906@example.com (payments:pay_0906)",
+   "Order and grant use liam.patel906@exmaple.com (orders:ord_0906)"
+  ],
+  "unverified": [
+   "Whether the order address is a typo of the payer's address or a second account (ask the customer)"
+  ],
+  "explanation": "The payment of 24,900 KRW was successful (payments:pay_0906) and linked to order ord_0906 (orders:ord_0906). Credits (30) were granted to l***@exmaple.com (grants:g_ord_0906) but the notification email bounced (mail_events:m_ord_0906@bounced), so the wife never received them.",
+  "customer_reply": "Your payment of 24,900 KRW was processed successfully, but the credits were sent to liam.patel906@exmaple.com and the email bounced, so they didn’t reach your wife. Please confirm that the address you used to pay (liam.patel906@example.com) is yours; once you confirm, we will move the credits to that address.",
+  "fix_action": "Move the credits to the payer's account after the customer confirms (requires approval). Code fix: prefill checkout with the signed-in address and warn on unknown domains.",
+  "rows": {
+   "orders": [
+    {
+     "order_id": "ord_0906",
+     "payment_id": "pay_0906",
+     "email": "liam.patel906@exmaple.com",
+     "reward_key": "std30",
+     "amount": "24900",
+     "status": "paid",
+     "credited": "1",
+     "created_at": "2026-10-20T17:00:00Z",
+     "updated_at": "2026-10-20T17:00:28Z",
+     "ref": "orders:ord_0906"
+    }
+   ],
+   "payments": [
+    {
+     "payment_id": "pay_0906",
+     "amount": "24900",
+     "currency": "KRW",
+     "status": "PAID",
+     "card_last4": "5556",
+     "customer_email": "liam.patel906@example.com",
+     "created_at": "2026-10-20T17:00:20Z",
+     "ref": "payments:pay_0906"
+    }
+   ],
+   "grants": [
+    {
+     "grant_id": "g_ord_0906",
+     "email": "liam.patel906@exmaple.com",
+     "reward_key": "std30",
+     "credits": "30",
+     "status": "granted",
+     "order_id": "ord_0906",
+     "created_at": "2026-10-20T17:00:27Z",
+     "ref": "grants:g_ord_0906"
+    }
+   ],
+   "server_logs": [
+    {
+     "ts": "2026-10-20T17:00:21Z",
+     "route": "/api/payments/webhook",
+     "order_id": "ord_0906",
+     "http_status": "200",
+     "message": "PSP webhook PAID",
+     "ref": "server_logs:2026-10-20T17:00:21Z@/api/payments/webhook"
+    },
+    {
+     "ts": "2026-10-20T17:00:26Z",
+     "route": "/api/payments/confirm",
+     "order_id": "ord_0906",
+     "http_status": "200",
+     "message": "confirmed; credits granted",
+     "ref": "server_logs:2026-10-20T17:00:26Z@/api/payments/confirm"
+    },
+    {
+     "ts": "2026-10-20T17:00:29Z",
+     "route": "/api/mail/send",
+     "order_id": "ord_0906",
+     "http_status": "200",
+     "message": "credit mail queued",
+     "ref": "server_logs:2026-10-20T17:00:29Z@/api/mail/send"
+    }
+   ],
+   "mail_events": [
+    {
+     "email_id": "m_ord_0906",
+     "to_address": "liam.patel906@exmaple.com",
+     "event": "sent",
+     "ts": "2026-10-20T17:00:30Z",
+     "order_tag": "ord_0906",
+     "ref": "mail_events:m_ord_0906@sent"
+    },
+    {
+     "email_id": "m_ord_0906",
+     "to_address": "liam.patel906@exmaple.com",
+     "event": "bounced",
+     "ts": "2026-10-20T17:00:33Z",
+     "order_tag": "ord_0906",
+     "ref": "mail_events:m_ord_0906@bounced"
+    }
+   ]
+  },
+  "trace": [
+   {
+    "step": "intake",
+    "detail": "read the message",
+    "ms": 3506
+   },
+   {
+    "step": "agent_loop",
+    "detail": "4 step(s), named ord_0906",
+    "ms": 8033
+   },
+   {
+    "step": "order_journey",
+    "detail": "one query; 6 joined rows → 8 rows across 5 tables",
+    "ms": 8035
+   },
+   {
+    "step": "verify_chain",
+    "detail": "broken=account_mismatch",
+    "ms": 8035
+   },
+   {
+    "step": "llm_explain",
+    "detail": "nvidia/nemotron-3-super-120b-a12b citations_ok=True",
+    "ms": 15208
+   }
+  ],
+  "steps": [
+   {
+    "thought": "I need to check payments made by the CUSTOMER email address to locate the transaction mentioned.",
+    "tool": "find_payments",
+    "args": {
+     "email": "CUSTOMER"
+    },
+    "rows": 1,
+    "ms": 864,
+    "receipt": null,
+    "sql": [
+     "SELECT * FROM payments WHERE lower(customer_email) = lower('liam.patel906@example.com') ORDER BY created_at DESC LIMIT 10"
+    ]
+   },
+   {
+    "thought": "Found a payment of 24,900 KRW from CUSTOMER; now I need to see which order this payment is linked to.",
+    "tool": "order_for_payment",
+    "args": {
+     "payment_id": "pay_0906"
+    },
+    "rows": 1,
+    "ms": 851,
+    "receipt": null,
+    "sql": [
+     "SELECT * FROM orders WHERE payment_id = 'pay_0906'"
+    ]
+   },
+   {
+    "thought": "The payment is linked to order ord_0906, which shows credited=1, so I should verify the full journey to confirm whether credits were actually granted.",
+    "tool": "order_journey",
+    "args": {
+     "order_id": "ord_0906"
+    },
+    "rows": 8,
+    "ms": 1240,
+    "receipt": null,
+    "sql": [
+     "SELECT o.order_id AS o__order_id, o.payment_id AS o__payment_id, o.email AS o__email, o.reward_key AS o__reward_key, o.amount AS o__amount, o.status AS o__status, o.credited AS o__credited, o.created_at AS o__created_at, o.updated_at AS o__updated_at, p.payment_id AS p__payment_id, p.amount AS p__amount, p.currency AS p__currency, p.status AS p__status, p.card_last4 AS p__card_last4, p.customer_email AS p__customer_email, p.created_at AS p__created_at, g.grant_id AS g__grant_id, g.email AS g__email, g.reward_key AS g__reward_key, g.credits AS g__credits, g.status AS g__status, g.order_id AS g__order_id, g.created_at AS g__created_at, l.ts AS l__ts, l.route AS l__route, l.order_id AS l__order_id, l.http_status AS l__http_status, l.message AS l__message, m.email_id AS m__email_id, m.to_address AS m__to_address, m.event AS m__event, m.ts AS m__ts, m.order_tag AS m__order_tag FROM orders o LEFT JOIN payments p ON p.payment_id = o.payment_id LEFT JOIN grants g ON g.order_id = o.order_id LEFT JOIN server_logs l ON l.order_id = o.order_id LEFT JOIN mail_events m ON m.order_tag = o.order_id WHERE o.order_id = 'ord_0906'"
+    ]
+   },
+   {
+    "thought": "The order journey shows credits were granted (grant g_ord_0906) and a confirmation email was sent but bounced, explaining why the customer’s wife didn’t receive the credits notification.",
+    "done": true,
+    "order_id": "ord_0906",
+    "ms": 1570,
+    "receipt": null
+   }
+  ],
+  "queries": [
+   {
+    "tool": "find_payments",
+    "sql": "SELECT * FROM payments WHERE lower(customer_email) = lower('liam.patel906@example.com') ORDER BY created_at DESC LIMIT 10",
+    "rows": 1,
+    "backend": "duckdb-local"
+   },
+   {
+    "tool": "order_for_payment",
+    "sql": "SELECT * FROM orders WHERE payment_id = 'pay_0906'",
+    "rows": 1,
+    "backend": "duckdb-local"
+   },
+   {
+    "tool": "order_journey",
+    "sql": "SELECT o.order_id AS o__order_id, o.payment_id AS o__payment_id, o.email AS o__email, o.reward_key AS o__reward_key, o.amount AS o__amount, o.status AS o__status, o.credited AS o__credited, o.created_at AS o__created_at, o.updated_at AS o__updated_at, p.payment_id AS p__payment_id, p.amount AS p__amount, p.currency AS p__currency, p.status AS p__status, p.card_last4 AS p__card_last4, p.customer_email AS p__customer_email, p.created_at AS p__created_at, g.grant_id AS g__grant_id, g.email AS g__email, g.reward_key AS g__reward_key, g.credits AS g__credits, g.status AS g__status, g.order_id AS g__order_id, g.created_at AS g__created_at, l.ts AS l__ts, l.route AS l__route, l.order_id AS l__order_id, l.http_status AS l__http_status, l.message AS l__message, m.email_id AS m__email_id, m.to_address AS m__to_address, m.event AS m__event, m.ts AS m__ts, m.order_tag AS m__order_tag FROM orders o LEFT JOIN payments p ON p.payment_id = o.payment_id LEFT JOIN grants g ON g.order_id = o.order_id LEFT JOIN server_logs l ON l.order_id = o.order_id LEFT JOIN mail_events m ON m.order_tag = o.order_id WHERE o.order_id = 'ord_0906'",
+    "rows": 6,
+    "backend": "duckdb-local"
+   },
+   {
+    "tool": "find_orders",
+    "sql": "SELECT * FROM orders WHERE order_id = 'ord_0906' ORDER BY created_at DESC LIMIT 10",
+    "rows": 1,
+    "backend": "duckdb-local"
+   },
+   {
+    "tool": "order_journey",
+    "sql": "SELECT o.order_id AS o__order_id, o.payment_id AS o__payment_id, o.email AS o__email, o.reward_key AS o__reward_key, o.amount AS o__amount, o.status AS o__status, o.credited AS o__credited, o.created_at AS o__created_at, o.updated_at AS o__updated_at, p.payment_id AS p__payment_id, p.amount AS p__amount, p.currency AS p__currency, p.status AS p__status, p.card_last4 AS p__card_last4, p.customer_email AS p__customer_email, p.created_at AS p__created_at, g.grant_id AS g__grant_id, g.email AS g__email, g.reward_key AS g__reward_key, g.credits AS g__credits, g.status AS g__status, g.order_id AS g__order_id, g.created_at AS g__created_at, l.ts AS l__ts, l.route AS l__route, l.order_id AS l__order_id, l.http_status AS l__http_status, l.message AS l__message, m.email_id AS m__email_id, m.to_address AS m__to_address, m.event AS m__event, m.ts AS m__ts, m.order_tag AS m__order_tag FROM orders o LEFT JOIN payments p ON p.payment_id = o.payment_id LEFT JOIN grants g ON g.order_id = o.order_id LEFT JOIN server_logs l ON l.order_id = o.order_id LEFT JOIN mail_events m ON m.order_tag = o.order_id WHERE o.order_id = 'ord_0906'",
+    "rows": 6,
+    "backend": "duckdb-local"
+   }
+  ],
+  "receipts": [],
+  "llm": "nvidia/nemotron-3-super-120b-a12b",
+  "citation_check": {
+   "checked": true,
+   "ok": true,
+   "unknown_refs": [],
+   "claims": [
+    {
+     "sentence": "The payment of 24,900 KRW was successful (payments:pay_0906) and linked to order ord_0906 (orders:ord_0906).",
+     "refs": [
+      "payments:pay_0906",
+      "orders:ord_0906"
+     ],
+     "facts": [
+      "24900",
+      "ord_0906",
+      "successful"
+     ],
+     "unsupported": []
+    },
+    {
+     "sentence": "Credits (30) were granted to l***@exmaple.com (grants:g_ord_0906) but the notification email bounced (mail_events:m_ord_0906@bounced), so the wife never received them.",
+     "refs": [
+      "grants:g_ord_0906",
+      "mail_events:m_ord_0906@bounced"
+     ],
+     "facts": [
+      "30",
+      "exmaple.com",
+      "granted",
+      "never received",
+      "bounced"
+     ],
+     "unsupported": []
+    }
+   ],
+   "claims_ok": true
+  },
+  "backend": "duckdb-local",
+  "lang": "en",
+  "elapsed_ms": 15211
+ }
+}
