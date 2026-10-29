@@ -1,18 +1,16 @@
-# HANDOFF — status 2026-10-29 17:00 KST (measured, recorded, video built; owner steps left)
+# HANDOFF — status 2026-10-29 19:00 KST
 
-Done on 2026-10-29 (card, owner's $5 cap; spend ledger `build/spend_ledger.jsonl`, about $0.69 at 18:10):
-- Gate: PHOTO (Super VL, reasoning off, strict JSON). Dev tuning committed before each held-out run; held-out run once.
-- Held-out: photos Super VL 14/16 vs OCR+rules 3/16 (OCR text only to Nemotron 13/16); Korean messages sender 20/22 vs 16/22,
-  end to end 20/22 vs 21/22; English 40/40 vs 38/40. `docs/measurements.md`, `docs/measurements_nebius.md`.
-- Recorded runs `data/precomputed/` (4 photos, 6 messages). Video `docs/video/final_nebius.mp4` (2:39, not in git; copy in the hackathon folder 제출본/배정길).
-  Thumbnail `docs/video/thumbnail_nebius.png`. README / feedback / form values filled; only REPO_URL, TRY_IT_URL, VIDEO_URL left.
+Done (spend ledger `build/spend_ledger.jsonl`, about $0.90 of the owner's $5 cap):
+- Held-out results (run once): photos 14/16 vs OCR+rules 3/16 (OCR text only 13/16); Korean-heavy messages sender 20/22 vs
+  16/22, end to end 20/22 vs 21/22; English 40/40 vs 38/40.
+- Second turn (customer answers, agent checks again), "See it in 30 seconds" button, larger text, recorded runs for the demo.
+- Video `docs/video/final_nebius.mp4` (2:50, not in git). Repository public: https://github.com/jejuolledev/paid-but-nothing-arrived-nebius
 
-Owner steps, in order (nothing below was done by Claude):
-1. Deploy: `PROJECT=storymoa REGION=us-central1 bash deploy/cloudrun.sh` (spending guard: 10 live runs/day, 4 per visitor-hour).
-2. Repo public: `gh repo create jejuolledev/paid-but-nothing-arrived-nebius --public --source . --push` (check `git ls-files | grep env` is empty).
-3. YouTube public upload of `docs/video/final_nebius.mp4` + thumbnail.
-4. Replace REPO_URL / TRY_IT_URL / VIDEO_URL in README.md and docs/submission_form.md, push.
-5. Devpost form (values in docs/submission_form.md, feedback = docs/feedback.md), Submit before 10/31 02:00 KST.
+Owner steps left:
+1. Deploy (the agent's attempt was stopped by a permission check): `PROJECT=storymoa REGION=us-central1 bash deploy/cloudrun.sh`
+   then put the printed URL in README.md and docs/submission_form.md (TRY_IT_URL) and push.
+2. YouTube public upload (values in the hackathon folder 제출본/배정길/유튜브_업로드값.md), then VIDEO_URL.
+3. Devpost form from docs/submission_form.md (+ docs/feedback.md), Submit before 10/31 02:00 KST.
 
 ---
 
