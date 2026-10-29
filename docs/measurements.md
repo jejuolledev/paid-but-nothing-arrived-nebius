@@ -78,3 +78,7 @@ public demo, the dev example `d01` (a card SMS with a running total, 누적1,367
 reader took the running total, and the code check dropped it because its own quote did not match. One line was then
 added to the vision prompt ("running or monthly totals (누적, 累計) are not the payment"), from that **dev** example.
 The dev rows at 16:13–16:14 are with that line. The held-out set was **not** run again (it is run once).
+| 2026-10-29 19:20 | dev (6) | photo | nvidia/Nemotron-3.5-Super-VL on Token Factory | 5/6 | 6/6 | 5/5 | 6/6 | 5/6 | 2/3 | 2/2 | 1/1 | 5/6 | 0 | 3568 | 0.00491 |
+| 2026-10-29 19:20 | dev (6) | clean | nvidia/Nemotron-3.5-Super-VL on Token Factory | 6/6 | 6/6 | 4/5 | 5/6 | 6/6 | 3/3 | 2/2 | 1/1 | 6/6 | 0 | 2992 | 0.00452 |
+
+**Note (2026-10-29 19:20).** Dev rows at 19:20: after one more prompt line from the dev example d05 (card number in brackets after the card name), card last-4 on dev photos went from 3/5 to 5/5. Held-out not re-run.
