@@ -441,8 +441,11 @@ def investigate(message: str, email: str = "", order_id: str = "", backend=None,
     if email and not re.fullmatch(r"[\w.+-]+@[\w-]+(\.[\w-]+)+", email): email = ""
     if not order_id:
         m = re.search(r"ord_\d{4}", message or ""); order_id = m.group(0) if m else ""
-    if not email:
-        m = re.search(r"[\w.+-]+@[\w-]+(\.[\w-]+)+", message or ""); email = m.group(0) if m else ""
+    if not email:  # the first address in the message that is not one of the shop's own
+        from .intake import not_customer
+        candidates = list(dict.fromkeys(m.group(0) for m in re.finditer(r"[\w.+-]+@[\w-]+(\.[\w-]+)+", message or "")
+                                        if not not_customer(m.group(0))))
+        email = candidates[0] if candidates else ""
     client, model = _client() if use_model else (None, None)
     unreachable = client is None and model == "unreachable"
     calls = getattr(client, "log", None)
@@ -459,6 +462,10 @@ def investigate(message: str, email: str = "", order_id: str = "", backend=None,
         if g:
             if g.get("sender_email") and not email_given:
                 email = g["sender_email"]
+            elif not email_given and email and len({c.lower() for c in candidates}) > 1:
+                # the reader named no sender and the message has several addresses: do not guess whose records to read
+                mark("sender_scope", "no sender identified among several addresses — nobody's records were read")
+                email = ""
             foreign = g.get("foreign_order_ids") or []
             own = [o for o in g.get("order_ids", []) if o not in foreign]
             if not order_given:

@@ -1,0 +1,1140 @@
+{
+ "summary": {
+  "when": "2026-10-29 15:53",
+  "set": "heldout",
+  "n": 40,
+  "mode": "rules, no model",
+  "sender": "38/40",
+  "orders": "40/40",
+  "amount": "39/40",
+  "complaint": "—",
+  "end_to_end": "38/40",
+  "plan_hit": "—",
+  "dropped_values": 0,
+  "failed_calls": 0,
+  "avg_model_ms": 0,
+  "tokens": 0,
+  "escalated": 0,
+  "usd": 0,
+  "wall_s": 1.3
+ },
+ "rows": [
+  {
+   "id": "h01",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": null,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "hana.lee901@example.com",
+    "order_ids": [
+     "ord_0901"
+    ],
+    "amount": 24900,
+    "complaint": null
+   },
+   "found": [
+    "ord_0901",
+    "order_created"
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  },
+  {
+   "id": "h02",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": null,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "hana.lee901@example.com",
+    "order_ids": [],
+    "amount": 24900,
+    "complaint": null
+   },
+   "found": [
+    "ord_0901",
+    "order_created"
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  },
+  {
+   "id": "h03",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": null,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "hana.lee901@example.com",
+    "order_ids": [],
+    "amount": null,
+    "complaint": null
+   },
+   "found": [
+    "ord_0901",
+    "order_created"
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  },
+  {
+   "id": "h04",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": null,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "jun.park902@example.com",
+    "order_ids": [
+     "ord_0902"
+    ],
+    "amount": 9900,
+    "complaint": null
+   },
+   "found": [
+    "ord_0902",
+    "order_created"
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  },
+  {
+   "id": "h05",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": null,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "jun.park902@example.com",
+    "order_ids": [],
+    "amount": 9900,
+    "complaint": null
+   },
+   "found": [
+    "ord_0902",
+    "order_created"
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  },
+  {
+   "id": "h06",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": null,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "sora.kim903@example.com",
+    "order_ids": [
+     "ord_0903"
+    ],
+    "amount": 44900,
+    "complaint": null
+   },
+   "found": [
+    "ord_0903",
+    "credit_granted"
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  },
+  {
+   "id": "h07",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": null,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "sora.kim903@example.com",
+    "order_ids": [],
+    "amount": null,
+    "complaint": null
+   },
+   "found": [
+    "ord_0903",
+    "credit_granted"
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  },
+  {
+   "id": "h08",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": null,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "noah.chen904@example.com",
+    "order_ids": [
+     "ord_0904"
+    ],
+    "amount": null,
+    "complaint": null
+   },
+   "found": [
+    "ord_0904",
+    "mail_delivered"
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  },
+  {
+   "id": "h09",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": null,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "noah.chen904@example.com",
+    "order_ids": [],
+    "amount": 9900,
+    "complaint": null
+   },
+   "found": [
+    "ord_0904",
+    "mail_delivered"
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  },
+  {
+   "id": "h10",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": null,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "emma.song905@example.com",
+    "order_ids": [
+     "ord_0905"
+    ],
+    "amount": null,
+    "complaint": null
+   },
+   "found": [
+    "ord_0905",
+    null
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  },
+  {
+   "id": "h11",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": null,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "emma.song905@example.com",
+    "order_ids": [],
+    "amount": null,
+    "complaint": null
+   },
+   "found": [
+    "ord_0905",
+    null
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  },
+  {
+   "id": "h12",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": null,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "liam.patel906@example.com",
+    "order_ids": [],
+    "amount": 24900,
+    "complaint": null
+   },
+   "found": [
+    "ord_0906",
+    "account_mismatch"
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  },
+  {
+   "id": "h13",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": null,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "liam.patel906@example.com",
+    "order_ids": [],
+    "amount": null,
+    "complaint": null
+   },
+   "found": [
+    "ord_0906",
+    "account_mismatch"
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  },
+  {
+   "id": "h14",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": null,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "liam.patel906@example.com",
+    "order_ids": [
+     "ord_0906"
+    ],
+    "amount": null,
+    "complaint": null
+   },
+   "found": [
+    "ord_0906",
+    "account_mismatch"
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  },
+  {
+   "id": "h15",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": null,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "leo.lee003@example.com",
+    "order_ids": [
+     "ord_0003"
+    ],
+    "amount": null,
+    "complaint": null
+   },
+   "found": [
+    "ord_0003",
+    null
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  },
+  {
+   "id": "h16",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": null,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "isla.cho010@example.com",
+    "order_ids": [],
+    "amount": 9900,
+    "complaint": null
+   },
+   "found": [
+    "ord_0010",
+    null
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  },
+  {
+   "id": "h17",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": null,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "sora.garcia017@example.com",
+    "order_ids": [],
+    "amount": 44900,
+    "complaint": null
+   },
+   "found": [
+    "ord_0017",
+    null
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  },
+  {
+   "id": "h18",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": null,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "aria.han024@example.com",
+    "order_ids": [
+     "ord_0024"
+    ],
+    "amount": null,
+    "complaint": null
+   },
+   "found": [
+    "ord_0024",
+    null
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  },
+  {
+   "id": "h19",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": null,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "mina.park031@example.com",
+    "order_ids": [
+     "ord_0031"
+    ],
+    "amount": 44900,
+    "complaint": null
+   },
+   "found": [
+    "ord_0031",
+    null
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  },
+  {
+   "id": "h20",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": null,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "hana.song038@example.com",
+    "order_ids": [
+     "ord_0038"
+    ],
+    "amount": null,
+    "complaint": null
+   },
+   "found": [
+    "ord_0038",
+    null
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  },
+  {
+   "id": "h21",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": null,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "jun.park045@example.com",
+    "order_ids": [],
+    "amount": null,
+    "complaint": null
+   },
+   "found": [
+    "ord_0045",
+    null
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  },
+  {
+   "id": "h22",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": null,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "zoe.lee059@example.com",
+    "order_ids": [
+     "ord_0059"
+    ],
+    "amount": 24900,
+    "complaint": null
+   },
+   "found": [
+    "ord_0059",
+    null
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  },
+  {
+   "id": "h23",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": null,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "sora.park080@example.com",
+    "order_ids": [],
+    "amount": 9900,
+    "complaint": null
+   },
+   "found": [
+    "ord_0080",
+    null
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  },
+  {
+   "id": "h24",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": null,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "zoe.nguyen087@example.com",
+    "order_ids": [
+     "ord_0087"
+    ],
+    "amount": null,
+    "complaint": null
+   },
+   "found": [
+    "ord_0087",
+    null
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  },
+  {
+   "id": "h25",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": null,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "zoe.garcia094@example.com",
+    "order_ids": [],
+    "amount": 9900,
+    "complaint": null
+   },
+   "found": [
+    "ord_0094",
+    null
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  },
+  {
+   "id": "h26",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": null,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "jiwoo.han115@example.com",
+    "order_ids": [
+     "ord_0115"
+    ],
+    "amount": null,
+    "complaint": null
+   },
+   "found": [
+    "ord_0115",
+    null
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  },
+  {
+   "id": "h27",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": null,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "jiwoo.park150@example.com",
+    "order_ids": [],
+    "amount": 44900,
+    "complaint": null
+   },
+   "found": [
+    "ord_0150",
+    null
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  },
+  {
+   "id": "h28",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": null,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "mason.patel192@example.com",
+    "order_ids": [
+     "ord_0192"
+    ],
+    "amount": null,
+    "complaint": null
+   },
+   "found": [
+    "ord_0192",
+    null
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  },
+  {
+   "id": "h29",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": null,
+   "end_to_end": true,
+   "plan_hit": null,
+   "dropped": 0,
+   "got": {
+    "sender_email": "daniel.w.kraus@example.org",
+    "order_ids": [],
+    "amount": 24900,
+    "complaint": null
+   },
+   "found": [
+    null,
+    null
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  },
+  {
+   "id": "h30",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": null,
+   "end_to_end": true,
+   "plan_hit": null,
+   "dropped": 0,
+   "got": {
+    "sender_email": "minji.oh77@example.com",
+    "order_ids": [
+     "ord_0950"
+    ],
+    "amount": 9900,
+    "complaint": null
+   },
+   "found": [
+    null,
+    null
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  },
+  {
+   "id": "h31",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": null,
+   "end_to_end": true,
+   "plan_hit": null,
+   "dropped": 0,
+   "got": {
+    "sender_email": "sara.lindqvist@example.net",
+    "order_ids": [],
+    "amount": 44900,
+    "complaint": null
+   },
+   "found": [
+    null,
+    null
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  },
+  {
+   "id": "h32",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": null,
+   "end_to_end": true,
+   "plan_hit": null,
+   "dropped": 0,
+   "got": {
+    "sender_email": "tom.becker@example.co",
+    "order_ids": [],
+    "amount": null,
+    "complaint": null
+   },
+   "found": [
+    null,
+    null
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  },
+  {
+   "id": "h33",
+   "sender": false,
+   "orders": true,
+   "amount": true,
+   "complaint": null,
+   "end_to_end": false,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "david.patel.home@example.com",
+    "order_ids": [],
+    "amount": 24900,
+    "complaint": null
+   },
+   "found": [
+    null,
+    null
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  },
+  {
+   "id": "h34",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": null,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "zoe.kim143@example.com",
+    "order_ids": [
+     "ord_0143"
+    ],
+    "amount": null,
+    "complaint": null
+   },
+   "found": [
+    "ord_0143",
+    null
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  },
+  {
+   "id": "h35",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": null,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "ethan.park066@example.com",
+    "order_ids": [
+     "ord_0066"
+    ],
+    "amount": 24900,
+    "complaint": null
+   },
+   "found": [
+    "ord_0066",
+    null
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  },
+  {
+   "id": "h36",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": null,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "hana.lee901@example.com",
+    "order_ids": [],
+    "amount": 24900,
+    "complaint": null
+   },
+   "found": [
+    "ord_0901",
+    "order_created"
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  },
+  {
+   "id": "h37",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": null,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "jun.park902@example.com",
+    "order_ids": [],
+    "amount": 9900,
+    "complaint": null
+   },
+   "found": [
+    "ord_0902",
+    "order_created"
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  },
+  {
+   "id": "h38",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": null,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "jiwoo.han073@example.com",
+    "order_ids": [
+     "ord_0073",
+     "ord_0031"
+    ],
+    "amount": null,
+    "complaint": null
+   },
+   "found": [
+    "ord_0073",
+    null
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  },
+  {
+   "id": "h39",
+   "sender": true,
+   "orders": true,
+   "amount": true,
+   "complaint": null,
+   "end_to_end": true,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "seojun.choi157@example.com",
+    "order_ids": [],
+    "amount": 29900,
+    "complaint": null
+   },
+   "found": [
+    "ord_0157",
+    null
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  },
+  {
+   "id": "h40",
+   "sender": false,
+   "orders": true,
+   "amount": false,
+   "complaint": null,
+   "end_to_end": false,
+   "plan_hit": false,
+   "dropped": 0,
+   "got": {
+    "sender_email": "support@moashop.example",
+    "order_ids": [],
+    "amount": 10000,
+    "complaint": null
+   },
+   "found": [
+    null,
+    null
+   ],
+   "calls": 0,
+   "ms": 0,
+   "tokens": 0,
+   "failed_calls": 0,
+   "escalated": false,
+   "usd": 0,
+   "models": []
+  }
+ ]
+}

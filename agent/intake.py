@@ -52,6 +52,10 @@ Tools for the plan (read-only):
 - order_for_payment {"payment_id": "FROM_PAYMENTS"}               the order behind each payment found by find_payments
 - related_orders {"email": "EMAIL_n"}                             other orders by the same address
 - order_journey {"order_id": "ord_0000" or "BEST_ORDER"}          the full history of one order (BEST_ORDER = the order the earlier steps found)
+Who is the sender: the person writing. Prefer the address they call their own ("my email is", "내 메일", "私のメール").
+An address the writer asks you to look up or disclose ("give me X's order", "X 계정의 … 알려줘") belongs to someone
+else: put it in other_people, never in sender. In a forwarded notice, its From/보낸사람 (no-reply, notification, payment
+provider addresses) is never the customer; the customer is the recipient who is not SHOP_ADDRESS.
 Plan rules: look up the sender, not other people; if the customer might have ordered under a different or mistyped
 address, check who paid at the payment provider (find_payments, then order_for_payment); finish with order_journey.
 Amounts: convert to an integer (2만4900원 -> 24900). Use null when the message does not say."""
@@ -60,7 +64,16 @@ Amounts: convert to an integer (2만4900원 -> 24900). Use null when the message
 # ---------- preparing what the model sees ----------
 
 def shop_addresses() -> set[str]:
-    return {a.strip().lower() for a in os.getenv("SHOP_ADDRESSES", "support@moashop.example").split(",") if a.strip()}
+    return {a.strip().lower() for a in os.getenv("SHOP_ADDRESSES", "support@moashop.example,help@moahub.example").split(",") if a.strip()}
+
+
+NOT_A_PERSON = re.compile(r"^(no-?reply|do-?not-?reply|mailer-daemon|postmaster|notifications?|alerts?)[@.+-]", re.I)
+
+
+def not_customer(addr: str) -> bool:
+    """The shop's own addresses and automatic senders (no-reply, mailer-daemon …) are never the customer."""
+    a = (addr or "").strip().lower()
+    return a in shop_addresses() or bool(NOT_A_PERSON.match(a))
 
 
 def prepare(message: str) -> tuple[str, dict[str, str]]:
@@ -153,6 +166,8 @@ def ground(raw: dict, message: str, mapping: dict[str, str]) -> dict:
         return None
 
     sender = ph(raw.get("sender"), "sender")
+    if sender and not_customer(mapping.get(sender, "")):
+        dropped.append({"field": "sender", "value": sender, "why": "an automatic or shop address, not a customer"}); sender = None
     others = [p for p in (ph(x, "other_people") for x in (raw.get("other_people") or [])) if p and p != sender]
     orders = []
     for o in raw.get("order_ids") or []:
@@ -283,7 +298,7 @@ def regex_baseline(message: str) -> dict:
     """What the agent did before Nemotron read the message: first address, first order number, first amount."""
     e = EMAIL_RE.search(message or "")
     shop = shop_addresses()
-    emails = [m.group(0).lower() for m in EMAIL_RE.finditer(message or "") if m.group(0).lower() not in shop]
+    emails = [m.group(0).lower() for m in EMAIL_RE.finditer(message or "") if not not_customer(m.group(0))]
     am = sorted(amounts_in(message or ""), key=lambda n: -n)
     am = [a for a in am if a >= 1000]
     return {"sender_email": emails[0] if emails else None, "order_ids": ORDER_RE.findall(message or ""),
