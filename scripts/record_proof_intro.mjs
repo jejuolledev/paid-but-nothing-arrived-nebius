@@ -12,7 +12,7 @@ const [base = 'http://127.0.0.1:8765', out = 'docs/video/intro1', imgTrue, imgDo
 const ex = JSON.parse(fs.readFileSync('app/proof_examples/examples.json', 'utf8'));
 const pick = k => ex.find(e => e.kind === k);
 const T = imgTrue ? { file: imgTrue, message: pick('true').message } : { file: `app/proof_examples/${pick('true').id}.jpg`, message: pick('true').message };
-const FOLLOW = '아 죄송해요, 19일 새벽이었어요. 날짜를 잘못 말했네요.';
+const FOLLOW = '아 죄송해요, 19일 새벽이었어요. 카드 이용내역 캡처 보내요.';
 const D = imgDoc ? { file: imgDoc, message: pick('doctored').message } : { file: `app/proof_examples/${pick('doctored').id}.jpg`, message: pick('doctored').message };
 fs.mkdirSync(out, { recursive: true });
 const b = await chromium.launch();
@@ -41,7 +41,8 @@ for (const [k, shot] of [['true', T], ['doctored', D]]) {
     const box = await p.$('#follow-text');
     if (box) {
       await p.evaluate(e => e.scrollIntoView({ behavior: 'smooth', block: 'center' }), box); await p.waitForTimeout(900); mark('follow_box');
-      await p.type('#follow-text', FOLLOW, { delay: 22 }); await p.waitForTimeout(500); mark('follow_typed');
+      await p.type('#follow-text', FOLLOW, { delay: 22 });
+      await p.setInputFiles('#follow-photo', path.resolve('app/proof_examples/d05_statement.jpg')); await p.waitForTimeout(900); mark('follow_typed');
       await p.click('#follow-btn'); mark('follow_click');
       await p.waitForFunction(() => document.querySelector('.turn2'), null, { timeout: 300000 }); mark('follow_result');
       await p.evaluate(() => document.querySelector('.turn2').scrollIntoView({ behavior: 'smooth', block: 'start' })); await p.waitForTimeout(1200); mark('follow_turn2');

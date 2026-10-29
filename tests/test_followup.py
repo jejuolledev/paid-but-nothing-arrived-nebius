@@ -9,11 +9,24 @@ PREV_FIELDS = {"payment_found": True, "merchant": "MOAHUB", "amount": 9900, "cur
 PREV = {"message": "20일에 결제했어요 noah.chen904@example.com", "fields": PREV_FIELDS, "verdict": "no_matching_payment", "reply": "…"}
 
 
-def test_answer_with_the_real_day_finds_the_payment_and_runs_the_chain():
-    r = investigate_followup(PREV, "아 죄송해요, 19일 새벽이었어요. 캡처는 다른 앱에서 했어요.", use_model=False)
-    assert r["proof"]["verdict"] == "ledger_match" and r["order_id"] == "ord_0904" and r["broken"] == "mail_delivered"
+def test_words_alone_never_confirm_a_payment():
+    r = investigate_followup(PREV, "아 죄송해요, 19일 새벽이었어요. 날짜를 잘못 말했네요.", use_model=False)
+    # a payment like that exists, but only a screenshot of the statement line can confirm it
+    assert r["proof"]["verdict"] == "answer_matches" and r.get("order_id") is None and r["proof_blocks_fix"]
+    assert "MOAHUB" in r["customer_reply"] and "9,900" not in r["customer_reply"]
     assert r["followup"]["changed"] == [{"field": "date", "photo": "10-20", "now": "10-19"}]
     assert r["followup"]["before"]["verdict"] == "no_matching_payment"
+
+
+def test_a_new_screenshot_is_read_and_checked_like_the_first(monkeypatch):
+    seen = {}
+    def fake_proof(image, message, email="", backend=None, use_model=True, lang=""):
+        seen["message"] = message
+        return {"ok": True, "proof": {"verdict": "ledger_match"}, "customer_reply": "ok"}
+    monkeypatch.setattr("agent.proof.investigate_proof", fake_proof)
+    r = investigate_followup(PREV, "명세서 캡처예요", image=b"x", use_model=False)
+    assert r["followup"]["kind"] == "new screenshot" and r["followup"]["after"]["verdict"] == "ledger_match"
+    assert "명세서 캡처예요" in seen["message"] and "20일에 결제했어요" in seen["message"]
 
 
 def test_answer_that_changes_nothing_keeps_the_ledger_verdict():

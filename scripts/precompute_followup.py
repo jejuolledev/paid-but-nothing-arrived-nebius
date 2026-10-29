@@ -16,14 +16,15 @@ os.environ.setdefault("AGENT_LOOP", "0")
 from agent.followup import investigate_followup
 from agent import sql_backend
 
-TEXT = "아 죄송해요, 19일 새벽이었어요. 날짜를 잘못 말했네요."
+TEXT = "아 죄송해요, 19일 새벽이었어요. 카드 이용내역 캡처 보내요."
+IMAGE = (ROOT / "app/proof_examples/d05_statement.jpg").read_bytes()
 first = json.loads((ROOT / "data/precomputed/proof_d05.json").read_text())["result"]
 ex = next(e for e in json.loads((ROOT / "app/proof_examples/examples.json").read_text()) if e["id"] == "d05")
 prev = {"message": ex["message"], "fields": first["proof"]["fields"], "verdict": first["proof"]["verdict"],
         "reply": first.get("customer_reply"), "image_data_url": first["proof"].get("image_data_url")}
 sql_backend._CACHE.clear()
 t = time.time()
-r = investigate_followup(prev, TEXT)
+r = investigate_followup(prev, TEXT, image=IMAGE)
 calls = r.get("model_calls") or []
 bad = [c for c in calls if not c.get("ok")]
 commit = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
@@ -32,4 +33,4 @@ meta = {"recorded_at": datetime.now(timezone(timedelta(hours=9))).isoformat(time
         "wall_ms": int((time.time() - t) * 1000), "status": "ok" if calls and not bad else "MODEL CALL FAILED — rerun"}
 (ROOT / "data/precomputed/followup_d05_1.json").write_text(json.dumps({"meta": meta, "result": r}, ensure_ascii=False, indent=1, default=str))
 print(r["proof"]["verdict"], r.get("order_id"), r.get("broken"), meta["status"], meta["wall_ms"], "ms",
-      [(c["role"], c.get("model"), c.get("ms")) for c in calls], "\nreply:", r.get("customer_reply"), "\nread:", r["followup"].get("read"))
+      [(c["role"], c.get("model"), c.get("ms")) for c in calls], "\nreply:", r.get("customer_reply"), "\nread:", (r.get("proof") or {}).get("fields"))

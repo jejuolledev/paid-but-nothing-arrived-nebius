@@ -1,0 +1,48 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><style>/* Shared phone-screen base. All app styles are fictional. */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 390px; height: 844px; overflow: hidden; }
+body {
+  font-family: "Apple SD Gothic Neo", "Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif;
+  background: var(--bg); color: var(--fg);
+  -webkit-font-smoothing: antialiased;
+}
+body.ja { font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Apple SD Gothic Neo", sans-serif; }
+.sb { height: 44px; display: flex; justify-content: space-between; align-items: center;
+      padding: 0 26px 0 30px; font-size: 15px; font-weight: 600; color: var(--sbfg, var(--fg)); background: var(--sbbg, transparent); }
+.sb .r { display: flex; gap: 6px; align-items: center; font-size: 13px; }
+.batt { display: inline-block; width: 24px; height: 11px; border: 1.5px solid currentColor; border-radius: 3px; position: relative; }
+.batt i { position: absolute; left: 1px; top: 1px; bottom: 1px; background: currentColor; border-radius: 1px; }
+.bars { letter-spacing: -2px; }
+.home { position: absolute; bottom: 8px; left: 50%; width: 134px; height: 5px; margin-left: -67px; border-radius: 3px; background: var(--fg); opacity: .8; }
+.muted { color: var(--muted); }
+.num { font-variant-numeric: tabular-nums; }
+/* crude-edit look, applied only in the "edit" render of a doctored image */
+.edited.e1 { font-weight: 500 !important; font-size: 1.04em; letter-spacing: .2px; }
+.edited.e2 { font-family: "Helvetica Neue", Arial, sans-serif !important; letter-spacing: .4px; }
+.edited.e3 { font-size: .96em; position: relative; top: 1px; color: var(--edfg, inherit); }
+.edited.e4 { font-weight: 800 !important; letter-spacing: -.3px; }
+
+body { --bg:#eef0e8; --fg:#1d2117; --muted:#6c7360; --card:#fff; --acc:#5b6b2e; --line:#e3e6dc; }
+.top { padding:6px 20px 4px; } .top h1 { font-size:24px; font-weight:800; }
+.sub { padding:0 20px 10px; color:var(--muted); font-size:13px; }
+.sum { background:var(--card); margin:6px 14px 10px; border-radius:16px; padding:14px; }
+.sum .k { font-size:12px; color:var(--muted); } .sum .v { font-size:22px; font-weight:800; margin-top:4px; }
+.day { padding:10px 20px 4px; font-size:12px; color:var(--muted); font-weight:700; }
+.row { background:var(--card); margin:0 14px 6px; border-radius:12px; padding:11px 14px; display:flex; justify-content:space-between; align-items:center; }
+.row .m { font-size:15px; font-weight:600; } .row .s { font-size:12px; color:var(--muted); margin-top:3px; }
+.row .a { font-size:16px; font-weight:800; text-align:right; } .row .a small { display:block; font-size:11px; color:var(--muted); font-weight:500; }
+</style></head><body>
+<div class="sb"><span>08:12</span><span class="r"><span class="bars">▂▄▆█</span> LTE <span class="batt"><i style="width:64%"></i></span></span></div>
+<div class="top"><h1>이용내역</h1></div>
+<div class="sub">솔카드(1117) · 2026년 10월 · 승인 기준</div>
+<div class="sum"><div class="k">10월 이용 금액</div><div class="v">1,845,900원</div></div>
+<div class="day">10.19 (월)</div>
+<div class="row"><div><div class="m">동네마트 정자점</div><div class="s">09:25 · 일시불</div></div><div class="a">3,300원<small>승인</small></div></div>
+<div class="row"><div><div class="m">모아허브(MOAHUB)</div><div class="s">03:00 · 일시불</div></div><div class="a">9,900원<small>승인</small></div></div>
+<div class="day">10.18 (일)</div>
+<div class="row"><div><div class="m">바른가구</div><div class="s">17:27 · 할부 3개월</div></div><div class="a">129,000원<small>승인</small></div></div>
+<div class="row"><div><div class="m">편의점 하루</div><div class="s">08:40 · 일시불</div></div><div class="a">2,100원<small>승인</small></div></div>
+<div class="day">10.16 (금)</div>
+<div class="row"><div><div class="m">책방 들꽃</div><div class="s">20:17 · 일시불</div></div><div class="a">36,300원<small>승인</small></div></div>
+<div class="home"></div>
+</body></html>

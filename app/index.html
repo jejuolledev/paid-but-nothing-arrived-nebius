@@ -191,10 +191,12 @@ const I18N={
     followHint:'Paste the customer\'s answer to your reply (and a new screenshot if they sent one). The agent reads it, checks the ledger again and rewrites the reply.',
     followPh:'e.g. Sorry, it was the 19th, not the 20th. I took the screenshot in another app.',
     followBtn:'Check again with this answer',
+    followPhoto:'Their new screenshot, if they sent one (e.g. the card statement line): click to choose',
     followBusy:'Reading the answer and checking the ledger again…',
     turn2:'Turn 2: the customer answered',
     customerSaid:'Customer',
     readInAnswer:(m)=>'What '+m+' read in the answer',
+    readNewShot:(m)=>'What '+m+' read on the new screenshot',
     fromAnswer:'now looked for',
     verdictWas:'Before',verdictNow:'Now',
     replyBefore:'Your first reply',replyNow:'Rewritten reply',
@@ -208,7 +210,7 @@ const I18N={
     sentNote:(r,red)=>`Sent to the model: ${r}${red&&red.length?' ('+red.length+' line(s) blurred)':''}.`,
     recordsTitle:'This customer\'s records',
     otherRecords:'This customer\'s latest order (not matched to the screenshot)',
-    followHead:{ledger_match:'The payment the customer now describes is in the ledger.',no_matching_payment:'Still no payment like this in the ledger.',not_paid:'The payment was not completed.',unread:'Still not enough to check.'},
+    followHead:{answer_matches:'A payment like that is in the ledger, but words alone don\'t confirm it: asking for the card statement line.',ledger_match:'The statement screenshot matches a payment in the ledger.',no_matching_payment:'Still no payment like this in the ledger.',not_paid:'The payment was not completed.',unread:'Still not enough to check.'},
     proofHead:{ledger_match:'The payment on the screenshot is in the ledger.',no_matching_payment:'No payment like this in the ledger: same amount, but not at that time.',not_paid:'The screenshot itself shows the payment was not completed.',unread:'The screenshot could not be read well enough to check.'},
     ledgerWins:'The ledger decides, not the photo.',
     proofRulesOnly:x=>`Without Nemotron, free on-device OCR + payment-word rules would take ${(x.amount||0).toLocaleString('en-US')}원 as the payment: a different line on the screen.`,
@@ -313,10 +315,12 @@ const I18N={
     followHint:'보낸 답장에 손님이 한 대답을 붙여 넣으세요(새 캡처가 있으면 함께). 에이전트가 읽고 장부를 다시 확인한 뒤 답장을 고칩니다.',
     followPh:'예: 죄송해요, 20일이 아니라 19일이었어요. 캡처는 다른 앱에서 했어요.',
     followBtn:'이 대답으로 다시 확인',
+    followPhoto:'손님이 새 캡처를 보냈다면(예: 카드 명세서 줄) 눌러서 고르기',
     followBusy:'대답을 읽고 장부를 다시 확인하는 중…',
     turn2:'두 번째 턴: 손님이 답했습니다',
     customerSaid:'손님',
     readInAnswer:(m)=>'대답에서 읽은 것 ('+m+')',
+    readNewShot:(m)=>'새 캡처에서 읽은 것 ('+m+')',
     fromAnswer:'이제 찾는 값',
     verdictWas:'이전',verdictNow:'지금',
     replyBefore:'처음 답장',replyNow:'고친 답장',
@@ -330,7 +334,7 @@ const I18N={
     sentNote:(r,red)=>`모델에 보낸 사진: ${r}${red&&red.length?' ('+red.length+'줄 흐림 처리)':''}.`,
     recordsTitle:'이 고객의 기록',
     otherRecords:'이 고객의 최근 주문 (캡처와 맞지 않음)',
-    followHead:{ledger_match:'손님이 다시 말한 결제가 장부에 있습니다.',no_matching_payment:'여전히 장부에 그런 결제가 없습니다.',not_paid:'결제가 끝나지 않았습니다.',unread:'아직 확인할 만큼 정보가 없습니다.'},
+    followHead:{answer_matches:'그런 결제가 장부에 있지만 말만으로는 확인하지 않습니다: 카드 명세서 줄을 요청합니다.',ledger_match:'명세서 캡처가 장부의 결제와 일치합니다.',no_matching_payment:'여전히 장부에 그런 결제가 없습니다.',not_paid:'결제가 끝나지 않았습니다.',unread:'아직 확인할 만큼 정보가 없습니다.'},
     proofHead:{ledger_match:'캡처의 결제가 장부에 있습니다.',no_matching_payment:'장부에 이런 결제가 없습니다: 금액은 같지만 그 시각이 아닙니다.',not_paid:'캡처 자체가 결제 미완료를 보여 줍니다.',unread:'캡처를 확인할 만큼 읽지 못했습니다.'},
     ledgerWins:'판정은 사진이 아니라 장부가 합니다.',
     proofRulesOnly:x=>`Nemotron 없이 무료 기기 OCR + 결제 단어 규칙만 쓰면 ${(x.amount||0).toLocaleString('ko-KR')}원을 결제로 잡습니다: 화면의 다른 줄입니다.`,
@@ -381,7 +385,7 @@ const EXAMPLES={
   6:{label:'Two addresses: “my wife\'s is k.smith@…, I paid with liam.patel906@…”',send:'Hi, my wife\'s email is k.smith@example.org and she set up the account, but I paid 24,900 won with liam.patel906@example.com yesterday and the credits never came.'},
 };
 
-let lang='en', firstTurn=null, lastResult=null, lastFix=null, casesCache=[], cfg={}, lastCase=null, photo=null, photoExample=null, photoExamples=[];
+let lang='en', followPhoto=null, firstTurn=null, lastResult=null, lastFix=null, casesCache=[], cfg={}, lastCase=null, photo=null, photoExample=null, photoExamples=[];
 let howOpen=true, howSeenResult=false;
 
 function t(){return I18N[lang]||I18N.en;}
@@ -616,7 +620,7 @@ async function runProof(live){
       const txt=await res.text();lastResult=null;hideHowAfterResult();
       $('#out').innerHTML=`<div class="card"><div class="headline">${esc(txt.slice(0,200)||i.errHttp)}</div></div>`;$('#status').textContent='';return;
     }
-    const r=await res.json();lastResult=r;firstTurn={message,example:photoExample,r};
+    const r=await res.json();lastResult=r;firstTurn={message,example:photoExample,r};followPhoto=null;
     $('#status').textContent=statusLine(r);showReceipt(r);render(r);
   }catch(_){
     lastResult=null;hideHowAfterResult();
@@ -624,7 +628,7 @@ async function runProof(live){
   }finally{$('#go').disabled=false;}
 }
 
-const TOUR_FOLLOW='아 죄송해요, 19일 새벽이었어요. 날짜를 잘못 말했네요.';
+const TOUR_FOLLOW='아 죄송해요, 19일 새벽이었어요. 카드 이용내역 캡처 보내요.';
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 async function tour(){
   const e=photoExamples.find(x=>x.id==='d05');if(!e)return;
@@ -636,9 +640,17 @@ async function tour(){
     setPhoto(url,e.id);await runProof(false);
     await sleep(3500);
     const box=$('#follow-text');if(!box)return;
-    box.scrollIntoView({behavior:'smooth',block:'center'});box.value=TOUR_FOLLOW;await sleep(1200);
+    box.scrollIntoView({behavior:'smooth',block:'center'});box.value=TOUR_FOLLOW;
+    const sb=await (await fetch('/proof-examples/d05_statement.jpg')).blob();
+    followPhoto=await new Promise(res=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.readAsDataURL(sb);});
+    const im=$('#follow-prev');if(im){im.src=followPhoto;im.hidden=false;}await sleep(1200);
     await runFollowup();
   }finally{$('#tour-btn').disabled=false;}
+}
+
+function readFollowFile(file){
+  if(!file||!/^image\//.test(file.type))return;
+  const fr=new FileReader();fr.onload=()=>{followPhoto=fr.result;const im=$('#follow-prev');if(im){im.src=followPhoto;im.hidden=false;}};fr.readAsDataURL(file);
 }
 
 async function runFollowup(){
@@ -647,7 +659,7 @@ async function runFollowup(){
   const r0=firstTurn.r,p0=r0.proof||{};
   const btn=$('#follow-btn');if(btn)btn.disabled=true;$('#status').textContent=i.followBusy;
   try{
-    const body={text,lang,example:firstTurn.example&&!firstTurn.live?firstTurn.example+'_1':'',prev:{message:firstTurn.message,fields:p0.fields||{},verdict:p0.verdict,reply:r0.customer_reply,image_data_url:p0.image_data_url||''}};
+    const body={text,lang,image:followPhoto||'',example:firstTurn.example&&!firstTurn.live?firstTurn.example+'_1':'',prev:{message:firstTurn.message,fields:p0.fields||{},verdict:p0.verdict,reply:r0.customer_reply,image_data_url:p0.image_data_url||''}};
     const res=await fetch('/api/followup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
     if(!res.ok){$('#status').textContent=(await res.text()).slice(0,200);return;}
     const r=await res.json();lastResult=r;
@@ -762,6 +774,7 @@ function renderFollowCard(r){
   const i=t();if(!r.proof||r.followup||!firstTurn)return'';
   return `<div class="card follow"><h2>${esc(i.followTitle)}</h2><p class="hint" style="margin-top:0">${esc(i.followHint)}</p>
     <textarea id="follow-text" rows="2" placeholder="${esc(i.followPh)}"></textarea>
+    <label class="drop-zone" style="margin-top:6px"><input type="file" id="follow-photo" accept="image/png,image/jpeg,image/webp" hidden><span>${esc(i.followPhoto)}</span><img id="follow-prev" alt="" ${followPhoto?'':'hidden'} src="${esc(followPhoto||'')}"></label>
     <div style="margin-top:8px"><button type="button" id="follow-btn">${esc(i.followBtn)}</button></div></div>`;
 }
 
@@ -774,7 +787,7 @@ function renderTurn2(r){
   const head=(v,after)=>esc((((after?i.followHead:i.proofHead)||{})[v])||v||'—');
   return `<div class="card turn2"><h2>${esc(i.turn2)}</h2>
     <p class="said"><b>${esc(i.customerSaid)}:</b> ${esc(f.text)}</p>
-    ${f.kind==='message'?`<p class="mut" style="margin:6px 0 2px">${esc(i.readInAnswer(rd.model?prettyModel(rd.model):(rd.reader||'—')))}</p><ul>${ch||'<li class="mut">—</li>'}</ul>`:''}
+    ${f.kind!=='message'?(()=>{const pf=(r.proof||{}).fields||{};return `<p class="mut" style="margin:6px 0 2px">${esc(i.readNewShot(prettyModel(((r.proof||{}).reader||{}).model||'')))}</p><ul><li><b>${esc((pf.amount!=null?pf.amount.toLocaleString('en-US')+'원':'—')+' · '+[pf.date,pf.time].filter(Boolean).join(' '))}</b>${pf.merchant?' · '+esc(pf.merchant):''}</li></ul>`;})():''}${f.kind==='message'?`<p class="mut" style="margin:6px 0 2px">${esc(i.readInAnswer(rd.model?prettyModel(rd.model):(rd.reader||'—')))}</p><ul>${ch||'<li class="mut">—</li>'}</ul>`:''}
     <div class="two" style="margin-top:8px"><div><p class="mut" style="margin:0">${esc(i.verdictWas)}</p><p class="verdict bad" style="font-size:18px">${head(f.before.verdict)}</p></div>
       <div><p class="mut" style="margin:0">${esc(i.verdictNow)}</p><p class="verdict ${f.after.verdict==='ledger_match'?'ok':'bad'}" style="font-size:18px">${head(f.after.verdict,true)}</p></div></div>
     <details><summary style="font-size:15px">${esc(i.replyBefore)}</summary><div class="prose mut">${esc(f.before.reply||'')}</div></details></div>`;
@@ -799,7 +812,10 @@ function render(r, opts){
   const afterFix=!!(opts&&opts.afterFix)||!!lastFix;
   hideHowAfterResult();
   if(!r.ok){
-    $('#out').innerHTML=`${renderBanner(r)}${renderTurn2(r)}${renderProof(r)}${renderFixCard()}<div class="card"><div class="headline">${esc(trHeadline(r.headline))}</div><p class="hint">${esc(i.noOrderHint)}</p></div>${renderCalls(r)}`;
+    const replyBox=r.customer_reply?`<div class="two"><div class="card"><div class="card-head"><h2>${esc(r.followup?i.replyNow:i.reply)}</h2></div><div class="prose" id="reply-text">${esc(r.customer_reply)}</div></div><div class="card"><div class="card-head"><h2>${esc(i.fix)} <span class="tag ok">${esc(i.noFixNeeded)}</span></h2></div><div class="prose">${esc(r.fix_action||'')}</div></div></div>`:'';
+    $('#out').innerHTML=`${renderBanner(r)}${renderTurn2(r)}${renderProof(r)}${renderFixCard()}${r.proof?replyBox:`<div class="card"><div class="headline">${esc(trHeadline(r.headline))}</div><p class="hint">${esc(i.noOrderHint)}</p></div>`}${renderFollowCard(r)}${renderCalls(r)}`;
+    const fb0=$('#follow-btn');if(fb0)fb0.onclick=()=>runFollowup();
+    const fp0=$('#follow-photo');if(fp0)fp0.onchange=()=>readFollowFile(fp0.files[0]);
     if(scroll)$('#out').scrollIntoView({behavior:'smooth',block:'start'});
     return;
   }
@@ -846,6 +862,7 @@ function render(r, opts){
     try{await navigator.clipboard.writeText(r.customer_reply);copyBtn.textContent=t().copied;setTimeout(()=>copyBtn.textContent=t().copy,1500);}catch(_){}
   };
   const fb=$('#follow-btn');if(fb)fb.onclick=()=>runFollowup();
+  const fp=$('#follow-photo');if(fp)fp.onchange=()=>readFollowFile(fp.files[0]);
   const evBtn=$('#evidence-btn');
   if(evBtn)evBtn.onclick=()=>evidence();
   const lv=$('#run-live');

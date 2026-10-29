@@ -209,6 +209,8 @@ def proof_examples():
 @app.get("/proof-examples/{name}")
 def proof_example_image(name: str):
     e = next((x for x in _examples() if f"{x['id']}.jpg" == name), None)
+    if not e and name == "d05_statement.jpg":   # the follow-up screenshot in "See it in 30 seconds"
+        return FileResponse(EXAMPLES / name, media_type="image/jpeg")
     if not e:
         return PlainTextResponse("not found", status_code=404)
     return FileResponse(EXAMPLES / f"{e['id']}.jpg", media_type="image/jpeg")

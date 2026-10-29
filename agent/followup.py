@@ -149,11 +149,18 @@ def merge(prev: dict, read: dict) -> tuple[dict, list]:
     return f, changed
 
 
+def statement_request(lang: str) -> str:
+    return {"ko": "알려 주셔서 감사합니다. 확인을 마치려면 카드 앱이나 명세서에서 MOAHUB 결제 줄을 캡처해 보내 주세요. 확인되기 전에는 아무것도 바꾸지 않겠습니다.",
+            "ja": "ありがとうございます。確認のため、カードアプリまたは明細の MOAHUB のお支払いの行をスクリーンショットでお送りください。確認できるまで何も変更いたしません。",
+            "en": "Thank you. To finish checking, could you send a screenshot of the MOAHUB line in your card app or statement? "
+                  "I won't change anything until we have matched it."}.get(lang, "")
+
+
 def investigate_followup(prev: dict, text: str, email: str = "", image: bytes | None = None, backend=None,
                          use_model: bool = True, lang: str = "") -> dict:
     """prev = {"message", "fields", "verdict", "reply"} of the first turn (the page sends it back)."""
     from .proof import investigate_proof, sender_from, decide, proof_reply, VERDICT_HEAD, _mask_addr
-    from .investigator import investigate, _client
+    from .investigator import _client
     from .sql_backend import get_backend
     from .tools import Tools
     t0 = time.time()
@@ -176,32 +183,35 @@ def investigate_followup(prev: dict, text: str, email: str = "", image: bytes | 
     tools = Tools(db)
     payments = tools.find_payments(sender) if sender else []
     d = decide(fields, payments)
-    order_id = ""
-    if d["matched"]:
-        rows = tools.order_for_payment(d["matched"].split(":", 1)[1])
-        order_id = rows[0]["order_id"] if rows else ""
-    if sender and order_id and d["verdict"] == "ledger_match":
-        r = investigate(thread, sender, order_id, backend=db, use_model=use_model, lang=lang)
-    else:
-        r = {"ok": False, "headline": d["headline"]}
-        nearest = next((p for p in payments if p.get("ref") == d["nearest"]), None)
-        if client is not None and hasattr(client, "log"):
-            del client.log[:]
-        reply, rinfo = proof_reply(client, fields, d, nearest, lang)
-        r["customer_reply"], r["reply_info"] = reply, rinfo
-        r["model_calls"] = list(getattr(client, "log", None) or [])
-        r["fix_action"] = "Nothing to fix yet: the customer's details still do not match a payment."
-        r["proof_blocks_fix"] = True
+    verdict = d["verdict"]
+    if verdict == "ledger_match":
+        # Words alone never confirm a payment: the screenshot still shows the old values. The answer only tells the
+        # agent what to look for; a payment like that exists, so the reply asks for the card-statement line.
+        verdict = "answer_matches"
+        d["headline"] = ("A payment like the one the customer now describes is in the ledger, but their screenshot still "
+                         "shows something else. Ask for the card-statement line before changing anything.")
+        d["notes"].append("Words alone do not confirm a payment; a screenshot of the card statement line will be checked the same way.")
+    r = {"ok": False, "headline": d["headline"]}
+    nearest = next((p for p in payments if p.get("ref") == d["nearest"]), None)
+    if client is not None and hasattr(client, "log"):
+        del client.log[:]
+    reply, rinfo = (statement_request(lang), {"source": "template", "why": "words alone do not confirm a payment"}) \
+        if verdict == "answer_matches" else proof_reply(client, fields, d, nearest, lang)
+    r["customer_reply"], r["reply_info"] = reply, rinfo
+    r["model_calls"] = list(getattr(client, "log", None) or [])
+    r["fix_action"] = ("Nothing to fix yet: wait for the card-statement line." if verdict == "answer_matches"
+                   else "Nothing to fix yet: the customer's details still do not match a payment.")
+    r["proof_blocks_fix"] = True
     r["model_calls"] = calls + list(r.get("model_calls") or [])
     r["proof"] = {"fields": fields, "reader": {"reader": rd.get("reader"), "model": rd.get("model"), "ok": rd.get("ok"),
                                                "error": rd.get("error")},
                   "image": {"redaction": "no new photo: the first photo's reading plus the customer's follow-up"},
-                  "sender": _mask_addr(sender) if sender else None, "verdict": d["verdict"],
+                  "sender": _mask_addr(sender) if sender else None, "verdict": verdict,
                   "headline": d["headline"] or VERDICT_HEAD.get(d["verdict"]), "comparison": d["comparison"],
                   "notes": d["notes"], "matched": d["matched"], "highlights": [], "highlight_source": None,
                   "image_data_url": prev.get("image_data_url") or ""}
     r["followup"] = {"turn": 2, "text": text, "kind": "message", "read": rd.get("read"), "dropped": rd.get("dropped"),
                      "changed": changed, "before": before,
-                     "after": {"verdict": d["verdict"], "reply": r.get("customer_reply")}}
+                     "after": {"verdict": verdict, "reply": r.get("customer_reply")}}
     r["proof_elapsed_ms"] = int((time.time() - t0) * 1000)
     return r

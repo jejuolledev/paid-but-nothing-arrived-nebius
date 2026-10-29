@@ -71,7 +71,7 @@ def main():
             e2e = not r.get("ok")
         else:
             e2e = r.get("ok") and r.get("order_id") == g["target_order"] and r.get("broken") == g["expected_broken"]
-        plan_hit = any(t["step"] == "plan" and f"reached {g['target_order']}" in t["detail"] for t in r.get("trace", [])) if g["target_order"] else None
+        plan_hit = any(t["step"] in ("plan", "agent_loop") and (f"reached {g['target_order']}" in t["detail"] or f"named {g['target_order']}" in t["detail"]) for t in r.get("trace", [])) if g["target_order"] else None
         calls = r.get("model_calls") or []
         row = {"id": it["id"], "sender": got["sender_email"] == (g["sender_email"] or None),
                "orders": got["order_ids"] == g["order_ids"],
@@ -91,6 +91,8 @@ def main():
     label = (f"model {model_for('intake')} (Ultra re-read when unsure: {model_for('escalate')})" if os.getenv("LLM_ESCALATE", "1") != "0" else f"model {model_for('intake')}") if a.mode == "model" else "rules, no model"
     if os.getenv("LLM_FAKE") == "1":
         label = "FAKE dry run (not a model)"
+    if os.getenv("AGENT_MODE") == "loop" and a.mode == "model":
+        label += " + turn-by-turn lookups (agent_loop, the model picks each lookup)"
     summary = {"when": time.strftime("%Y-%m-%d %H:%M"), "set": a.set, "n": n, "mode": label,
                "sender": pct("sender"), "orders": pct("orders"), "amount": pct("amount"), "complaint": pct("complaint"),
                "end_to_end": pct("end_to_end"), "plan_hit": pct("plan_hit") if a.mode == "model" else "—",

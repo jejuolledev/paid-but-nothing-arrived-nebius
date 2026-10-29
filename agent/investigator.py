@@ -441,7 +441,7 @@ def _order_belongs(tools, order_id: str, email: str) -> bool:
 
 
 def investigate(message: str, email: str = "", order_id: str = "", backend=None, use_model: bool = True, lang: str = "",
-                first_address_rule: bool = False) -> dict:
+                first_address_rule: bool = False, mode: str = "") -> dict:
     """first_address_rule=True reproduces the old regex baseline (first address in the message is the sender); it is
     used only to measure and to show "what the rules alone would have found" to the seller. Otherwise a message with
     several customer addresses and no sender named by the reader reads nobody's records."""
@@ -511,7 +511,9 @@ def investigate(message: str, email: str = "", order_id: str = "", backend=None,
     steps, loop_finding = [], ""
     target = None
     # 1. the model's plan, run through the sender-scoped read-only tools
-    if intake and intake.get("ok") and email and intake["grounded"].get("plan"):
+    # mode "loop": skip the reader's fixed plan and let the model choose each lookup turn by turn (agent_loop)
+    loop_mode = (mode or os.getenv("AGENT_MODE", "")) == "loop"
+    if intake and intake.get("ok") and email and intake["grounded"].get("plan") and not loop_mode:
         from .agent_loop import Scope
         from .intake import execute_plan
         scope = Scope(email, tools, seed_order=order_id or "")
@@ -526,7 +528,7 @@ def investigate(message: str, email: str = "", order_id: str = "", backend=None,
             mark("plan", f"plan stopped early; picked {target['order_id']} from the orders it found")
     # 1a. no plan result: the model decides lookups turn by turn (tools are read-only and scoped to the
     #     sender's own trail; ids are validated). If the seller pasted an order id, the sender is that order's address.
-    if target is None and client and (email or order_id) and os.getenv("AGENT_LOOP", "1") != "0":
+    if target is None and client and (email or order_id) and (loop_mode or os.getenv("AGENT_LOOP", "1") != "0"):
         try:
             from .agent_loop import investigate_loop
             seed = ""
