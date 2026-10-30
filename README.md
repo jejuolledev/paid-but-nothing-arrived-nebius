@@ -28,7 +28,7 @@ time, tokens and cost.
 **All data is synthetic** (an invented shop, `@example.com` customers, public test card numbers, rendered phone screens).
 We have not measured real customer photos yet.
 
-**Watch (under 3 min):** VIDEO_URL
+**Watch (under 3 min):** https://youtu.be/aqlutjsp7KU
 
 Track: **Best Apps and Agents** · Team: MoaHub (solo, Korea) · License: MIT
 
